@@ -1,0 +1,211 @@
+文档名称：业务规则 + 状态流转
+版本：V1.1（修正版）
+适用阶段：首期微信小程序 MVP
+
+1. 总原则
+
+1）核心业务以小程序用户主流程为中心。
+2）只有主流程中需要的状态才进入首期。
+3）所有状态都必须可解释、可回退、可追溯。
+4）关键对象进入下一步必须满足前置条件。
+
+2. 需求对象规则
+
+对象：buyer_intakes
+状态：
+draft：草稿
+submitted：已提交可参与推荐
+archived：归档
+
+规则：
+1）用户首次输入需求但未保存时，不落正式状态。
+2）点击“保存并继续”后进入 submitted。
+3）归档后不参与新的候选计算。
+
+允许流转：
+draft -> submitted
+submitted -> archived
+
+3. 房源导入规则
+
+对象：listing_import_jobs
+状态：
+pending：处理中
+success：导入成功
+failed：导入失败
+
+规则：
+1）导入任务成功后必须产生至少 1 条 listings 记录。
+2）导入失败必须保留失败原因。
+3）失败后允许重试，不覆盖原始任务记录。
+
+允许流转：
+pending -> success
+pending -> failed
+
+4. 房源对象规则
+
+对象：listings
+状态：
+active：可用
+archived：归档
+deleted：逻辑删除
+
+规则：
+1）active 才能加入比较。
+2）deleted 不可参与任何新流程。
+3）字段缺失不阻止 active，但必须在前台显式提示。
+
+允许流转：
+active -> archived
+archived -> active
+active -> deleted
+
+5. 比较规则
+
+对象：comparison_reports
+
+基础规则：
+1）比较对象最少 2 套，最多 5 套。
+2）所有比较房源必须属于当前用户可访问范围。
+3）已删除房源不可加入比较。
+4）比较结果必须显示缺失字段。
+5）比较结论必须基于当前需求对象生成。
+
+状态：
+generated：已生成
+sent：已发送
+archived：归档
+
+允许流转：
+generated -> sent
+generated -> archived
+sent -> archived
+
+进入比较前置条件：
+1）用户已登录
+2）当前有效需求已提交
+3）已选择 2~5 套 active 房源
+
+6. 风险确认规则
+
+对象：risk_checks
+
+风险等级：
+low：低风险
+medium：中风险
+high：高风险
+
+核心规则：
+1）字段缺失时，必须提示“信息不完整，结论可信度下降”。
+2）字段冲突时，必须提示“信息不一致待确认”。
+3）价格异常时，必须提示“价格异常待确认”。
+4）总成本压力过高时，必须提示“成本压力偏高”。
+5）高风险命中时，必须提供人工复核动作。
+6）风险结论属于辅助判断，不构成法律/贷款/税务正式结论。
+
+触发人工复核的最小条件：
+1）risk_level = high
+或
+2）risk_rules_hit_json 中包含 manual_review_required = true
+或
+3）用户主动点击“请求人工复核”
+
+7. 下一步动作规则
+
+对象：next_actions
+动作类型：
+consult：咨询顾问
+appointment：预约带看
+send_report：发送报告
+manual_review：人工复核
+save_for_later：稍后继续
+
+动作状态：
+submitted：已提交
+pending：待处理
+processing：处理中
+done：完成
+cancelled：取消
+failed：失败
+
+动作进入前置条件：
+1）用户已登录
+2）当前对象存在（比较或风险确认或需求）
+3）必要参数完整
+
+动作级规则：
+A. consult
+可直接从比较页或风险确认页发起。
+提交后必须生成顾问线索。
+
+B. appointment
+需至少有房源对象或比较对象。
+提交后进入后台待确认。
+
+C. send_report
+必须已有 comparison_reports。
+发送失败可重试。
+
+D. manual_review
+可由高风险自动推荐，也可由用户主动发起。
+
+E. save_for_later
+保存当前需求、房源、比较、风险上下文，便于小程序继续上次进度。
+
+8. 预约规则
+
+对象：appointments
+状态：
+pending_confirmed：待确认
+confirmed：已确认
+cancelled：已取消
+completed：已完成
+
+流转：
+pending_confirmed -> confirmed
+pending_confirmed -> cancelled
+confirmed -> completed
+confirmed -> cancelled
+
+9. 顾问线索规则
+
+对象：advisor_leads
+状态：
+new：新线索
+in_progress：跟进中
+pending_confirmed：待确认
+booked：已预约
+completed：已完成
+closed：已关闭
+
+规则：
+1）用户发起 consult、appointment、manual_review 后可创建 lead。
+2）后台必须能从 lead 反查需求、房源、比较和风险结果。
+3）closed 代表线索结束，不再继续推进。
+
+10. 页面级进入条件
+
+首页：任何用户可进入
+需求录入：任何用户可进入，保存前如需要则引导登录
+房源导入：任何用户可进入，保存正式记录前如需要则引导登录
+候选页：有 submitted 需求对象
+详情页：有 listing_id
+比较页：至少 2 套 active 房源
+风险确认页：至少 1 套有效房源或 1 份比较
+下一步动作页：必须已有比较或风险确认结果之一
+我的空间：必须登录
+后台：必须为 advisor/admin
+
+11. 错误与兜底规则
+
+1）AI 失败时允许手动补全关键字段。
+2）导入失败时保留原始内容并提示重试。
+3）动作失败时必须保留失败记录。
+4）状态更新失败不得直接丢失原状态。
+5）关键操作都要写 activity_logs。
+
+12. 首期最小状态机原则
+
+首期只保留能支撑小程序 MVP 跑通的状态。
+不增加与当前主流程无关的复杂中间状态。

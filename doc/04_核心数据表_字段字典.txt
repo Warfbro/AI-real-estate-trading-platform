@@ -1,0 +1,252 @@
+文档名称：核心数据表 / 字段字典
+版本：V1.1（修正版）
+适用阶段：首期微信小程序 MVP
+
+1. 设计原则
+
+1）围绕“微信小程序用户主流程”建模
+2）原始内容与结构化结果同时保存
+3）比较结果、风险结果、动作记录必须落库
+4）支持小程序端继续上次进度
+5）支持后台承接线索
+
+2. 核心对象总览
+
+1）users 用户
+2）user_profiles 用户档案
+3）buyer_intakes 买房需求
+4）listing_import_jobs 房源导入任务
+5）listings 房源对象
+6）listing_versions 房源版本
+7）favorites 收藏
+8）comparison_reports 比较报告
+9）risk_checks 风险确认
+10）next_actions 下一步动作
+11）appointments 预约记录
+12）advisor_leads 顾问线索
+13）activity_logs 操作日志
+
+3. 字段字典
+
+3.1 users
+用途：系统用户基础身份
+字段：
+user_id：主键
+openid：微信 openid
+unionid：微信 unionid，可空
+mobile：手机号，可空
+email：邮箱，可空
+role：user/advisor/admin
+created_at：创建时间
+last_login_at：最后登录时间
+
+3.2 user_profiles
+用途：用户扩展信息
+字段：
+profile_id：主键
+user_id：关联 users
+nickname：昵称
+avatar_url：头像
+city_default：默认城市
+notes：备注
+updated_at：更新时间
+
+3.3 buyer_intakes
+用途：买房需求对象
+字段：
+intake_id：主键
+user_id：所属用户
+raw_text：原始自然语言需求
+city：城市
+budget_min：预算下限
+budget_max：预算上限
+area_min：面积下限，可空
+area_max：面积上限，可空
+layout_pref：户型偏好，可空
+region_pref：区域偏好 JSON
+usage_type：用途（自住/父母住/婚房/投资/改善）
+must_have：必须项 JSON
+cannot_accept：不能接受项 JSON
+max_concern：最大顾虑
+structured_json：完整结构化结果
+status：draft/submitted/archived
+created_at：创建时间
+updated_at：更新时间
+
+3.4 listing_import_jobs
+用途：记录一次导入行为
+字段：
+job_id：主键
+user_id：所属用户
+source_type：url/text/image
+source_value：原始输入（链接或文本摘要）
+raw_file_url：原始截图地址，可空
+status：pending/success/failed
+error_message：失败原因
+created_at：创建时间
+updated_at：更新时间
+
+3.5 listings
+用途：标准化房源对象
+字段：
+listing_id：主键
+user_id：所属用户
+job_id：来源导入任务
+source_platform：来源平台
+source_url：来源链接，可空
+title：标题
+city：城市
+district：区域
+plate：板块，可空
+community_name：小区名
+price_total：总价
+price_unit：单价，可空
+area_sqm：面积
+layout_desc：户型
+floor_info：楼层信息，可空
+orientation：朝向，可空
+year_built：建成年份，可空
+elevator_flag：是否有电梯，可空
+tags_json：标签 JSON
+raw_text：原始文本
+normalized_json：完整结构化结果
+confidence_json：字段置信度 JSON
+missing_fields_json：缺失字段 JSON
+status：active/archived/deleted
+created_at：创建时间
+updated_at：更新时间
+
+3.6 listing_versions
+用途：记录房源编辑历史
+字段：
+version_id：主键
+listing_id：关联 listings
+version_no：版本号
+edited_by：ai/user/admin
+before_json：修改前
+after_json：修改后
+created_at：创建时间
+
+3.7 favorites
+用途：收藏关系
+字段：
+favorite_id：主键
+user_id：用户
+listing_id：房源
+created_at：创建时间
+
+3.8 comparison_reports
+用途：比较结果与报告
+字段：
+comparison_id：主键
+user_id：用户
+intake_id：需求
+listing_ids_json：房源 ID 数组
+comparison_result_json：比较结构化结果
+report_text：用户可读报告
+status：generated/sent/archived
+created_at：创建时间
+updated_at：更新时间
+
+3.9 risk_checks
+用途：风险确认结果
+字段：
+risk_check_id：主键
+user_id：用户
+intake_id：需求
+listing_ids_json：参与风险确认的房源集合
+risk_level：low/medium/high
+risk_tags_json：风险标签
+risk_rules_hit_json：命中的规则
+risk_summary_text：用户可读摘要
+manual_review_required：是否需要人工复核
+created_at：创建时间
+updated_at：更新时间
+
+3.10 next_actions
+用途：下一步动作记录
+字段：
+action_id：主键
+user_id：用户
+intake_id：需求，可空
+comparison_id：比较，可空
+risk_check_id：风险确认，可空
+action_type：consult/appointment/send_report/manual_review/save_for_later
+status：submitted/pending/processing/done/cancelled/failed
+payload_json：动作参数
+result_json：处理结果
+created_at：创建时间
+updated_at：更新时间
+
+3.11 appointments
+用途：预约带看
+字段：
+appointment_id：主键
+action_id：来源动作
+user_id：用户
+preferred_time：期望时间
+status：pending_confirmed/confirmed/cancelled/completed
+advisor_id：顾问，可空
+notes：备注
+created_at：创建时间
+updated_at：更新时间
+
+3.12 advisor_leads
+用途：顾问承接线索
+字段：
+lead_id：主键
+user_id：用户
+advisor_id：顾问
+source_action_id：来源动作
+lead_type：consult/appointment/manual_review
+status：new/in_progress/pending_confirmed/booked/completed/closed
+summary_json：摘要
+updated_at：更新时间
+created_at：创建时间
+
+3.13 activity_logs
+用途：关键行为日志
+字段：
+log_id：主键
+actor_type：user/advisor/system
+actor_id：执行人
+action_type：动作类型
+object_type：作用对象
+object_id：对象 ID
+detail_json：详情
+created_at：创建时间
+
+4. 关键关系
+
+users 1 - n buyer_intakes
+users 1 - n listing_import_jobs
+users 1 - n listings
+users 1 - n comparison_reports
+users 1 - n risk_checks
+users 1 - n next_actions
+next_actions 1 - 0..1 appointments
+next_actions 1 - 0..1 advisor_leads
+
+5. 首期必须落库的对象
+
+必须落库：
+buyer_intakes
+listings
+comparison_reports
+risk_checks
+next_actions
+advisor_leads
+activity_logs
+
+可简化但建议落库：
+favorites
+appointments
+listing_versions
+
+6. 字段命名原则
+
+1）统一使用英文 snake_case
+2）所有对象都要有 created_at / updated_at
+3）结构化结果优先放 JSON 字段，便于首期快速迭代
+4）展示字段与计算字段分离
+5）所有状态字段必须在状态流转文档中有定义

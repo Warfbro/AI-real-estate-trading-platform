@@ -1,0 +1,178 @@
+文档名称：埋点清单 / 关键事件表
+版本：V1.1（修正版）
+适用阶段：首期微信小程序 MVP
+
+1. 埋点目标
+
+首期埋点的目的不是做大而全分析，而是回答三件事：
+1）用户是否能在小程序中完成核心闭环
+2）用户在哪一步流失最多
+3）比较和风险确认是否推动了下一步动作
+
+2. 公共属性
+
+所有事件建议带以下公共字段：
+user_id
+session_id
+page_name
+source_channel
+intake_id（如有）
+listing_id / listing_ids（如有）
+comparison_id（如有）
+risk_check_id（如有）
+timestamp
+
+3. 页面曝光事件
+
+EVT_PAGE_HOME_VIEW
+页面：首页
+目的：统计进入首页人数
+
+EVT_PAGE_INTAKE_VIEW
+页面：需求录入页
+目的：统计进入需求页人数
+
+EVT_PAGE_IMPORT_VIEW
+页面：房源导入页
+目的：统计导入入口曝光
+
+EVT_PAGE_CANDIDATE_VIEW
+页面：候选房源页
+目的：统计进入候选页人数
+
+EVT_PAGE_DETAIL_VIEW
+页面：房源详情页
+目的：统计详情查看
+
+EVT_PAGE_COMPARE_VIEW
+页面：房源比较页
+目的：统计进入比较页人数
+
+EVT_PAGE_RISK_VIEW
+页面：风险确认页
+目的：统计进入风险页人数
+
+EVT_PAGE_MY_VIEW
+页面：我的空间
+目的：统计历史数据查看率
+
+4. 核心动作事件
+
+EVT_INTAKE_SUBMIT
+动作：提交需求
+关键字段：city、budget_range、usage_type
+目的：衡量需求提交完成率
+
+EVT_INTAKE_EDIT
+动作：修改需求摘要
+目的：衡量需求理解是否准确
+
+EVT_IMPORT_SUBMIT
+动作：提交房源导入
+关键字段：source_type
+目的：衡量导入使用率
+
+EVT_IMPORT_SUCCESS
+动作：房源导入成功
+关键字段：source_type、platform
+目的：衡量导入成功率
+
+EVT_IMPORT_FAIL
+动作：房源导入失败
+关键字段：source_type、error_code
+目的：定位导入问题
+
+EVT_LISTING_FAVORITE
+动作：收藏房源
+目的：衡量用户兴趣
+
+EVT_ADD_TO_COMPARE
+动作：加入比较
+关键字段：listing_id
+目的：衡量比较意愿
+
+EVT_COMPARE_GENERATE
+动作：生成比较
+关键字段：listing_count
+目的：衡量比较闭环
+
+EVT_COMPARE_SAVE
+动作：保存比较
+目的：衡量结果沉淀
+
+EVT_RISK_GENERATE
+动作：生成风险确认
+关键字段：risk_level
+目的：衡量风险页使用率
+
+EVT_NEXT_ACTION_CLICK
+动作：点击下一步按钮
+关键字段：from_page
+目的：衡量推进意愿
+
+EVT_ACTION_CONSULT_SUBMIT
+动作：提交咨询顾问
+目的：衡量转化
+
+EVT_ACTION_APPOINTMENT_SUBMIT
+动作：提交预约带看
+目的：衡量转化
+
+EVT_ACTION_REPORT_SEND
+动作：发送比较报告
+目的：衡量报告使用率
+
+EVT_ACTION_MANUAL_REVIEW_SUBMIT
+动作：提交人工复核
+目的：衡量高风险用户推进情况
+
+EVT_ACTION_SAVE_FOR_LATER
+动作：稍后继续
+目的：衡量中断留存
+
+5. 后台承接事件
+
+EVT_LEAD_CREATED
+动作：创建线索
+目的：确认前台动作已被后台承接
+
+EVT_LEAD_STATUS_UPDATE
+动作：线索状态更新
+关键字段：from_status、to_status
+目的：衡量后台推进效率
+
+6. 流失点观察建议
+
+关键漏斗：
+首页曝光
+-> 需求提交
+-> 房源导入成功
+-> 生成比较
+-> 生成风险确认
+-> 提交咨询/预约/复核
+
+需要重点看：
+1）从需求提交到导入成功的掉落
+2）从加入比较到生成比较的掉落
+3）从风险确认到下一步动作的掉落
+
+7. 首期最低埋点要求
+
+必须实现：
+EVT_INTAKE_SUBMIT
+EVT_IMPORT_SUCCESS
+EVT_IMPORT_FAIL
+EVT_ADD_TO_COMPARE
+EVT_COMPARE_GENERATE
+EVT_RISK_GENERATE
+EVT_ACTION_CONSULT_SUBMIT
+EVT_ACTION_APPOINTMENT_SUBMIT
+EVT_ACTION_MANUAL_REVIEW_SUBMIT
+EVT_ACTION_SAVE_FOR_LATER
+
+8. 事件命名原则
+
+1）统一使用 EVT_ 前缀
+2）动作命名尽量直观
+3）同类事件保持结构一致
+4）首期不要重复定义同义事件

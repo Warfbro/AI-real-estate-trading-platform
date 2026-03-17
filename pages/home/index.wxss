@@ -18,7 +18,6 @@
 }
 
 .search-bar-hover {
-  transform: translateY(-4rpx);
   box-shadow: 0 16rpx 40rpx rgba(0, 0, 0, 0.06);
 }
 
@@ -132,7 +131,6 @@
 }
 
 .card-hover {
-  transform: translateY(-4rpx) !important;
   box-shadow: 0 16rpx 40rpx rgba(0, 0, 0, 0.06) !important;
 }
 

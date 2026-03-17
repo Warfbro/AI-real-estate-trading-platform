@@ -76,6 +76,7 @@
 }
 
 .ai-btn-hover {
-  transform: translateX(-50%) translateY(-6rpx);
+  transform: translateX(-50%);
   box-shadow: 0 16rpx 32rpx rgba(92, 64, 51, 0.4);
+  opacity: 0.9;
 }

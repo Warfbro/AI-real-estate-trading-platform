@@ -36,7 +36,6 @@ page {
 }
 
 .card-hover {
-  transform: translateY(-4rpx) !important;
   box-shadow: 0 16rpx 40rpx rgba(0, 0, 0, 0.06) !important;
 }
 
@@ -69,9 +68,8 @@ page {
 }
 
 .btn-hover, .button-hover, .click-hover {
-  transform: translateY(-4rpx) !important;
   box-shadow: 0 16rpx 32rpx rgba(92, 64, 51, 0.25) !important;
-  opacity: 0.95 !important;
+  opacity: 0.85 !important;
 }
 
 .label {

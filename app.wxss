@@ -2,6 +2,8 @@ page {
   background: #F7F8FA;
   color: #333333;
   font-size: 28rpx;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 .page {
@@ -9,6 +11,8 @@ page {
   padding-bottom: calc(160rpx + env(safe-area-inset-bottom));
   min-height: 100vh;
   box-sizing: border-box;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 .title {
@@ -32,7 +36,7 @@ page {
   box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.03);
   border: 1rpx solid rgba(0, 0, 0, 0.02);
   margin-bottom: 32rpx;
-  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.5s ease;
+  transition: box-shadow 0.3s ease, opacity 0.3s ease;
 }
 
 .card-hover {
@@ -50,7 +54,7 @@ page {
   padding: 12rpx 0;
   border: none;
   box-shadow: 0 8rpx 24rpx rgba(92, 64, 51, 0.15);
-  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.5s ease;
+  transition: box-shadow 0.3s ease, opacity 0.3s ease;
 }
 
 .btn-secondary {
@@ -64,7 +68,7 @@ page {
   padding: 12rpx 0;
   border: none;
   box-shadow: 0 8rpx 24rpx rgba(228, 212, 200, 0.3);
-  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.5s ease;
+  transition: box-shadow 0.3s ease, opacity 0.3s ease;
 }
 
 .btn-hover, .button-hover, .click-hover {

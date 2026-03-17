@@ -59,7 +59,7 @@
   position: absolute;
   top: -40rpx;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateZ(0);
   width: 110rpx;
   height: 110rpx;
   border-radius: 50%;
@@ -72,11 +72,10 @@
   align-items: center;
   box-shadow: 0 8rpx 20rpx rgba(92, 64, 51, 0.3);
   border: 8rpx solid #F7F8FA;
-  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.5s ease;
+  transition: box-shadow 0.3s ease, opacity 0.3s ease;
 }
 
 .ai-btn-hover {
-  transform: translateX(-50%);
   box-shadow: 0 16rpx 32rpx rgba(92, 64, 51, 0.4);
   opacity: 0.9;
 }

@@ -1,5 +1,5 @@
 <view class="page">
-  <view class="search-bar" bindtap="handleSearch" hover-class="card-hover">
+  <view class="search-bar" bindtap="handleSearch" hover-class="search-bar-hover" hover-start-time="0" hover-stay-time="100">
     <icon class="search-icon" type="search" size="14" color="#999" />
     <view class="search-text">搜索感兴趣的房源或区域</view>
   </view>
@@ -9,7 +9,7 @@
     <scroll-view class="hot-scroll" scroll-x="true">
       <block wx:if="{{has_hot_listings}}">
         <block wx:for="{{hot_listings}}" wx:key="listing_id">
-          <view class="h-card card" bindtap="handleOpenListing" data-listing-id="{{item.listing_id}}" hover-class="card-hover">
+          <view class="h-card card" bindtap="handleOpenListing" data-listing-id="{{item.listing_id}}" hover-class="card-hover" hover-start-time="0" hover-stay-time="100">
             <image wx:if="{{item.cover_image_url}}" class="h-img" src="{{item.cover_image_url}}" mode="aspectFill"></image>
             <view wx:else class="h-img h-img-placeholder"></view>
             <view class="h-info">
@@ -33,7 +33,7 @@
     <view wx:if="{{guess_strategy_text}}" class="strategy-text">{{guess_strategy_text}}</view>
     <block wx:if="{{has_guess_listings}}">
       <block wx:for="{{guess_listings}}" wx:key="listing_id">
-        <view class="card property-item" bindtap="handleOpenListing" data-listing-id="{{item.listing_id}}" hover-class="card-hover">
+        <view class="card property-item" bindtap="handleOpenListing" data-listing-id="{{item.listing_id}}" hover-class="card-hover" hover-start-time="0" hover-stay-time="100">
           <image wx:if="{{item.cover_image_url}}" class="item-img" src="{{item.cover_image_url}}" mode="aspectFill"></image>
           <view wx:else class="item-img item-img-placeholder"></view>
           <view class="item-info">

@@ -1,0 +1,12 @@
+.list-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  margin-bottom: 10rpx;
+}
+
+.row .btn-primary,
+.row .btn-secondary {
+  width: auto;
+  flex: 1;
+  margin-bottom: 0;
+}

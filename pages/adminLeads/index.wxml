@@ -1,0 +1,62 @@
+<view class="page">
+  <view class="title">后台线索列表</view>
+  <view class="subtitle">按状态/类型/风险/来源筛选并搜索线索，支持一键仅看人工复核。</view>
+
+  <view class="card">
+    <view class="label">状态筛选</view>
+    <picker mode="selector" range="{{status_labels}}" value="{{selected_status_index}}" bindchange="handleStatusChange">
+      <view class="picker">{{selected_status_label}}</view>
+    </picker>
+
+    <view class="label">线索类型筛选</view>
+    <picker mode="selector" range="{{lead_type_labels}}" value="{{selected_lead_type_index}}" bindchange="handleLeadTypeChange">
+      <view class="picker">{{selected_lead_type_label}}</view>
+    </picker>
+
+    <view class="label">风险等级筛选</view>
+    <picker mode="selector" range="{{risk_level_labels}}" value="{{selected_risk_level_index}}" bindchange="handleRiskLevelChange">
+      <view class="picker">{{selected_risk_level_label}}</view>
+    </picker>
+
+    <view class="label">来源页面筛选</view>
+    <picker mode="selector" range="{{source_page_labels}}" value="{{selected_source_page_index}}" bindchange="handleSourcePageChange">
+      <view class="picker">{{selected_source_page_label}}</view>
+    </picker>
+
+    <button class="btn-secondary quick-filter-btn" bindtap="handleQuickManualReview">{{quick_manual_button_text}}</button>
+    <view class="hint quick-filter-hint">当前人工复核线索数：{{manual_review_count}}</view>
+
+    <view class="label">搜索（用户 / 动作类型）</view>
+    <input class="input" value="{{search_keyword}}" placeholder="输入 user_id 或 consult/appointment/manual_review" bindinput="handleSearchInput" />
+
+    <button class="btn-secondary" bindtap="handleRefresh">刷新列表</button>
+  </view>
+
+  <view class="card" wx:if="{{has_lead_items}}">
+    <block wx:for="{{lead_items}}" wx:key="lead_id">
+      <view class="lead-item">
+        <view class="lead-title">{{item.display_lead_type}} ｜ {{item.display_status}}</view>
+        <view class="hint">lead_id：{{item.lead_id}}</view>
+        <view class="hint">user_id：{{item.display_user_id}}</view>
+        <view class="hint">action_type：{{item.display_action_type}}</view>
+        <view class="hint">action_status：{{item.display_action_status}}</view>
+        <view class="hint">action_result：{{item.display_action_result}}</view>
+        <view class="hint">risk_level：{{item.display_risk_level}}</view>
+        <view class="hint">source_page：{{item.display_source_page}}</view>
+        <view class="hint">note_preview：{{item.display_note_preview}}</view>
+        <view class="hint">note_updated_at：{{item.display_note_updated_at}}</view>
+        <view class="hint">note_updated_by：{{item.display_note_updated_by}}</view>
+        <view class="hint">trace：{{item.display_trace_line}}</view>
+        <view class="hint">listing_count：{{item.listing_count_text}}</view>
+        <view class="hint">context：{{item.context_line}}</view>
+        <view class="hint">updated_at：{{item.display_updated_at}}</view>
+        <button class="btn-primary" data-lead-id="{{item.lead_id}}" bindtap="handleOpenDetail">查看详情</button>
+      </view>
+    </block>
+  </view>
+
+  <view class="card" wx:else>
+    <view class="label">暂无线索</view>
+    <view class="hint">请先在前台提交咨询/预约/人工复核动作。</view>
+  </view>
+</view>

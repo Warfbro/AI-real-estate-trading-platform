@@ -1,0 +1,81 @@
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(100rpx + env(safe-area-inset-bottom));
+  background: white;
+  display: flex;
+  padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: 0 -4rpx 16rpx rgba(92, 64, 51, 0.05);
+  z-index: 1000;
+}
+
+.tab-bar-item {
+  flex: 1;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.icon {
+  width: 44rpx;
+  height: 44rpx;
+  margin-bottom: 4rpx;
+  background-color: #D1C5BD;
+  mask-size: cover;
+  -webkit-mask-size: cover;
+}
+
+.active .icon {
+  background-color: #5C4033;
+}
+
+/* 简单的 CSS 占位图标 */
+.home-icon {
+  border-radius: 6rpx;
+}
+.my-icon {
+  border-radius: 50%;
+}
+
+.text {
+  font-size: 20rpx;
+  color: #D1C5BD;
+}
+
+.active .text {
+  color: #5C4033;
+  font-weight: bold;
+}
+
+.ai-btn-wrapper {
+  position: relative;
+}
+
+.ai-button {
+  position: absolute;
+  top: -40rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 110rpx;
+  height: 110rpx;
+  border-radius: 50%;
+  background: #5C4033;
+  color: #F7F8FA;
+  font-size: 32rpx;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 8rpx 20rpx rgba(92, 64, 51, 0.3);
+  border: 8rpx solid #F7F8FA;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.5s ease;
+}
+
+.ai-btn-hover {
+  transform: translateX(-50%) translateY(-6rpx);
+  box-shadow: 0 16rpx 32rpx rgba(92, 64, 51, 0.4);
+}

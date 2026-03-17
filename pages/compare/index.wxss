@@ -1,0 +1,49 @@
+.matrix-row {
+  border: 2rpx solid #E4D4C8;
+  border-radius: 16rpx;
+  padding: 16rpx;
+  margin-bottom: 12rpx;
+}
+
+.matrix-row.highlight {
+  border-color: #5C4033;
+  background: #F6ECE2; /* Pale warm tone */
+}
+
+.matrix-label {
+  font-weight: bold;
+  color: #333333;
+  margin-bottom: 8rpx;
+}
+
+.matrix-cell {
+  font-size: 26rpx;
+  color: #5C4033;
+}
+
+.rank-item {
+  margin-bottom: 16rpx;
+  padding-bottom: 16rpx;
+  border-bottom: 2rpx solid #E4D4C8;
+}
+
+.rank-item:last-child {
+  border-bottom: none;
+}
+
+.rank-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  margin-bottom: 8rpx;
+}
+
+.space-top {
+  margin-top: 16rpx;
+}
+
+.row .btn-primary,
+.row .btn-secondary {
+  width: auto;
+  flex: 1;
+  margin-bottom: 0;
+}

@@ -1,0 +1,15 @@
+.hint {
+  display: block;
+  margin-top: 8rpx;
+  color: #8C7A6B;
+}
+
+.picker {
+  width: 100%;
+  border: 2rpx solid #E4D4C8;
+  border-radius: 16rpx;
+  background: #ffffff;
+  padding: 20rpx;
+  box-sizing: border-box;
+  color: #333333;
+}

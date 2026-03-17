@@ -1,0 +1,63 @@
+<view class="page">
+  <view class="title">我的空间</view>
+  <view class="subtitle">聚合查看 AI 咨询进度、传统搜索选择、比较报告和后续动作记录。</view>
+
+  <view class="card">
+    <view class="label">当前角色</view>
+    <view>{{role_text}}</view>
+  </view>
+
+  <view class="card">
+    <view class="label">最近继续</view>
+    <view class="hint">功能线：{{continue_lane_text}}</view>
+    <view class="hint">目标：{{recent_continue_label}}</view>
+    <view class="hint">路由：{{recent_continue_route}}</view>
+    <view class="hint">{{continue_hint_text}}</view>
+    <button class="btn-secondary btn-inline" bindtap="handleContinue">继续上次进度</button>
+  </view>
+
+  <view class="card">
+    <view class="label">我的数据概览</view>
+    <view class="stats-grid">
+      <view class="stat-item">
+        <view class="hint">我的需求</view>
+        <view class="stat-value">{{counts.intakes}}</view>
+      </view>
+      <view class="stat-item">
+        <view class="hint">我的房源</view>
+        <view class="stat-value">{{counts.listings}}</view>
+      </view>
+      <view class="stat-item">
+        <view class="hint">我的比较</view>
+        <view class="stat-value">{{counts.comparisons}}</view>
+      </view>
+      <view class="stat-item">
+        <view class="hint">我的报告</view>
+        <view class="stat-value">{{counts.reports}}</view>
+      </view>
+      <view class="stat-item">
+        <view class="hint">已发送报告</view>
+        <view class="stat-value">{{counts.reports_sent}}</view>
+      </view>
+      <view class="stat-item">
+        <view class="hint">预约 / 咨询</view>
+        <view class="stat-value">{{counts.appointment_consults}}</view>
+      </view>
+      <view class="stat-item">
+        <view class="hint">动作记录</view>
+        <view class="stat-value">{{counts.actions}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="label">最近记录</view>
+    <view class="hint">最近动作：{{latest_action_text}}</view>
+    <view class="hint">最近报告：{{latest_report_text}}</view>
+    <view class="hint">最近预约 / 咨询：{{latest_consult_appointment_text}}</view>
+  </view>
+
+  <button class="btn-secondary" wx:if="{{can_access_admin}}" bindtap="handleGoAdminLeads">
+    进入后台线索管理
+  </button>
+</view>

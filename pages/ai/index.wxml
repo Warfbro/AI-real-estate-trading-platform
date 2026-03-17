@@ -1,0 +1,64 @@
+<view class="page-container">
+  <view class="circle-anim-bg" wx:if="{{showAnim}}"></view>
+
+  <view class="chat-core" style="top: {{totalNavHeight}}px;">
+    <scroll-view class="chat-scroll" scroll-y scroll-into-view="{{scrollTo}}">
+      <view class="chat-list">
+        <view class="chat-msg ai-msg">
+          <view class="avatar">AI</view>
+          <view class="msg-bubble">您好！我是您的专属房产决策助手。请问您今天想聊点什么？咱们可以慢慢挑，不急。</view>
+        </view>
+      </view>
+    </scroll-view>
+
+    <view class="input-area {{showMorePanel ? 'has-panel' : ''}}">
+      <view class="input-row">
+        <input class="chat-input" placeholder="输入您的问题、需求或指令..." bindinput="onInput" />
+        <view class="add-btn" catchtap="toggleMorePanel">+</view>
+      </view>
+      <view class="more-panel" wx:if="{{showMorePanel}}">
+        <view class="panel-item" catchtap="handleImportImage"><view class="icon-box">相</view><text>导入图片</text></view>
+        <view class="panel-item" catchtap="handleViewFavorites"><view class="icon-box">❤</view><text>我的收藏</text></view>
+      </view>
+    </view>
+  </view>
+
+  <view class="chat-mask" wx:if="{{offset > -drawerHeight}}" 
+        style="top: {{totalNavHeight}}px; opacity: {{(offset + drawerHeight) / drawerHeight * 0.45}}; transition: {{isDragging ? 'none' : 'opacity 0.6s cubic-bezier(0.25, 1.05, 0.4, 1)'}}">
+  </view>
+
+  <!-- 将 padding-top 和 margin-top 的扩张策略移入以彻底解决下拉漏缝断带问题 -->
+  <view class="blind-drawer" 
+        style="top: {{totalNavHeight}}px; transform: translateY({{offset}}px); transition: {{isDragging ? 'none' : 'transform 0.6s cubic-bezier(0.25, 1.05, 0.4, 1)'}}">
+    
+    <view class="history-content" style="height: {{drawerHeight}}px;">
+      <view class="drawer-content-inner">
+        <view class="drawer-header-text">管理聊天记录</view>
+        <view class="drawer-btn" catchtap="handleNewChat">+ 创建新对话</view>
+        <scroll-view class="drawer-list" scroll-y>
+          <view class="drawer-item" wx:for="{{[1,2,3]}}" wx:key="*this">
+            <text class="drawer-time">最近动态</text>
+            <text class="drawer-desc">我的购房需求与记录梳理</text>
+          </view>
+        </scroll-view>
+      </view>
+    </view>
+
+    <view class="swipe-header {{dragDir}}" catchtouchstart="onTouchStart" catchtouchmove="onTouchMove" catchtouchend="onTouchEnd">
+       <text>{{ drawerState === 'closed' ? (dragDir === 'down' ? '松开展开记录' : '下滑查看聊天记录') : (dragDir === 'up' ? '松开收起' : '上滑收起展开栏') }}</text>
+       <view class="swipe-indicator"></view>
+    </view>
+  </view>
+
+  <!-- 封装独立的导航栏防干扰架构 -->
+  <view class="nav-bar-wrapper" style="height: {{totalNavHeight}}px;">
+    <view class="nav-bar-inner" style="margin-top: {{statusBarHeight}}px; height: {{navBarHeight}}px;">
+      <view class="nav-left" style="width: {{capWidth}}px;" catchtap="handleBack">
+        <text class="back-icon" wx:if="{{canBack}}">‹</text>
+        <text class="back-icon" style="font-size:32rpx;" wx:else>首页</text>
+      </view>
+      <view class="nav-title">AI 咨询</view>
+      <view class="nav-right" style="width: {{capWidth}}px;"></view>
+    </view>
+  </view>
+</view>

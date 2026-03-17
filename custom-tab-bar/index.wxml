@@ -1,0 +1,19 @@
+<view class="tab-bar">
+  <view class="tab-bar-border"></view>
+  
+  <view class="tab-bar-item {{selected === 0 ? 'active' : ''}}" data-index="0" bindtap="switchTab">
+    <view class="icon home-icon"></view>
+    <view class="text">首页</view>
+  </view>
+
+  <view class="tab-bar-item ai-btn-wrapper" bindtap="handleAI">
+    <view class="ai-button" hover-class="ai-btn-hover" hover-start-time="0" hover-stay-time="100">
+      AI
+    </view>
+  </view>
+
+  <view class="tab-bar-item {{selected === 1 ? 'active' : ''}}" data-index="1" bindtap="switchTab">
+    <view class="icon my-icon"></view>
+    <view class="text">我的</view>
+  </view>
+</view>

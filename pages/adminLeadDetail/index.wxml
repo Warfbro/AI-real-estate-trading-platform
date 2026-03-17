@@ -1,0 +1,81 @@
+<view class="page">
+  <view class="title">线索详情</view>
+  <view class="subtitle">查看上下文并更新状态（同时写入日志）。</view>
+
+  <block wx:if="{{has_lead}}">
+    <view class="card">
+      <view class="label">线索主信息</view>
+      <view class="hint">lead_id：{{lead.lead_id}}</view>
+      <view class="hint">user_id：{{lead.user_id}}</view>
+      <view class="hint">lead_type：{{lead.lead_type}}</view>
+      <view class="hint">action_type：{{action_type_text}}</view>
+      <view class="hint">action_status：{{action_status_text}}</view>
+      <view class="hint">action_result：{{action_result_text}}</view>
+      <view class="hint">attempt_no：{{action_attempt_no_text}}</view>
+      <view class="hint">retry_of_action_id：{{retry_of_action_id_text}}</view>
+      <view class="hint">trace：{{trace_line_text}}</view>
+      <view class="hint">当前状态：{{lead.status}}</view>
+      <view class="hint">updated_at：{{lead.updated_at}}</view>
+    </view>
+
+    <view class="card">
+      <view class="label">动作上下文反查</view>
+      <view class="hint">intake_id：{{intake_id_text}}</view>
+      <view class="hint">comparison_id：{{comparison_id_text}}</view>
+      <view class="hint">risk_check_id：{{risk_check_id_text}}</view>
+      <view class="hint">risk_level：{{risk_level_text}}</view>
+      <view class="hint">source_page：{{source_page_text}}</view>
+      <view class="hint">listing_ids：{{listing_ids_text}}</view>
+    </view>
+
+    <view class="card">
+      <view class="label">预约信息</view>
+      <view class="hint" wx:if="{{has_appointment}}">appointment_id：{{appointment_id_text}}</view>
+      <view class="hint" wx:if="{{has_appointment}}">appointment_status：{{appointment_status_text}}</view>
+      <view class="hint" wx:if="{{has_appointment}}">preferred_time：{{appointment_time_text}}</view>
+      <view class="hint" wx:else>当前线索无预约对象</view>
+    </view>
+
+    <view class="card">
+      <view class="label">状态更新</view>
+      <picker mode="selector" range="{{status_labels}}" value="{{selected_status_index}}" bindchange="handleStatusChange">
+        <view class="picker">{{selected_status_label}}</view>
+      </picker>
+      <button class="btn-primary" bindtap="handleUpdateStatus">提交状态更新</button>
+    </view>
+
+    <view class="card" wx:if="{{is_manual_review}}">
+      <view class="label">人工复核处理意见</view>
+      <textarea
+        class="textarea"
+        value="{{manual_review_note_input}}"
+        placeholder="输入本次人工复核处理意见，保存后可在日志回看"
+        bindinput="handleManualReviewNoteInput"
+      ></textarea>
+      <button class="btn-secondary" bindtap="handleSaveManualReviewNote">保存处理意见</button>
+      <view class="hint">最近处理意见：{{manual_review_note_saved_text}}</view>
+      <view class="hint">note_updated_at：{{manual_review_note_updated_at_text}}</view>
+      <view class="hint">note_updated_by：{{manual_review_note_updated_by_text}}</view>
+    </view>
+
+    <view class="card">
+      <view class="label">相关日志</view>
+      <block wx:if="{{has_logs}}">
+        <block wx:for="{{logs}}" wx:key="created_at">
+          <view class="log-item">
+            <view class="log-title">{{item.action_type}} ｜ {{item.object_type}}</view>
+            <view class="hint">object_id：{{item.object_id}}</view>
+            <view class="hint">detail：{{item.display_detail_text}}</view>
+            <view class="hint">created_at：{{item.created_at}}</view>
+          </view>
+        </block>
+      </block>
+      <view class="hint" wx:else>暂无相关日志</view>
+    </view>
+  </block>
+
+  <view class="card" wx:else>
+    <view class="label">未找到线索</view>
+    <view class="hint">请返回线索列表重新进入。</view>
+  </view>
+</view>

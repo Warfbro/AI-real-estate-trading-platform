@@ -1,0 +1,31 @@
+.stats-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.stat-item {
+  width: calc(50% - 8rpx);
+  background: #F7F8FA;
+  border-radius: 16rpx;
+  padding: 20rpx 16rpx;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 38rpx;
+  font-weight: bold;
+  color: #5C4033;
+  margin-bottom: 8rpx;
+}
+
+.btn-inline {
+  width: auto;
+  margin-top: 16rpx;
+  margin-bottom: 0;
+  padding: 0 32rpx;
+  border-radius: 999rpx;
+  background: #5C4033;
+  color: #ffffff;
+}

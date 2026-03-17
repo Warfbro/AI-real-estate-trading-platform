@@ -1,0 +1,73 @@
+<view class="page">
+  <view class="title">传统搜索</view>
+  <view class="subtitle">这里只负责筛选、看详情和勾选房源。后续比较、风险和动作由 AI 线路承接。</view>
+
+  <view class="card" wx:if="{{has_intake}}">
+    <view class="label">AI 偏好参考</view>
+    <view class="hint">城市：{{intake_city_text}} / 用途：{{intake_usage_text}}</view>
+    <view class="hint">预算：{{intake_budget_text}}</view>
+    <view class="hint">已选房源：{{selected_count_text}} 套</view>
+    <button class="btn-primary" bindtap="handleGoAI">交给 AI 分析</button>
+  </view>
+
+  <view class="card" wx:else>
+    <view class="label">独立搜索模式</view>
+    <view class="hint">当前没有 AI 需求上下文，你仍可直接筛选和勾选房源。</view>
+    <view class="hint">已选房源：{{selected_count_text}} 套</view>
+    <button class="btn-primary" bindtap="handleGoAI">交给 AI 分析</button>
+  </view>
+
+  <view class="card">
+    <view class="label">筛选条件</view>
+    <view class="row">
+      <input
+        class="input"
+        type="number"
+        placeholder="最低预算（万）"
+        value="{{filter_budget_min}}"
+        data-field="filter_budget_min"
+        bindinput="handleFilterInput"
+      />
+      <input
+        class="input"
+        type="number"
+        placeholder="最高预算（万）"
+        value="{{filter_budget_max}}"
+        data-field="filter_budget_max"
+        bindinput="handleFilterInput"
+      />
+    </view>
+    <input
+      class="input"
+      placeholder="关键词（标题 / 小区 / 区域）"
+      value="{{filter_keyword}}"
+      data-field="filter_keyword"
+      bindinput="handleFilterInput"
+    />
+    <view class="row">
+      <button class="btn-secondary" bindtap="handleResetFilters">重置</button>
+      <button class="btn-primary" bindtap="handleApplyFilters">应用筛选</button>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{show_empty_list}}">
+    <view class="label">{{empty_title}}</view>
+    <view class="hint">{{empty_desc}}</view>
+    <button class="btn-secondary" wx:if="{{!has_source_listings}}" bindtap="handleGoImport">去导入房源</button>
+  </view>
+
+  <block wx:for="{{listings}}" wx:key="listing_id">
+    <view class="card">
+      <view class="list-title">{{item.display_title}}</view>
+      <view class="hint">总价：{{item.display_price}} / 面积：{{item.display_area}}</view>
+      <view class="hint">城市：{{item.display_city}} / 小区：{{item.display_community}}</view>
+      <view class="hint">推荐参考：{{item.recommendation_reason}}</view>
+      <view class="row">
+        <button class="btn-secondary" data-listing-id="{{item.listing_id}}" bindtap="handleOpenDetail">查看详情</button>
+        <button class="btn-primary" data-listing-id="{{item.listing_id}}" bindtap="handleToggleCompare">
+          {{item.compare_button_text}}
+        </button>
+      </view>
+    </view>
+  </block>
+</view>

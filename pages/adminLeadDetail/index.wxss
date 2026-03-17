@@ -1,0 +1,22 @@
+.picker {
+  border: 1rpx solid #d1d5db;
+  border-radius: 12rpx;
+  padding: 18rpx;
+  margin-bottom: 16rpx;
+  color: #1f2937;
+}
+
+.log-item {
+  border-bottom: 1rpx solid #e5e7eb;
+  padding: 10rpx 0 14rpx;
+}
+
+.log-item:last-child {
+  border-bottom: 0;
+}
+
+.log-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  margin-bottom: 6rpx;
+}

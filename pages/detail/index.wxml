@@ -1,0 +1,46 @@
+<view class="page">
+  <view class="title">房源详情</view>
+  <view class="subtitle">查看原始导入、结构化结果和 AI 偏好说明；这里仍然只负责选房，不直接承接比较或风险。</view>
+
+  <block wx:if="{{has_listing}}">
+    <view class="card">
+      <view class="list-title">{{display_title}}</view>
+      <view class="hint">总价：{{display_price}}</view>
+      <view class="hint">面积：{{display_area}}</view>
+      <view class="hint">城市：{{display_city}} / 小区：{{display_community}}</view>
+      <view class="hint">户型：{{display_layout}}</view>
+      <view class="hint">缺失字段：{{missing_text}}</view>
+      <view class="hint">已选房源：{{selected_count_text}} 套</view>
+    </view>
+
+    <view class="card">
+      <view class="label">原始导入内容</view>
+      <view class="mono">{{raw_text_display}}</view>
+    </view>
+
+    <view class="card">
+      <view class="label">结构化结果</view>
+      <view class="mono">{{normalized_text}}</view>
+    </view>
+
+    <view class="card">
+      <view class="label">AI 偏好说明</view>
+      <block wx:for="{{match_tips}}" wx:key="*this">
+        <view class="hint">- {{item}}</view>
+      </block>
+    </view>
+
+    <view class="row">
+      <button class="btn-primary" bindtap="handleToggleCompare">
+        {{compare_button_text}}
+      </button>
+      <button class="btn-secondary" bindtap="handleBackCandidates">返回搜索</button>
+    </view>
+    <button class="btn-secondary" bindtap="handleGoAI">交给 AI 分析</button>
+  </block>
+
+  <view class="card" wx:else>
+    <view class="label">未找到该房源</view>
+    <button class="btn-secondary" bindtap="handleBackCandidates">返回搜索页</button>
+  </view>
+</view>

@@ -1,0 +1,41 @@
+<view class="page favorites-page">
+  <view class="favorites-card">
+    <view class="favorites-head">
+      <view class="favorites-title">我的收藏</view>
+      <view
+        class="favorites-edit"
+        wx:if="{{has_favorites}}"
+        bindtap="handleToggleFavoriteEdit"
+      >
+        {{favorite_editing ? '完成' : '编辑'}}
+      </view>
+    </view>
+
+    <view class="favorites-empty" wx:if="{{!has_favorites}}">
+      暂无收藏房源
+    </view>
+
+    <block wx:for="{{favorite_list}}" wx:key="listing_id">
+      <view class="favorite-item">
+        <view
+          class="favorite-main"
+          data-listing-id="{{item.listing_id}}"
+          bindtap="handleOpenFavoriteDetail"
+        >
+          <view class="favorite-name">{{item.title_text}}</view>
+          <view class="favorite-meta">{{item.meta_text}}</view>
+          <view class="favorite-price">{{item.price_text}}</view>
+        </view>
+        <view
+          class="favorite-remove"
+          wx:if="{{favorite_editing}}"
+          data-listing-id="{{item.listing_id}}"
+          bindtap="handleRemoveFavorite"
+        >
+          移除
+        </view>
+      </view>
+    </block>
+  </view>
+</view>
+

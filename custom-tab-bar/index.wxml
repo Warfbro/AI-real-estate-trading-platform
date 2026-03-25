@@ -7,7 +7,7 @@
   </view>
 
   <view class="tab-bar-item ai-btn-wrapper" bindtap="handleAI">
-    <view class="ai-button" hover-class="ai-btn-hover" hover-start-time="0" hover-stay-time="100">
+    <view class="ai-button">
       AI
     </view>
   </view>

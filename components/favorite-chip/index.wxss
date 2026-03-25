@@ -1,0 +1,39 @@
+.favorite-chip {
+  width: 150rpx;
+  height: 48rpx;
+  padding: 0 14rpx;
+  border-radius: 999rpx;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  border: 2rpx solid rgba(92, 64, 51, 0.22);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.favorite-chip-text {
+  font-size: 22rpx;
+  color: #6f6259;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.favorite-chip-star {
+  font-size: 28rpx;
+  color: #7f7268;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.favorite-chip.on {
+  border-color: rgba(240, 160, 32, 0.6);
+  background: rgba(255, 245, 225, 0.95);
+}
+
+.favorite-chip.on .favorite-chip-text {
+  color: #d18722;
+}
+
+.favorite-chip.on .favorite-chip-star {
+  color: #f0a020;
+}

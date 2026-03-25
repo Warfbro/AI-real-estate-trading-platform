@@ -1,0 +1,240 @@
+文档名称：AI 买房决策顾问技术文档（Sprint 1 最小决策闭环）
+版本：V1.0
+日期：2026-03-24
+定位：补充文档，不替代 doc/01-09 与 process/*。如与现有正式文档冲突，以现有正式文档优先。
+
+1. 本轮目标
+
+本轮只在原项目骨架上新增“AI 最小决策闭环”：
+1）保持现有 `queryPropertyRecommend`、聊天归档、摘要、memory_patch 主链路不变。
+2）新增 1 个结构化决策云函数 `decisionEngine`。
+3）新增 1 个集合 `decision_sessions`。
+4）AI 页增加最小决策卡区：启动决策、三档候选、pairwise、critique、放宽建议。
+5）新增开发态 `openai_compatible` provider 与本地 smoke 脚本，不替换默认 `managed_agent`。
+
+2. 物理实现映射
+
+现有聊天主链路：
+`pages/ai/index`
+-> `utils/ai`
+-> `cloudfunctions/queryPropertyRecommend`
+-> `providers/managedAgent | providers/openaiCompatible`
+
+本轮新增决策链路：
+`pages/ai/index`
+-> `utils/decision.js`
+-> `cloudfunctions/decisionEngine`
+-> `decision_sessions`
+
+继续复用：
+- `chat_sessions` / `chat_messages`：原始 AI 会话归档
+- `user_profiles.ai_memory_profile_json`：稳定偏好 seed
+- `buyer_intakes.structured_json.ai_requirement_memory`：当前需求 seed
+- `listings`：决策候选房源池
+- `activity_logs`：关键动作留痕
+
+3. decisionEngine 云函数设计
+
+3.1 入口
+- 云函数名：`decisionEngine`
+- 协议：`event.action`
+- 支持动作：
+  - `start`
+  - `state`
+  - `pairwise`
+  - `critique`
+  - `relax`
+
+3.2 统一返回
+```json
+{
+  "success": true,
+  "data": {},
+  "error": null,
+  "meta": {
+    "trace_id": "decision_xxx",
+    "action": "start"
+  }
+}
+```
+
+3.3 模块拆分
+- `lib/featureExtractor.js`
+- `lib/feasibilityEngine.js`
+- `lib/preferenceUpdater.js`
+- `lib/decisionRanker.js`
+- `lib/relaxationPlanner.js`
+- `lib/stateStore.js`
+
+说明：
+1）本轮不引入重求解器。
+2）本轮不新增 `preference_states`，偏好状态统一写入 `decision_sessions.state_json`。
+3）若本地缺少 `wx-server-sdk`，允许使用内存 fallback 跑 smoke，正式云环境仍以 CloudBase 为准。
+
+4. 数据模型
+
+4.1 decision_sessions
+- `decision_session_id`
+- `user_id`
+- `chat_session_id`
+- `intake_id`
+- `status`
+- `current_stage`
+- `selected_listing_ids`
+- `candidate_listing_ids`
+- `state_json`
+- `result_json`
+- `created_at`
+- `updated_at`
+
+4.2 state_json
+```json
+{
+  "hard_constraints": {},
+  "soft_weights": {
+    "price": 0,
+    "area": 0,
+    "elevator": 0,
+    "district_match": 0,
+    "layout": 0,
+    "data_completeness": 0
+  },
+  "pairwise_memory": [],
+  "critique_memory": [],
+  "blockers": []
+}
+```
+
+4.3 result_json
+```json
+{
+  "buckets": {
+    "stable": [],
+    "balanced": [],
+    "value": []
+  },
+  "top_listing_ids": [],
+  "relaxation_options": []
+}
+```
+
+5. 算法边界
+
+5.1 房源字段
+本轮只使用当前仓库稳定字段：
+- `city`
+- `district`
+- `price_total`
+- `area_sqm`
+- `layout_desc`
+- `elevator_flag`
+- `missing_fields_json`
+
+5.2 硬约束
+本轮只做：
+- `city`
+- `district`
+- `budget_min`
+- `budget_max`
+- `elevator_required`
+- `area_min`（仅在结构化状态中支持）
+
+学区、通勤本轮不做硬计算，只记录为偏好提示。
+
+5.3 排序规则
+- `pairwise`：胜者相关特征权重上调，败者相关特征权重下调
+- `critique`：只解析明确关键词
+- 三档候选固定为：
+  - `stable`
+  - `balanced`
+  - `value`
+
+5.4 放宽建议
+只枚举 4 类：
+- `budget_max_plus_20`
+- `drop_elevator_hard_constraint`
+- `expand_district`
+- `area_min_minus_10`
+
+6. 前端承载
+
+只改现有 AI 页，不新增决策页面。
+
+新增封装：
+- `utils/decision.js`
+
+AI 页新增能力：
+- 启动结构化决策
+- 展示三档候选
+- 提交一次 pairwise
+- 提交一次 critique
+- 刷新放宽建议
+
+决策入口优先级：
+1）当前 compare 带入的 listing ids
+2）当前 favorite listing ids
+3）最新 submitted `buyer_intakes`
+
+7. provider 补充
+
+7.1 默认 provider
+- `openai_compatible`
+- 当前默认上游：阿里云百炼北京地域 OpenAI 兼容端点
+- 当前默认模型：`qwen-plus`
+- `managed_agent` 仅作为临时回退 provider 保留，不再是默认聊天链路
+
+7.2 开发态 provider
+- `openai_compatible`
+
+环境变量：
+- `OPENAI_COMPAT_API_KEY`
+- `BAILIAN_API_KEY`
+- `DASHSCOPE_API_KEY`
+- `OPENAI_COMPAT_BASE_URL`
+- `BAILIAN_COMPAT_BASE_URL`
+- `DASHSCOPE_BASE_URL`
+- `OPENAI_COMPAT_MODEL`
+- `BAILIAN_COMPAT_MODEL`
+- `DASHSCOPE_MODEL`
+- `OPENAI_COMPAT_TIMEOUT_MS`
+- `OPENAI_COMPAT_PROXY_URL`
+
+说明：
+1）`openai_compatible` 当前同时承担开发态 smoke 与默认聊天链路。
+2）apikey 不允许进入仓库、页面参数或明文日志。
+3）本地 smoke 若未显式设置代理环境变量，可自动读取 Windows 当前用户代理配置并补齐 `HTTPS_PROXY/HTTP_PROXY`，用于解决本机 Node 与系统代理不一致的问题。
+4）开发态 provider 在输出上游错误详情时必须先做脱敏，避免 401/403 响应体中的凭证片段直接进入终端日志。
+5）若未显式配置 Base URL 与模型，开发态默认走百炼北京地域 OpenAI 兼容端点 `https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions` 与 `qwen-plus`；仍可通过通用环境变量或百炼别名环境变量覆盖。
+6）若未显式配置 `OPENAI_COMPAT_TIMEOUT_MS`，当前默认按 `12000ms` 出网超时处理，优先避免小程序 `cloud.callFunction` 因等待上游过久而直接报 `FUNCTIONS_TIME_LIMIT_EXCEEDED`。
+
+8. 验证方式
+
+本地语法检查：
+- `node --check pages/ai/index.js`
+- `node --check utils/decision.js`
+- `node --check cloudfunctions/decisionEngine/index.js`
+- `node --check cloudfunctions/queryPropertyRecommend/providers/openaiCompatible.js`
+- `node --check process/decision_engine_smoke.js`
+- `node --check process/ai_provider_smoke.js`
+
+本地 smoke：
+- `node process/decision_engine_smoke.js`
+- `node process/ai_provider_smoke.js`
+
+通过标准：
+1）决策 smoke 能完整跑通 `start -> state -> pairwise -> critique -> relax`
+2）provider smoke 能返回兼容结构
+3）现有聊天主链路不需要改动即可继续工作
+
+9. 明确不做
+
+本轮不做：
+- 独立 `preference_states` 集合
+- 重求解器服务
+- 完整贝叶斯偏好系统
+- 独立 explanation planner
+- 多页面决策流程
+- 替换 compare/risk/action 现有链路
+
+结论：
+Sprint 1 的目标不是做完整正式决策系统，而是在原项目上补出一个可跑、可测、可回退的最小结构化决策闭环。

@@ -1,57 +1,214 @@
-<view class="page-container">
+﻿<view class="page-container">
   <view class="circle-anim-bg" wx:if="{{showAnim}}"></view>
 
   <view class="chat-core" style="top: {{totalNavHeight}}px;">
     <scroll-view class="chat-scroll" scroll-y scroll-into-view="{{scrollTo}}">
       <view class="chat-list">
-        <view class="chat-msg ai-msg">
-          <view class="avatar">AI</view>
-          <view class="msg-bubble">您好！我是您的专属房产决策助手。请问您今天想聊点什么？咱们可以慢慢挑，不急。</view>
+        <view
+          wx:for="{{messages}}"
+          wx:key="id"
+          id="{{item.id}}"
+          class="chat-msg {{item.role === 'user' ? 'user-msg' : (item.role === 'system' ? 'system-msg' : 'ai-msg')}}"
+        >
+          <view class="avatar" wx:if="{{item.role !== 'system'}}">{{item.role === 'user' ? '我' : 'AI'}}</view>
+          <view class="msg-bubble {{item.role === 'user' ? 'user-bubble' : (item.role === 'system' ? 'system-bubble' : '')}}">{{item.text}}</view>
+        </view>
+
+        <view class="decision-panel">
+          <view class="decision-card" wx:if="{{!decision_session_id}}">
+            <view class="decision-card-title">结构化决策</view>
+            <view class="decision-card-desc">基于当前已选、收藏和需求，给你一个更稳定的候选排序。</view>
+            <view class="decision-card-tip">{{decision_seed_text || '优先使用已选房源，其次使用收藏房源。'}}</view>
+            <view class="decision-primary-btn {{decision_loading || !decision_seed_ready ? 'disabled' : ''}}" catchtap="handleStartDecision">
+              {{decision_loading ? '处理中...' : (decision_seed_ready ? '开始结构化决策' : '至少需要 2 套房源')}}
+            </view>
+          </view>
+
+          <view class="decision-card" wx:if="{{decision_session_id}}">
+            <view class="decision-card-title">当前决策阶段</view>
+            <view class="decision-stage-text">{{decision_stage_text || '结构化决策'}}</view>
+            <view class="decision-card-tip" wx:if="{{decision_blocker_text}}">{{decision_blocker_text}}</view>
+            <view
+              class="decision-secondary-btn {{decision_loading ? 'disabled' : ''}}"
+              wx:if="{{has_relaxation_options && !has_pairwise_question}}"
+              catchtap="handleRefreshRelaxation"
+            >
+              {{decision_show_relaxation ? '收起放宽建议' : '查看放宽建议'}}
+            </view>
+          </view>
+
+          <view class="decision-card" wx:if="{{has_decision_buckets}}">
+            <view class="decision-card-title">三档候选</view>
+            <view class="decision-bucket" wx:for="{{decision_bucket_cards}}" wx:key="key">
+              <view class="decision-bucket-title">{{item.title}}</view>
+              <view class="decision-listing" wx:for="{{item.items}}" wx:key="listing_id">
+                <view class="decision-listing-title">{{item.title}}</view>
+                <view class="decision-listing-desc">{{item.desc_text}}</view>
+                <view class="decision-listing-meta">综合分 {{item.score}}</view>
+              </view>
+            </view>
+          </view>
+
+          <view class="decision-card" wx:if="{{has_pairwise_question}}">
+            <view class="decision-card-title">二选一偏好</view>
+            <view class="decision-card-desc">{{pairwise_question.prompt}}</view>
+            <view class="pairwise-grid">
+              <view
+                class="pairwise-option"
+                data-winner-id="{{pairwise_question.left.listing_id}}"
+                data-loser-id="{{pairwise_question.right.listing_id}}"
+                catchtap="handleSubmitPairwise"
+              >
+                <view class="pairwise-option-title">{{pairwise_question.left.title}}</view>
+                <view class="pairwise-option-desc">{{pairwise_question.left.price_total}}万 / {{pairwise_question.left.area_sqm}}㎡ / {{pairwise_question.left.district}}</view>
+                <view class="pairwise-option-btn">更倾向这套</view>
+              </view>
+              <view
+                class="pairwise-option"
+                data-winner-id="{{pairwise_question.right.listing_id}}"
+                data-loser-id="{{pairwise_question.left.listing_id}}"
+                catchtap="handleSubmitPairwise"
+              >
+                <view class="pairwise-option-title">{{pairwise_question.right.title}}</view>
+                <view class="pairwise-option-desc">{{pairwise_question.right.price_total}}万 / {{pairwise_question.right.area_sqm}}㎡ / {{pairwise_question.right.district}}</view>
+                <view class="pairwise-option-btn">更倾向这套</view>
+              </view>
+            </view>
+          </view>
+
+          <view class="decision-card" wx:if="{{decision_session_id && (!has_pairwise_question || decision_show_critique_editor)}}">
+            <view class="decision-card-title">{{decision_show_critique_editor ? '修正意见' : '补充条件'}}</view>
+            <view class="decision-card-desc" wx:if="{{!decision_show_critique_editor}}">
+              如果当前候选都不合适，再补充你的条件或修正意见。
+            </view>
+            <view
+              class="decision-secondary-btn {{decision_loading ? 'disabled' : ''}}"
+              wx:if="{{!decision_show_critique_editor}}"
+              catchtap="handleToggleDecisionCritique"
+            >
+              补充条件
+            </view>
+            <block wx:if="{{decision_show_critique_editor}}">
+              <view class="decision-card-desc">例如：不要楼梯房、太贵、区域不合适、面积太小。</view>
+              <view class="decision-critique-row">
+                <input
+                  class="decision-critique-input"
+                  placeholder="输入你的修正意见"
+                  value="{{critique_input}}"
+                  maxlength="120"
+                  bindinput="onDecisionCritiqueInput"
+                />
+                <view class="decision-critique-btn {{decision_loading ? 'disabled' : ''}}" catchtap="handleSubmitCritique">提交</view>
+              </view>
+              <view class="decision-card-actions">
+                <view class="decision-secondary-btn" catchtap="handleToggleDecisionCritique">收起</view>
+              </view>
+            </block>
+          </view>
+
+          <view class="decision-card" wx:if="{{decision_show_relaxation && has_relaxation_options}}">
+            <view class="decision-card-title">放宽建议</view>
+            <view class="decision-relax-item" wx:for="{{relaxation_options}}" wx:key="code">
+              <view class="decision-relax-label">{{item.label}}</view>
+              <view class="decision-relax-reason">{{item.reason}}</view>
+            </view>
+          </view>
         </view>
       </view>
     </scroll-view>
 
     <view class="input-area {{showMorePanel ? 'has-panel' : ''}}">
       <view class="input-row">
-        <input class="chat-input" placeholder="输入您的问题、需求或指令..." bindinput="onInput" />
+        <input
+          class="chat-input"
+          placeholder="输入你的买房需求，例如：上海500万内三室学区房"
+          maxlength="1000"
+          confirm-type="send"
+          value="{{chatInput}}"
+          bindinput="onInput"
+          bindconfirm="handleSend"
+        />
+        <view class="send-btn {{sending ? 'disabled' : ''}}" catchtap="handleSend">{{sending ? '...' : '发'}}</view>
         <view class="add-btn" catchtap="toggleMorePanel">+</view>
       </view>
-      <view class="more-panel" wx:if="{{showMorePanel}}">
-        <view class="panel-item" catchtap="handleImportImage"><view class="icon-box">相</view><text>导入图片</text></view>
-        <view class="panel-item" catchtap="handleViewFavorites"><view class="icon-box">❤</view><text>我的收藏</text></view>
+      <view class="more-panel single-module" wx:if="{{showMorePanel}}">
+        <view class="panel-item" catchtap="handleOpenFavoritePicker">
+          <view class="icon-box">藏</view>
+          <text>收藏</text>
+        </view>
       </view>
     </view>
   </view>
 
-  <view class="chat-mask" wx:if="{{offset > -drawerHeight}}" 
-        style="top: {{totalNavHeight}}px; opacity: {{(offset + drawerHeight) / drawerHeight * 0.45}}; transition: {{isDragging ? 'none' : 'opacity 0.6s cubic-bezier(0.25, 1.05, 0.4, 1)'}}">
+  <view class="favorite-picker-mask" wx:if="{{showFavoritePicker}}" catchtap="handleCancelFavoritePicker"></view>
+  <view class="favorite-picker" wx:if="{{showFavoritePicker}}" catchtap="noop">
+    <view class="favorite-picker-header">
+      <view class="favorite-picker-cancel" catchtap="handleCancelFavoritePicker">取消</view>
+      <view class="favorite-picker-title">选择收藏</view>
+      <view class="favorite-picker-confirm {{favorite_confirm_disabled ? 'disabled' : ''}}" catchtap="handleConfirmFavoritePicker">确定</view>
+    </view>
+    <view class="favorite-picker-tip">已选 {{favorite_selected_count_text}} 套，最多 5 套</view>
+    <scroll-view class="favorite-picker-list" scroll-y>
+      <block wx:if="{{has_favorite_options}}">
+        <view
+          wx:for="{{favorite_options}}"
+          wx:key="listing_id"
+          class="favorite-item {{item.selected ? 'selected' : ''}}"
+          data-listing-id="{{item.listing_id}}"
+          catchtap="handleToggleFavoriteItem"
+        >
+          <view class="favorite-item-main">
+            <view class="favorite-item-title">{{item.title_text}}</view>
+            <view class="favorite-item-desc">{{item.desc_text}}</view>
+          </view>
+          <view class="favorite-item-check {{item.selected ? 'on' : ''}}">{{item.selected ? '✓' : ''}}</view>
+        </view>
+      </block>
+      <view wx:else class="favorite-empty">{{favorite_empty_text}}</view>
+    </scroll-view>
   </view>
 
-  <!-- 将 padding-top 和 margin-top 的扩张策略移入以彻底解决下拉漏缝断带问题 -->
-  <view class="blind-drawer" 
-        style="top: {{totalNavHeight}}px; transform: translateY({{offset}}px); transition: {{isDragging ? 'none' : 'transform 0.6s cubic-bezier(0.25, 1.05, 0.4, 1)'}}">
-    
+  <view
+    class="chat-mask"
+    wx:if="{{offset > -drawerHeight}}"
+    style="top: {{totalNavHeight}}px; opacity: {{(offset + drawerHeight) / drawerHeight * 0.45}}; transition: {{isDragging ? 'none' : 'opacity 0.6s cubic-bezier(0.25, 1.05, 0.4, 1)'}}"
+  >
+  </view>
+
+  <view
+    class="blind-drawer"
+    style="top: {{totalNavHeight}}px; transform: translateY({{offset}}px); transition: {{isDragging ? 'none' : 'transform 0.6s cubic-bezier(0.25, 1.05, 0.4, 1)'}}"
+  >
     <view class="history-content" style="height: {{drawerHeight}}px;">
       <view class="drawer-content-inner">
         <view class="drawer-header-text">管理聊天记录</view>
         <view class="drawer-btn" catchtap="handleNewChat">+ 创建新对话</view>
         <scroll-view class="drawer-list" scroll-y>
-          <view class="drawer-item" wx:for="{{[1,2,3]}}" wx:key="*this">
-            <text class="drawer-time">最近动态</text>
-            <text class="drawer-desc">我的购房需求与记录梳理</text>
-          </view>
+          <block wx:if="{{has_chat_threads}}">
+            <view
+              class="drawer-item {{item.active ? 'active' : ''}}"
+              wx:for="{{chat_threads}}"
+              wx:key="session_id"
+              data-session-id="{{item.session_id}}"
+              catchtap="handleSwitchThread"
+            >
+              <text class="drawer-time">{{item.time_text}}</text>
+              <text class="drawer-desc">{{item.desc_text}}</text>
+              <text class="drawer-preview" wx:if="{{item.preview_text}}">{{item.preview_text}}</text>
+            </view>
+          </block>
+          <view wx:if="{{!has_chat_threads}}" class="drawer-empty">No chat history</view>
         </scroll-view>
       </view>
     </view>
 
     <view class="swipe-header {{dragDir}}" catchtouchstart="onTouchStart" catchtouchmove="onTouchMove" catchtouchend="onTouchEnd">
-       <text>{{ drawerState === 'closed' ? (dragDir === 'down' ? '松开展开记录' : '下滑查看聊天记录') : (dragDir === 'up' ? '松开收起' : '上滑收起展开栏') }}</text>
-       <view class="swipe-indicator"></view>
+      <text>{{ drawerState === 'closed' ? (dragDir === 'down' ? '松开展开记录' : '下滑查看聊天记录') : (dragDir === 'up' ? '松开收起' : '上滑收起展开栏') }}</text>
+      <view class="swipe-indicator"></view>
     </view>
   </view>
 
-  <!-- 封装独立的导航栏防干扰架构 -->
-  <view class="nav-bar-wrapper" style="height: {{totalNavHeight}}px;">
+  <view wx:if="{{showNavBar}}" class="nav-bar-wrapper" style="height: {{totalNavHeight}}px;">
     <view class="nav-bar-inner" style="margin-top: {{statusBarHeight}}px; height: {{navBarHeight}}px;">
       <view class="nav-left" style="width: {{capWidth}}px;" catchtap="handleBack">
         <text class="back-icon" wx:if="{{canBack}}">‹</text>
@@ -62,3 +219,4 @@
     </view>
   </view>
 </view>
+

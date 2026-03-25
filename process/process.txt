@@ -1,0 +1,108 @@
+【开发总过程规划】
+开发总目标：完成房产一站式决策与推进平台微信小程序 MVP，可跑通主流程并具备后续联调与测试基础
+开发总过程：项目初始化 -> 基础能力搭建 -> 数据结构与本地落库骨架开发 -> 核心页面开发 -> 核心业务逻辑开发 -> 前后端联调 -> 测试与修复 -> 演示与交付收口
+当前所处步骤：演示与交付收口
+当前步骤目标：冻结范围，按首期验收口径完成交付
+当前步骤完成标准：P0 验收链路可跑通 + regression/smoke 通过 + 手工冒烟可复现
+
+【当前执行进度】
+当前开发项：本期交付收口（停止新增功能开发）
+当前状态：已完成（可交付）
+已完成：首页/登录、需求录入、房源导入、候选列表、房源详情、房源比较（含保存比较）、风险确认、下一步动作中心、模板兼容修复（全量WXML复杂表达式下沉至JS预计算）、后台线索列表/详情/状态更新（含advisor_leads与appointments同步、activity_logs记录、EVT_LEAD_STATUS_UPDATE埋点）、我的空间数据视图补齐（比较/报告/预约咨询/动作记录统计、最近记录展示、最近继续入口）、报告发送重试链路（send_report失败记录、error_code、attempt_no、retry_of_action_id、重试入口）、人工复核承接追踪增强（lead摘要补source_page/risk_level，后台列表和详情可反查，联查comparison_report发送日志）、最小测试数据与冒烟脚本（process/smoke_e2e.js，覆盖前台动作->后台线索->日志回溯）、自动化回归分支脚本（process/regression_branches.js，覆盖报告发送失败分支、重试链路、人工复核追踪字段、预约状态映射、日志可追溯）、开发者工具手工冒烟支持（process/devtools_smoke_helper.js + process/手工冒烟说明.txt）、测试与修复收口自检（node --check 关键脚本/页面通过，regression_branches 与 smoke_e2e 通过，开发者工具手工冒烟通过）、演示与交付收口文档（process/演示与交付收口.txt，沉淀验收记录、最小发布说明、下一轮最小任务）、人工复核队列完善第一轮（adminLeads 增加 manual_review 快速筛选和优先排序；adminLeadDetail 增加处理意见保存与日志留痕）、人工复核队列自动化验收补齐（regression_branches 覆盖 manual_review_queue/manual_review_note_trace；smoke_e2e 覆盖处理意见更新与日志留痕并通过）、比较报告邮件发送完善（action 页增加重试目标有效性校验，report 日志补 message/send_channel/attempt_no，并补自动化断言）、后台更多筛选维度（adminLeads 新增 risk_level/source_page 筛选；regression_branches 与 smoke_e2e 新增 risk/source 筛选断言并通过）、更多风险规则（新增 utils/risk.js 统一规则引擎并接入 risk 页，覆盖缺失/冲突/价格异常/成本压力/样本不足与人工复核触发；regression_branches/smoke_e2e 新增 risk_rule_expansion 断言并通过）、继续上次进度体验优化（新增 utils/continue.js 统一 recent_continue_route 解析与回退策略，首页/我的页展示回流提示并兜底跳转，regression_branches/smoke_e2e 新增 continue_route_recovery 断言并通过）、顾问备注与协同（adminLeads 列表补充 manual_review 备注摘要与更新时间/更新人展示，并在 regression/smoke 增加 manual_review_note_summary 断言并通过）、测试数据脚本增强（devtools_smoke_helper 新增 switchRole/toAdmin/toUser、seedHighRisk、verifyHighRiskSeed；手工冒烟说明新增快捷命令；regression/smoke 增加 helper_contract 断言并通过）、自动化回归与调试脚本深化（regression/smoke 新增后台线索状态全流转断言，覆盖 appointment 状态映射与 lead_status_update trace；手工冒烟说明补“状态全流转自检”步骤并通过）、演示与交付收口文档二次更新（V1.3 纳入 lead_status_full_flow 与 helper_contract 覆盖证据，补手工状态全流转自检结论）、演示命令序列固化（手工冒烟说明新增“最短命令序列（复制即跑）”；交付收口新增“演示前60秒快速校验”；regression/smoke 新增文档契约断言并通过）、调试脚本体验优化（devtools_smoke_helper 新增 runQuickDemo；手工说明与交付文档补 runQuickDemo 一键入口；regression/smoke 文档与导出契约断言同步并通过）
+本轮新增完成：手工冒烟说明与演示交付文档补充 runQuickDemo 返回字段判读速查表（成功判读、失败判读、step/navigate 状态判读）；regression_branches 与 smoke_e2e 补齐速查表文档契约断言并通过
+本轮收口决策：按“不过度开发”原则，不再启动六期及后续扩展任务；本期进入交付态
+本轮补充文档：新增 `process/页面输出清单_前端设计.txt`，按当前 app.json 的 12 个实际页面整理“每页必须输出内容”，供前端设计直接使用
+本轮新增接入：补充最小微信云开发接入，新增 `utils/cloud.js`、`cloudfunctions/getOpenId`，登录同步 `users`，需求同步 `buyer_intakes`，导入同步 `listing_import_jobs/listings`，截图导入上传云存储；新增 `process/微信云开发最小接入说明.txt`
+进行中：无
+下一步：执行提测/验收/交付；若出现问题仅处理阻断级缺陷，不新增功能范围
+本轮阻断修复：users 登录同步改为预读失败也继续尝试写入；auth_session 补充完整 cloud_sync_error 透传，避免 users 集合因预读失败而无变化。
+本轮阻断修复（二次收口）：users 登录建档改为由 getOpenId 云函数服务端同步，客户端不再依赖直写 users；需重新部署 getOpenId 后生效。
+本轮新增结构调整：首页拆分 AI 咨询 / 传统搜索双主入口，新增 pages/ai/index 作为 AI 主承接页；传统搜索仅负责候选与详情选房，统一通过 /pages/ai/index?source=search 回流 AI；continue/my/埋点/页面输出清单已同步。下一步：执行回归自检并仅修复本轮结构调整引入的问题。
+本轮结构拆分回归收口：已修复 process/regression_branches.js 与 process/smoke_e2e.js 的编码污染断言和缺失回归函数；node --check、node process/regression_branches.js、node process/smoke_e2e.js 均已通过。
+本轮文档收口：已完成《process/后端更改需求.txt》V1.1，明确前端结构调整后后端同步清单（热门房源/猜你喜欢查询能力、字段兼容契约、索引、权限、日志、验收用例）。
+本轮后端同步：新增云函数 getHomeHotListings / getHomeGuessListings 与 utils/cloud.js 调用封装；首页推荐流后端查询能力（热门/猜你喜欢）已具备，语法检查与 regression/smoke 均通过。
+本轮最小收口：首页已接入 getHomeHotListings/getHomeGuessListings（含本地兜底渲染），完成静态卡片替换为动态列表；node --check 与 regression/smoke 均通过。
+本轮最小补齐：detail 页新增 listing detail_view 行为日志写入（object_type=listing），补全首页热门排序所需浏览信号来源；语法检查与 regression/smoke 均通过。
+本轮阻断修复（三次收口）：首页热门/猜你喜欢卡片图片由占位改为读取 listing.cover_image_url（无图时保留占位兜底）；导入页图片模式写入 cover_image_url（优先云存储 fileID）；getHomeHotListings/getHomeGuessListings 同步透传 cover_image_url 字段以保证云端/本地一致渲染。
+本轮最小补齐（四次收口）：`process/devtools_smoke_helper.js` 的 seedBase/seedHighRisk 默认写入 `cover_image_url=/img/image.png`，与本地 `img/image.png` 对齐，便于一键造数后首页直接见图。
+本轮阻断修复（五次收口）：修复首页底部 AI 按钮按压/抬起时的左侧拉伸观感；`custom-tab-bar/index.wxss` 移除 `translateX(-50%) translateZ(0)` 居中方式，改为 `left: 50% + margin-left: -55rpx` 固定居中，并将 hover 态改为中心点 `scale(0.96)`，避免交互反馈造成单侧形变错觉。
+本轮阻断修复（六次收口）：进一步消除首页进入 AI 时的单侧拉伸观感；`custom-tab-bar/index.wxml` 移除 AI 按钮 `hover-class`（不再触发按压态类切换），`custom-tab-bar/index.wxss` 删除对应 hover 样式，`pages/ai/index.js` 关闭首屏 `expandCircle` 扩圈动画（`showAnim=false`），避免从首页跳转到 AI 页时出现左侧被拉伸的视觉错觉。
+本轮阻断修复（七次收口）：按 `img/屏幕录制 2026-03-17 183311.mp4` 逐帧导出 `img/frame_export_183311/frame_*.png` 定位后，确认异常主要来自首页到 AI 的 `navigateTo` 叠层滑入过渡（frame_0050~frame_0053）；`custom-tab-bar/index.js` 的 AI 入口改为 `wx.reLaunch('/pages/ai/index')`，消除“旧页左侧残留 + 新页右推”造成的单侧拉伸观感。
+本轮阻断修复（八次收口）：按新视频 `img/20260317-1157-02.2036623.mp4` 逐帧导出 `img/frame_export_1955/frame_*.png` 复盘后，确认 `reLaunch` 方案引入了 AI 页左上返回文案回退为“首页”及整页重建等待偏长问题；`custom-tab-bar/index.js` 将 AI 入口回退为 `wx.navigateTo('/pages/ai/index')`，恢复 AI 页左上返回箭头语义并降低进入等待时延。
+本轮阻断修复（九次收口）：针对“回到首页加载慢”体验，`pages/home/index.js` 增加首页推荐流快速渲染策略：先用本地可用房源即时填充首屏（`applyImmediateLocalFeeds`），再后台拉取云端推荐刷新；并增加 30 秒防抖窗口（`HOME_FEED_REFRESH_INTERVAL_MS`）避免短时间重复进入触发多次云函数请求，降低可感知等待。
+本轮阻断修复（十次收口）：按“可使用预加载 + 标题切换过早”反馈，新增 `utils/preload.js` 封装 `wx.preloadPage('/pages/ai/index')`，在 `pages/home/index.js`、`pages/my/index.js` 的 `onShow` 和 `custom-tab-bar/index.js` 的 AI 点击前触发预加载；`pages/ai/index.js`/`pages/ai/index.wxml` 增加导航栏延迟显示（160ms）策略，避免页面尚未完成切换时顶部标题先出现。
+本轮阻断修复（十一次收口）：真机调试报错 `80051 source size 30278KB exceed max limit 2MB`；`project.config.json` 的 `packOptions.ignore` 增加非运行资源排除规则（`doc/`、`process/`、`skills/`、调试视频、逐帧导出图片与调试图集），保留运行所需 `img/image.png`，避免调试素材进入源码包。
+本轮验证结论（十一次收口）：按 `packOptions.ignore` 规则本地估算源码包约 `1929.94KB`（低于 `2MB` 限制），满足真机调试包体门槛。
+本轮收口（十二次收口）：按正式应用展示要求，移除“我的空间”中的“最近记录”卡片（最近动作/最近报告/最近预约咨询），保留“最近继续”和“我的数据概览”。
+本轮验证结论（十二次收口）：`pages/my/index` 已同步清理对应展示字段与计算逻辑，无最近记录模块残留。
+本轮收口（十三次收口）：按正式应用展示要求，移除“我的空间”中的“当前角色”卡片，仅保留业务相关入口与数据概览。
+本轮验证结论（十三次收口）：`pages/my/index` 已清理 `role_text` 展示字段，不影响后台入口权限判断（仍基于 `getUserRole()` 控制 `can_access_admin`）。
+本轮收口（十四次收口）：按正式应用展示要求，移除“我的空间”中的“最近继续”卡片与“继续上次进度”按钮。
+本轮验证结论（十四次收口）：`pages/my/index` 已清理 `continue_*` 展示字段、`handleContinue` 跳转逻辑和 `btn-inline` 样式残留，不影响“我的数据概览”和后台入口展示。
+本轮收口（十五次收口）：按正式应用展示要求，将“我的空间”页面收敛为仅保留标题“我的空间”，移除其余展示内容。
+本轮验证结论（十五次收口）：`pages/my/index` 的 `wxml/js/wxss` 已同步最小化，页面仅保留标题渲染与 `EVT_PAGE_MY_VIEW` 曝光埋点。
+本轮收口（十六次收口）：按正式应用设计将用户权限“我的空间”页面改为入口型布局：我的收藏、我的预约、入驻平台，底部保留设置入口。
+本轮验证结论（十六次收口）：`pages/my/index` 已恢复登录后可见的正式布局，视觉与全局木质奶油风格一致；并同步更新《process/页面输出清单_前端设计.txt》的 my 页面输出定义。
+本轮收口（十七次收口）：修复“我的空间”设置区视觉问题，页面容器改为纵向 flex 以确保设置按钮贴底，并将设置按钮文本改为强制居中。
+本轮阻断修复（十七次收口）：补回本地占位图 `img/image.png`（此前文件缺失导致 `/img/image.png` 渲染层 500 报错），恢复首页本地兜底图片可用。
+本轮收口（十八次收口）：将“我的空间”底部“设置”由按钮改为与上方一致的模块卡片，统一入口形态。
+本轮视觉收口（十八次收口）：提升全局配色对比度（`app.wxss` + `custom-tab-bar/index.wxss`）：背景、标题/副文、卡片边界、输入框边框、主次按钮、提示文字以及底部导航未选中态统一加深，降低“发灰/发糊”观感并保持木质奶油风格。
+本轮收口（十九次收口）：按最新确认，“设置”入口并入“我的空间”2x2 网格，作为第 4 个同款模块卡片（不再独立悬挂在底部）。
+本轮问题修复（十九次收口）：针对“我的空间”顶部偶发黑色痕迹，移除 `pages/my/index.js` 的 AI 预加载调用（`preloadAIPage`），降低页面切换时渲染层脏帧概率。
+本轮问题修复（二十次收口）：针对“我的空间”顶部仍偶发首页残影，`pages/my/index` 新增顶部清屏层（`top-clean-mask`）并显式强化页面背景重绘（`page/my-page` 背景统一为 `#FAF8F5`），降低首页切页残留可见性。
+本轮问题修复（二十一次收口）：针对“首页热门房源标题残留”问题，在 `custom-tab-bar/index.js` 中增加“首页 -> 我的”切页前滚动复位（`wx.pageScrollTo(0)`）后再 `switchTab`，减少首页顶部被遮挡文本参与页面切换残影；同步将 `pages/my/index` 顶部清屏层高度提升至 `96rpx` 并启用 `overflow: hidden`。
+本轮收口（2026-03-18）：首页新增“地址选择 + 距离重排 + 搜索遮罩检索”能力。pages/home/index 已支持左侧地址选择（wx.chooseLocation）后对“热门房源/猜你喜欢”统一按距离远近重排，若坐标缺失则按地址相关性排序并提示；搜索入口改为遮罩主页，不再跳转，输入后按“房源标题 + 标签”过滤两组列表。同步补齐 getHomeHotListings/getHomeGuessListings 返回经纬度字段，保证云端数据可直接参与距离排序。
+本轮视觉收口（2026-03-18）：按新参考图完成首页与底部导航视觉升级，首页切换为低饱和蓝灰到米白渐变背景，搜索与地址入口改为悬浮圆角卡片风格，热门/猜你喜欢卡片统一高圆角与柔和阴影，价格与重点信息采用橙色强调；底部导航选中态与 AI 中央按钮改为橙色系并强化层级，整体在不改业务交互前提下提升对比度与辨识度。
+本轮视觉收口（二次对齐，2026-03-18）：根据最新反馈“当前效果与新图差异较大”，对首页与底部导航继续贴图收敛：重做首页渐变色阶与层次过渡、统一卡片阴影与圆角气质、压齐搜索区比例与占位文案、保持地址选择入口但降低视觉侵入；底部 Tab 阴影/分隔线/激活态与 AI 圆钮统一到同一橙木系；并将默认占位图替换为室内风格示例图以消除测试图对视觉判断的干扰。
+本轮视觉收口（三次对齐，2026-03-18）：针对“与示例差距大”的反馈，首页改为更接近示例的版式尺度：移除 home 卡片对全局 `.card` 的继承（取消额外边框/内边距/外边距干扰），重排热区与猜你喜欢卡片密度，显著下调标题与价格文案字号，缩小搜索区高度并压缩地址入口占比，强化上蓝下暖的分区渐变，整体从“厚重卡片感”调整为“轻量白卡+橙色重点”的示例化观感。
+本轮最小接入（2026-03-18）：按“托管 AI 工作流后续单独接入”执行新增云函数 `queryPropertyRecommend`，由云函数代理 n8n `property-recommend` webhook（支持 `PROPERTY_RECOMMEND_WEBHOOK_URL` 环境变量或入参覆盖、30s 超时、结构化错误码、activity_logs 追踪）；`utils/cloud.js` 新增调用封装；`pages/ai/index` 完成可发送需求、展示 recommendation/clarification/error、展示 AI 上下文摘要与主建议动作，并保留原有 AI 页滑动与导航交互。
+本轮验证结论（2026-03-18）：当前终端缺少 `node` 命令，未能执行 `node --check` 与 `process/regression_branches.js`、`process/smoke_e2e.js`；已完成改动文件静态自查，待在具备 Node 环境的开发机补跑语法与回归。
+本轮部署提示（2026-03-18）：需部署新增云函数 `queryPropertyRecommend`，并配置 `PROPERTY_RECOMMEND_WEBHOOK_URL` 指向可被云函数访问的 n8n webhook 地址后，AI 推荐链路可用。
+本轮阻断修复（点击偏移回归，2026-03-18）：复盘新视频 `img/20260318-1422-35.3652733.mp4`（逐帧见 `img/frame_export_2222`）后，确认异常为“AI 顶栏先出现 + 首页内容后切换”的叠层过渡残影；已将 TabBar 的 AI 入口改为 `wx.reLaunch('/pages/ai/index?entry_tab=...')` 以消除旧页与新页并行滑入造成的偏移观感，并在 `pages/ai/index` 增加 `entry_tab` 回退路由（首页/我的）保证左上返回语义；同时移除首页 `preloadAIPage()` 触发，避免预加载阶段提前渲染顶栏。
+本轮重设计（2026-03-20）：按“改用云端托管智能体”调整 AI 调用链路：`queryPropertyRecommend` 云函数改为仅服务端环境变量读取托管智能体地址与 token（不再接受前端透传 webhook 地址），并新增上游响应标准化适配（recommendation/clarification_needed/error）与统一错误码输出。
+本轮规范补齐（2026-03-20）：新增 `process/智能体与小程序通信规范.txt`，明确小程序<->云函数<->托管智能体的请求/响应契约、context 字段、错误码、日志追踪、安全边界与最小验收清单；`process/微信云开发最小接入说明.txt` 同步增加规范指引入口。
+本轮重设计（云端托管智能体，2026-03-20）：按“改用云端托管智能体”要求，`cloudfunctions/queryPropertyRecommend` 由“客户端可传 webhook + n8n 代理”改为“仅服务端环境变量驱动的托管智能体调用”；支持 `CLOUD_MANAGED_AGENT_ENDPOINT_URL/AI_MANAGED_AGENT_ENDPOINT_URL`（兼容旧 `PROPERTY_RECOMMEND_WEBHOOK_URL`）与可选 Bearer Token；统一输出 `recommendation/clarification_needed/error`，并保留 trace 与日志追踪。
+本轮最小联动（2026-03-20）：`utils/cloud.js` 的 `queryPropertyRecommend` 去除 `webhook_url` 透传；`pages/ai/index` 去除客户端 URL 注入，改为纯云函数托管模式调用，降低前端暴露外部接入点风险。
+本轮验证结论（2026-03-20）：当前终端仍缺少 `node` 命令，未执行 `node --check` 与回归脚本；已完成人工静态检查，确认调用链与文档契约一致，待在具备 Node 环境的开发机补跑自动化校验。
+本轮部署提示（2026-03-20）：部署 `queryPropertyRecommend` 后，至少配置一个托管智能体地址环境变量（推荐 `CLOUD_MANAGED_AGENT_ENDPOINT_URL`）；如接口需鉴权，再配置 `CLOUD_MANAGED_AGENT_TOKEN`。
+本轮收口（2026-03-22）：按最新确认，AI 页输入框右侧“+”收敛为单一“收藏”模块；移除 AI 页上下文卡与“继续导入/传统搜索/我的空间”快捷入口，新增收藏选择弹层，用户选择后点击右上角“确定”即自动发送所选房源给托管智能体。
+本轮文档同步（2026-03-22）：更新《process/页面输出清单_前端设计.txt》AI 页输出定义，明确“单收藏入口 + 选择确认即发送”契约。
+本轮验证结论（2026-03-22）：已执行 `node --check pages/ai/index.js` 并通过；同时完成 `pages/ai/index.wxml`、`pages/ai/index.wxss` 与流程文档静态检查。自动化回归脚本（`process/regression_branches.js`、`process/smoke_e2e.js`）本轮未执行。
+本轮阻断修复（2026-03-22）：修复 AI 页首条消息顶部遮挡问题；`pages/ai/index.wxss` 将 `.chat-list` 顶部内边距由 `36rpx` 调整为 `108rpx`，避免消息内容被顶部抽屉提示区覆盖。
+本轮重构（2026-03-22）：按“首页搜索需进入独立搜索页”改造搜索链路：`pages/home/index` 移除遮罩搜索，点击搜索跳转 `pages/search/index`；新增搜索页支持历史记录、历史复用、清空历史，提交后进入候选结果页。
+本轮最小增强（2026-03-22）：`pages/candidates/index` 支持接收搜索关键词参数并新增标签筛选（基于当前结果自动提取标签），实现“搜索结果页按标签过滤”。
+本轮文档同步（2026-03-22）：更新《process/页面输出清单_前端设计.txt》，新增 `pages/search/index` 输出定义并同步首页/候选页搜索流程。
+本轮视觉收口（2026-03-22）：按最新视频反馈，将 `pages/search/index` 收敛为简洁搜索页：顶部搜索条 + 搜索历史（历史复用/清空），移除冗余说明与多按钮区域，仅保留必要搜索能力。
+本轮详情页重构（2026-03-22）：按“首页风格沉浸式详情”改造 `pages/detail/index`：顶部约 3/4 屏媒体展示区（视频/图片）、中段一般信息（户型/面积/楼层/朝向/位置）、下段上传者提供详情，并保留“加入已选/返回列表/交给 AI 分析”动作。
+本轮文档同步（2026-03-22）：更新《process/页面输出清单_前端设计.txt》detail 页面输出定义，补充“顶部媒体区 + 一般信息 + 上传者详情”结构。
+本轮收口（2026-03-22）：按最新需求移除详情页系统识别结果/匹配提示/底部按钮，隐藏首页猜你喜欢策略文案，并在首页与传统搜索房源列表项右侧新增五角星收藏按钮（接入 EVT_LISTING_FAVORITE 与 favorite_listing_ids 存储）。
+[2026-03-23] Minimal enhancement: AI chat now persists thread history locally by session_id and reuses AI-returned compact_context on each next request.
+[2026-03-23] 本轮传统搜索页重构：pages/candidates/index 全量改版为与首页统一风格（顶部搜索栏+筛选菜单+预算快捷标签+地图预览+标签筛选+房源卡片）；新增候选页搜索历史复用/清空（SEARCH_HISTORY），保留收藏、加入已选、交给AI回流能力；node --check、regression_branches、smoke_e2e 均通过。
+[2026-03-23] 本轮 AI 对话轻量记忆 V1：`queryPropertyRecommend` 新增 `session_summary` 与白名单 `memory_patch` 标准化/校验；`pages/ai/index` 新增“最近 5 条原文 + 会话摘要 + 结构化记忆”上下文组装，并将合法记忆沉淀到本地 `AI_MEMORY_PROFILE/AI_ACTIVE_REQUIREMENT`、`buyer_intakes.structured_json` 与 `user_profiles.ai_memory_profile_json`；同时新增 `chat_sessions/chat_messages` 云端归档同步能力，供后续历史追溯与跨端恢复继续扩展。
+[2026-03-23] 本轮 AI 接入统一化：新增 `utils/ai` 统一接入层与 `utils/ai/adapters/propertyConsult.js` 适配器；`pages/ai/index` 改为通过统一场景入口调用 AI，不再直接依赖具体云函数包装。后续更换 AI 提供方或新增 AI 业务场景时，优先仅新增/替换适配器并保持页面业务逻辑稳定。
+[2026-03-24] 本轮服务端 AI provider 统一化：`cloudfunctions/queryPropertyRecommend` 新增 `providers/index.js` 与 `providers/managedAgent.js`；入口 `index.js` 收敛为通用校验、provider 调度、标准输出与日志记录。后续更换托管智能体、兼容旧 webhook 或扩展新上游时，优先只修改 provider 目录并保持云函数对外契约稳定。
+[2026-03-24] 本轮文档补充：新增 `doc/10_AI买房决策顾问_需求文档.txt`、`doc/11_AI买房决策顾问_架构文档.txt`、`doc/12_AI买房决策顾问_技术文档.txt`，口径统一为“MVP映射版”，以当前仓库已落地的 AI 入口、云函数、云开发对象为准，并显式区分 Phase 1 / Phase 2 / Phase 3。
+[2026-03-24] 本轮后端最小兼容增强：`queryPropertyRecommend` 新增 AI 上下文字段归一化（`previous_understanding/favorite_listings` -> `active_intake/selected_listings`，并从 `active_requirement.current_stage` 推导 `flow_stage`），`managedAgent` provider 新增上游响应别名兼容（`reply/reply_text/reply_type/candidates/question/memoryPatch/preference_update`）与 `memory_patch` 字段别名映射，保持云函数名、集合名和统一响应结构不变。
+[2026-03-23] 传统搜索页进一步收敛：顶部改为独占搜索框，筛选仅保留地点/价格/户型；移除中间复杂模块，仅保留“点击收藏，让ai帮你比较”引导与“AI比较”按钮（跳转 /pages/ai/index，与首页一致）；房源列表保留右侧五角星收藏。
+[2026-03-23] 收口增强：我的空间补全“我的收藏”可编辑列表（编辑/移除/详情跳转）；首页位置选择改为城市级（原生 region picker，仅取城市）；搜索页新增细分位置选择（city+district）并透传至传统搜索结果过滤；坚持复用原生组件，无自造轮子。
+[2026-03-23] 收口修复：修复 pages/home/index.wxml 乱码与模板闭合问题（热门/猜你喜欢文案、距离文案、收藏星标表达式），并清理 pages/home/index.js 中异常乱码提示；同步更新《process/页面输出清单_前端设计.txt》：明确首页城市级位置选择、搜索页 city+district 细分位置、传统搜索页精简结构、我的空间收藏可编辑列表规范。
+[2026-03-24] 收口修复：新增 utils/ai.js 兼容入口（转发至 utils/ai/index.js），修复 pages/ai/index 的 require('../../utils/ai') 在真机报 module not defined；同时将 pages/search/index 的位置读取改为仅使用 SEARCH_REGION_FILTER，不再回退 HOME_CITY_REGION，确保搜索页位置修改不回写/不同步首页位置。
+[2026-03-24] 交互迁移收口：位置选择从 pages/search/index 迁移到 pages/candidates/index（结果页地点 picker + 清除），搜索页仅保留关键词与历史；候选房源收藏交互增强为“收藏/已收藏”文案 + 五角星，并在点击后浮层提示（收藏成功/已取消收藏）。
+[2026-03-24] 收口微调：候选页收藏浮层提示按需求收敛为仅在新增收藏时提示“收藏成功”，取消收藏不弹提示。
+[2026-03-24] 组件化收口：新增可复用组件 components/favorite-chip（文案+五角星同框样式），并在 pages/home/index 与 pages/candidates/index 统一接入 usingComponents；移除页面内重复收藏样式定义，确保首页列表与搜索结果页视觉一致且不重复造轮子。
+[2026-03-24] 首页视觉与交互收口：home 收藏切换新增“收藏成功”提示（仅新增收藏时）；favorite-chip 组件改为固定宽度同框布局，避免“收藏/已收藏”文案切换挤压邻近内容；热门房源由横向滚动卡片改为大图 swiper 轮播（带左右预览边距），提升首屏图片展示面积。
+[2026-03-24] 我的页面重构收口：pages/my 改为纯列表式入口（我的收藏/我的预约/入驻平台），移除“设置”入口与内嵌收藏列表；新增独立页面 pages/myFavorites 承接收藏查看与编辑（编辑/完成、移除、详情跳转）；app.json 新增 pages/myFavorites/index 路由，并同步更新《process/页面输出清单_前端设计.txt》页面清单与输出定义。
+[2026-03-24] Sprint 1 最小决策闭环：新增 cloudfunctions/decisionEngine 与 decision_sessions，AI 页补齐启动决策、三档候选、pairwise、critique、relaxation 卡区；新增 utils/decision.js、开发态 openai_compatible provider 与 process/ai_provider_smoke.js；decision_engine_smoke 已跑通，openai_compatible smoke 脚本已补齐并完成临时 apikey 连通诊断，默认正式链路仍保持 managed_agent。
+[2026-03-24] 开发态 provider 联调补强：openai_compatible 新增可选代理环境变量 `OPENAI_COMPAT_PROXY_URL`，本地 smoke 可自动读取 Windows 用户代理并补齐 `HTTPS_PROXY/HTTP_PROXY`；当前链路已从 Node 直连超时收口到上游 `401`，说明本地出口问题已排除，剩余为 key/base_url 授权匹配问题。
+[2026-03-24] 开发态 provider 日志收口：openai_compatible 对上游错误详情增加凭证脱敏规则，避免 401/403 响应体中的 API key 片段进入本地 smoke 或终端输出。
+[2026-03-24] Sprint 1 文档补强：`process/微信云开发最小接入说明.txt` 与 `process/智能体与小程序通信规范.txt` 已同步补充 `decisionEngine` / `decision_sessions` 接入、权限、部署与最小验证说明，保证新增云函数与集合存在代码化文档真源。
+[2026-03-24] AI 页决策入口兜底：`pages/ai/index` 新增 decision seed 可用性预计算，进入页面/切换会话/无决策态恢复时会提前提示当前可用房源种子；未满足至少 2 套房源时，结构化决策按钮改为禁用态与明确文案，减少无效点击。
+[2026-03-25] 开发态 provider 百炼收口：确认 `新需求/apikey` 为阿里云百炼 API Key；`openai_compatible` 与 `process/ai_provider_smoke.js` 在未显式配置时默认走百炼北京地域 OpenAI 兼容端点 `https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions` 与 `qwen-plus`，同时兼容 `BAILIAN_*` / `DASHSCOPE_*` 环境变量别名；本地 smoke 已成功返回 recommendation 结果。
+[2026-03-25] 默认聊天链路切换：`queryPropertyRecommend` 的默认 provider 已临时从 `managed_agent` 切换为 `openai_compatible`，当前聊天统一走百炼兼容模型；`managed_agent` 仅保留为可回退 provider，不再要求托管智能体 endpoint 才能正常发送 AI 消息。
+[2026-03-25] AI 页收藏/决策兼容修复：`pages/ai/index` 读取本地房源与需求时改为兼容 `user_id/login_code/openid` 多别名，避免测试账号与真实微信身份切换后本地 active listings 被误判为空；`utils/decision.js` 在 start/state/pairwise/critique/relax 全链路透传本地 active listings，减少云端 `listings` 暂无数据时 `decisionEngine` 直接返回 `DECISION_NO_LISTINGS`。
+[2026-03-25] 百炼超时收口：根据 CloudBase 官方默认超时约束，`openai_compatible` 出网请求默认等待时间从 `30000ms` 收敛到 `12000ms`，优先在小程序 `cloud.callFunction` 窗口内返回结构化错误而不是直接触发 `FUNCTIONS_TIME_LIMIT_EXCEEDED`；同步补充云函数执行超时应提升到不少于 15 秒的接入说明。
+[2026-03-25] AI 页决策交互收口：结构化决策区改为渐进展示；默认不再直接露出“修正意见”输入框，也不再默认展开“放宽建议”列表；用户先看当前阶段、三档候选与二选一，再按需点击“补充条件”或“查看放宽建议”，减少未表达前的干扰项。
+[2026-03-25] decisionEngine 诊断补强：AI 页结构化决策错误提示改为优先显示云函数返回的 `error.details`，不再只展示通用 `decision engine execution failed`；`cloudfunctions/decisionEngine` catch 分支新增结构化 `console.error`，便于直接从云函数日志定位真实失败点。
+[2026-03-25] AI 决策离线评测补齐：新增 `process/ai_decision_eval_dataset.json` 与 `process/ai_decision_baseline_eval.js`，建立 6 条可解释黄金 case，统一对比 Current System / 纯规则筛选排序 / LLM 直出推荐 / 去掉显式偏好状态的简化版；补充《process/AI决策评测说明.txt》说明指标、运行命令与回退方式，供后续 prompt/排序/状态更新回归复用。
+[2026-03-25] decision_sessions 写库修复：根据云端真实报错 `document.set:fail -501007 invalid parameters: 不能是新的_id值`，`decisionEngine/lib/stateStore.js` 在回写 `decision_sessions` 前统一剥离 `_id/_openid` 等云数据库保留字段，避免 pairwise/critique/relax 等后续动作在 `doc().set()` 时失败。
+[2026-03-25] pairwise 交互修复：decisionRanker 不再在唯一 pair 已答完后重复返回同一组二选一问题；AI 页 pairwise 成功后新增最小成功提示；decision_engine_smoke 补充“单一 pair 不应重复提问”断言。

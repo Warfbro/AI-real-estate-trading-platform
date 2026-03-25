@@ -1,0 +1,470 @@
+AI买房决策顾问_技术文档
+
+一、技术总纲
+本系统采用“LLM语言接口 + 显式偏好状态 + 主动偏好获取 + 决策引擎 + 解释层”的混合实现。
+技术边界如下：
+
+1. LLM负责
+（1）理解自然语言
+（2）识别情绪与意图
+（3）抽取偏好信号
+（4）把结果解释成人话
+
+2. 算法/后端负责
+（1）偏好状态维护
+（2）问题选择
+（3）候选筛选
+（4）候选排序
+（5）冲突检测
+（6）放宽建议
+
+二、核心状态模型
+1. 决策状态 PreferenceState
+字段建议：
+- decision_id
+- user_id
+- hard_constraints
+- soft_preferences
+- confidence
+- unknowns
+- critique_memory
+- pairwise_memory
+
+示例：
+{
+  "decision_id": "dec_001",
+  "user_id": "u_001",
+  "hard_constraints": {
+    "city": "南昌",
+    "budget_max": 1200000,
+    "down_payment_max": 350000,
+    "monthly_payment_max": 4500,
+    "must_elevator": true,
+    "max_commute_min": 40,
+    "entry_deadline": "2028-09"
+  },
+  "soft_preferences": {
+    "school_stability": 0.92,
+    "commute": 0.68,
+    "house_age": 0.42,
+    "liquidity": 0.35,
+    "environment": 0.59,
+    "near_subway": 0.31
+  },
+  "confidence": {
+    "budget_max": 0.95,
+    "school_stability": 0.82,
+    "house_age": 0.41
+  },
+  "unknowns": [
+    "preferred_area",
+    "new_vs_old",
+    "resale_vs_new"
+  ],
+  "critique_memory": [
+    "不要太老",
+    "学校要稳",
+    "月供别太紧"
+  ],
+  "pairwise_memory": [
+    {
+      "left": "school_stability",
+      "right": "monthly_payment_pressure",
+      "winner": "school_stability",
+      "confidence": 0.71
+    }
+  ]
+}
+
+设计原则：
+（1）硬约束不满足直接淘汰
+（2）软偏好决定排序
+（3）明确值与推断值必须区分
+（4）critique和pairwise是后续偏好学习依据
+
+2. 交互状态 InteractionState
+字段建议：
+- anxiety
+- urgency
+- trust
+- decision_fatigue
+- question_tolerance
+- recent_consecutive_questions
+- current_stage
+- should_ask_next
+
+示例：
+{
+  "emotion_state": {
+    "anxiety": 0.78,
+    "urgency": 0.63,
+    "trust": 0.46,
+    "decision_fatigue": 0.37
+  },
+  "interaction_state": {
+    "question_tolerance": 0.52,
+    "recent_consecutive_questions": 1,
+    "current_stage": "clarifying",
+    "should_ask_next": true
+  }
+}
+
+用途：
+（1）决定是否继续追问
+（2）决定问法是否要更温和
+（3）决定是否应该先给候选再问
+
+三、数据库设计
+1. users
+字段建议：
+- id
+- wx_openid / unionid
+- nickname
+- created_at
+- updated_at
+
+2. decision_sessions
+字段建议：
+- id
+- user_id
+- status
+- current_stage
+- created_at
+- updated_at
+
+3. preference_states
+字段建议：
+- id
+- decision_session_id
+- hard_constraints_json
+- soft_preferences_json
+- confidence_json
+- unknowns_json
+- critique_memory_json
+- pairwise_memory_json
+- emotion_state_json
+- interaction_state_json
+- version
+- updated_at
+
+4. houses
+字段建议：
+- id
+- city
+- district
+- community
+- total_price
+- area
+- layout
+- floor
+- has_elevator
+- built_year
+- subway_distance
+- school_zone
+- estimated_monthly_payment
+- tax_cost
+- liquidity_score
+- environment_score
+- status
+
+5. house_features
+字段建议：
+- house_id
+- school_stability_score
+- commute_score
+- environment_score
+- liquidity_score
+- price_value_score
+- risk_flags_json
+
+6. conversation_events
+字段建议：
+- id
+- decision_session_id
+- role
+- raw_text
+- extracted_intent
+- extracted_signals_json
+- created_at
+
+7. candidate_sets
+字段建议：
+- id
+- decision_session_id
+- feasible_count
+- candidate_json
+- conflict_json
+- relaxation_json
+- created_at
+
+8. comparisons
+字段建议：
+- id
+- decision_session_id
+- left_house_id
+- right_house_id
+- user_choice
+- interpreted_preference_json
+- created_at
+
+四、API设计
+1. 发送消息
+POST /api/chat/send
+
+请求：
+{
+  "user_id": "u_001",
+  "decision_session_id": "dec_001",
+  "message": "我孩子快上学了，我怕买错，预算也不高。"
+}
+
+响应：
+{
+  "reply_text": "我懂，你现在最难的不是有没有房，而是每一步都怕代价太大。我们先不急着把条件全列满，我先帮你把最关键的矛盾找出来。如果这次只能先保一个，你更不能接受学校不稳，还是更不能接受月供太紧？",
+  "reply_type": "ask_pairwise",
+  "candidates": [],
+  "question": {
+    "type": "pairwise",
+    "left": "school_stability",
+    "right": "monthly_payment_pressure"
+  }
+}
+
+2. 获取当前偏好状态
+GET /api/decision/{id}/state
+
+3. 获取候选房源
+GET /api/decision/{id}/candidates
+
+4. 提交pairwise选择
+POST /api/decision/{id}/pairwise
+
+请求：
+{
+  "winner": "school_stability"
+}
+
+5. 提交critique
+POST /api/decision/{id}/critique
+
+请求：
+{
+  "message": "这几套还是有点老，离学校再近一点会更安心。"
+}
+
+6. 房源比较
+POST /api/compare
+
+请求：
+{
+  "decision_session_id": "dec_001",
+  "house_ids": ["h_101", "h_202", "h_303"]
+}
+
+7. 获取放宽建议
+GET /api/decision/{id}/relaxation
+
+五、状态机设计
+建议状态：
+INIT
+EMPATHIZE_AND_CLARIFY
+PREFERENCE_ELICITATION
+INITIAL_CANDIDATES
+CRITIQUE_AND_REFINEMENT
+COMPARISON
+RELAXATION_IF_NEEDED
+FINAL_RECOMMENDATION
+ACTION_GUIDANCE
+
+状态说明：
+1. INIT
+创建决策会话。
+
+2. EMPATHIZE_AND_CLARIFY
+接住情绪，粗识别意图，不做强盘问。
+
+3. PREFERENCE_ELICITATION
+使用低打扰问题建立偏好状态。
+优先pairwise / critique / 范围确认。
+
+4. INITIAL_CANDIDATES
+尽早给出第一批候选，让用户开始批评和修正。
+
+5. CRITIQUE_AND_REFINEMENT
+接收自然语言吐槽，转成偏好更新，并重新排序。
+
+6. COMPARISON
+对少量候选做结构化比较，并给出取舍解释。
+
+7. RELAXATION_IF_NEEDED
+处理无解或强冲突，输出温和放宽建议。
+
+8. FINAL_RECOMMENDATION
+收敛到1到3套，并给出顾问式结论。
+
+9. ACTION_GUIDANCE
+给出下一步动作：收藏、咨询、预约、风险确认等。
+
+六、核心算法设计
+1. 偏好抽取器
+输入：
+- 用户自然语言
+- 上下文
+- 当前偏好状态
+
+输出：
+- 硬约束更新
+- 软偏好更新
+- 情绪状态更新
+- critique信号
+- 是否需要下一问
+
+抽取原则：
+（1）明确表达 -> 直接写状态
+（2）模糊表达 -> 写状态并附置信度
+（3）情绪表达 -> 写入交互状态
+
+2. 问题选择器
+目标函数建议：
+QuestionScore
+= InformationGain
+- CognitiveBurden
+- InterruptionCost
+- FatiguePenalty
++ TrustFit
+
+含义：
+- InformationGain：问完后能否显著缩小候选集
+- CognitiveBurden：用户理解和回答成本
+- InterruptionCost：像不像审问
+- FatiguePenalty：用户是否已经烦了
+- TrustFit：当前问法是否符合当前信任关系
+
+优先策略：
+（1）pairwise
+（2）critique引导
+（3）区间确认
+（4）开放式追问
+
+3. 决策引擎
+第一步：可行性过滤
+feasible(house) = all hard constraints satisfied
+
+第二步：偏好打分
+score(house) = Σ(w_i * f_i(house)) - penalties
+
+其中：
+- w_i 来自软偏好权重
+- f_i(house) 是归一化特征
+- penalties 包括风险项、强不偏好项
+
+第三步：候选分桶
+默认输出三类：
+（1）稳妥型
+（2）均衡型
+（3）性价比型
+
+第四步：冲突检测
+若可行数过低，识别冲突组合。
+
+第五步：放宽建议
+计算最小代价放宽路径，例如：
+（1）通勤 40 -> 50 分钟
+（2）预算 120 -> 130 万
+（3）新房偏好降级为“房龄不太老”
+
+4. critique解析器
+作用：
+把自然语言反馈变成偏好更新。
+
+示例：
+- “便宜一点” -> 提高价格敏感度
+- “离学校近一点” -> 提高school/commute相关权重
+- “不要太老” -> 提高house_age偏好
+- “月供别太顶” -> 提高monthly_payment_pressure权重
+
+5. 解释生成器
+输入：
+- 当前偏好状态摘要
+- 当前候选摘要
+- 冲突信息
+- 放宽建议
+- 当前情绪状态
+
+输出模板：
+（1）承接
+（2）解释取舍
+（3）推进下一步
+
+示例：
+“你现在不是单纯在挑房子，而是在几个都重要的目标里做取舍，这本来就容易越看越乱。
+我先把‘孩子上学的确定性’和‘家庭压力别太重’放在前面，所以一些更新但更贵的先压掉了。
+现在这三套里，一套最稳，一套最省，一套最均衡。你先看看你更想先保哪一种，我再继续往下缩。”
+
+七、提示词边界
+本方案不是纯提示词工程，但提示词仍然要有边界。
+
+LLM系统提示只负责：
+（1）角色口吻
+（2）情绪承接风格
+（3）输出结构
+（4）抽取JSON规范
+（5）解释风格
+
+LLM不负责：
+（1）最终房源排序
+（2）真实可行性判断
+（3）约束冲突求解
+（4）业务真相存储
+
+八、日志与监控
+必须记录：
+（1）用户输入原文
+（2）抽取结果
+（3）偏好状态版本变化
+（4）问题选择器候选与最终选择
+（5）决策引擎得分明细
+（6）放宽建议来源
+（7）最终回复文本
+
+目的：
+（1）排查为什么问了这个问题
+（2）排查为什么给出这几套房
+（3）排查为什么用户觉得像被盘问
+
+九、安全与风控
+风险点：
+（1）LLM胡乱推断用户偏好
+（2）用户身份与会话串线
+（3）无依据地做投资承诺
+（4）政策类信息过时
+（5）高成本链路滥用
+
+控制措施：
+（1）偏好状态区分明确值与推断值
+（2）会话与用户映射独立维护
+（3）规则类内容优先走规则库/RAG
+（4）高成本模型调用做限流
+（5）决策结果必须附带解释来源
+
+十、分期落地计划
+Phase 1：MVP
+（1）显式偏好状态
+（2）简单规则过滤
+（3）简单加权排序
+（4）顾问式解释模板
+（5）基础critique更新
+
+Phase 2：正式版
+（1）交互状态
+（2）低打扰问题选择器
+（3）pairwise偏好获取
+（4）冲突检测
+（5）放宽建议
+（6）多方案输出
+
+Phase 3：高级版
+（1）主动偏好学习
+（2）更强的效用学习
+（3）高维偏好建模
+（4）更强的优化求解内核

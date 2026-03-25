@@ -232,3 +232,37 @@ closed：已关闭
 - 取消旧版横幅广告与冗余进度卡。
 - 引入顶部搜索、横向滑动“热门房源”与垂直流式“猜你喜欢”列表，数据均依托现有房源数据库，不新增资讯模型。
 =============================================
+
+13. 2026-03-24 补充：AI 最小决策闭环状态流转
+
+对象：decision_sessions
+
+状态：
+- active：当前可继续决策
+- completed：当前轮决策已结束，保留结果
+- archived：归档，不再继续参与当前会话
+
+阶段：
+- clarifying：候选不足或约束不完整，需要先澄清/放宽
+- ranking：已有可行候选并输出三档结果
+- pairwise：系统给出一组二选一偏好问题
+- critique：用户通过自然语言修正偏好
+- relaxation：当前可行候选过少，需要放宽建议
+
+允许流转：
+- start -> active + (ranking | pairwise | relaxation | clarifying)
+- active/ranking -> pairwise
+- active/pairwise -> ranking
+- active/pairwise -> critique
+- active/critique -> ranking | relaxation | clarifying
+- active/relaxation -> ranking | clarifying
+- active -> completed
+- completed -> archived
+
+规则：
+1）decisionEngine 是唯一结构化决策入口，统一通过 action=start/state/pairwise/critique/relax 触发。
+2）硬约束本期仅包含 city / district / budget_min / budget_max / elevator_required，学区与通勤仅记录为偏好提示，不进入硬过滤。
+3）pairwise 只允许 winner_listing_id 与 loser_listing_id 均存在且不可相同。
+4）critique 仅解析明确表达：太贵、区域不合适、不要楼梯房/需要电梯、面积太小、户型不喜欢。
+5）relaxation 只枚举 budget_max_plus_20 / drop_elevator_hard_constraint / expand_district / area_min_minus_10 四类建议，不引入重求解器。
+6）本期不新增独立 preference_states 表，偏好变化统一回写 decision_sessions.state_json。

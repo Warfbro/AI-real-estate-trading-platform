@@ -2,14 +2,86 @@ const { isLoggedIn, requireLogin, getSession } = require("../../utils/auth");
 const { EVENTS, trackEvent, writeActivityLog } = require("../../utils/track");
 const { STORAGE_KEYS, get, set } = require("../../utils/storage");
 
+const HISTORY_LIMIT = 12;
+
 function byUpdatedDesc(a, b) {
   const aTime = a.updated_at || a.created_at || "";
   const bTime = b.updated_at || b.created_at || "";
   return aTime > bTime ? -1 : 1;
 }
 
+function normalizeText(value, fallback = "") {
+  const text = String(value || "").trim();
+  return text || fallback;
+}
+
+function normalizeKeyword(value) {
+  return String(value || "").trim();
+}
+
 function safeIncludes(text, keyword) {
   return String(text || "").toLowerCase().includes(String(keyword || "").toLowerCase());
+}
+
+function normalizeHistory(list) {
+  if (!Array.isArray(list)) {
+    return [];
+  }
+
+  const seen = new Set();
+  const result = [];
+  list.forEach((item) => {
+    const keyword = normalizeKeyword(item);
+    if (!keyword || seen.has(keyword)) {
+      return;
+    }
+    seen.add(keyword);
+    result.push(keyword);
+  });
+
+  return result.slice(0, HISTORY_LIMIT);
+}
+
+function normalizeTags(rawTags) {
+  if (Array.isArray(rawTags)) {
+    return rawTags
+      .map((item) => {
+        if (typeof item === "string") return normalizeText(item);
+        if (item && typeof item === "object") {
+          return normalizeText(item.title || item.name || item.label || item.code);
+        }
+        return "";
+      })
+      .filter(Boolean);
+  }
+
+  if (typeof rawTags === "string") {
+    return rawTags
+      .split(/[,\s|\uFF0C\u3001]+/)
+      .map((item) => normalizeText(item))
+      .filter(Boolean);
+  }
+
+  return [];
+}
+
+function buildListingMeta(item) {
+  const area = item.area_sqm == null ? "面积待补充" : `${item.area_sqm}㎡`;
+  const layout = normalizeText(item.layout_desc, "户型待补充");
+  const floor = normalizeText(item.floor_desc, "楼层待补充");
+  return `${layout} · ${area} · ${floor}`;
+}
+
+function formatRegionText(city, district) {
+  const cityText = normalizeText(city);
+  const districtText = normalizeText(district);
+  if (cityText && districtText) {
+    return `${cityText} / ${districtText}`;
+  }
+  if (cityText) {
+    return cityText;
+  }
+  return "全城";
 }
 
 Page({
@@ -17,26 +89,56 @@ Page({
     source: "search",
     intake: null,
     has_intake: false,
-    intake_city_text: "未填写",
-    intake_usage_text: "未填写",
-    intake_budget_text: "- - -",
-    selected_count_text: "0",
+    intake_city_text: "全城",
+    intake_usage_text: "自住",
+    intake_budget_text: "预算待定",
+    budget_menu_text: "价格",
+
+    search_city_filter: "",
+    search_district_filter: "",
+    search_region_value: [],
+    search_region_text: "全城",
+    has_region_selected: false,
+
+    all_listings: [],
     listings: [],
-    has_listings: false,
     has_source_listings: false,
     show_empty_list: true,
     empty_title: "暂无可搜索房源",
-    empty_desc: "传统搜索基于你已导入的房源，请先去 AI 线路导入。",
-    all_listings: [],
-    filter_budget_min: "",
-    filter_budget_max: "",
+    empty_desc: "你可以先去导入房源，再回来传统搜索。",
+
     filter_keyword: "",
-    compare_ids: []
+    favorite_ids: []
   },
 
   onLoad(options) {
+    const decodeSafe = (value) => {
+      const text = normalizeText(value);
+      if (!text) return "";
+      try {
+        return decodeURIComponent(text);
+      } catch (err) {
+        return text;
+      }
+    };
+
+    const queryCity = decodeSafe(options && options.city);
+    const queryDistrict = decodeSafe(options && options.district);
+    const storedRegion = get(STORAGE_KEYS.SEARCH_REGION_FILTER, []);
+    const regionValue = Array.isArray(storedRegion) ? storedRegion : [];
+    const storedCity = normalizeKeyword(regionValue[1] || regionValue[0]);
+    const storedDistrict = normalizeKeyword(regionValue[2]);
+    const city = queryCity || storedCity;
+    const district = queryDistrict || storedDistrict;
+
     this.setData({
-      source: options.source || "search"
+      source: (options && options.source) || "search",
+      filter_keyword: decodeSafe(options && options.keyword),
+      search_city_filter: city,
+      search_district_filter: district,
+      search_region_value: regionValue,
+      search_region_text: formatRegionText(city, district),
+      has_region_selected: Boolean(city)
     });
   },
 
@@ -46,120 +148,102 @@ Page({
       return;
     }
 
-    const route = this.data.source && this.data.source !== "search"
-      ? `/pages/candidates/index?source=${encodeURIComponent(this.data.source)}`
+    const queryParts = [];
+    if (this.data.source && this.data.source !== "search") {
+      queryParts.push(`source=${encodeURIComponent(this.data.source)}`);
+    }
+    if (this.data.filter_keyword) {
+      queryParts.push(`keyword=${encodeURIComponent(this.data.filter_keyword)}`);
+    }
+    if (this.data.search_city_filter) {
+      queryParts.push(`city=${encodeURIComponent(this.data.search_city_filter)}`);
+    }
+    if (this.data.search_district_filter) {
+      queryParts.push(`district=${encodeURIComponent(this.data.search_district_filter)}`);
+    }
+
+    const route = queryParts.length
+      ? `/pages/candidates/index?${queryParts.join("&")}`
       : "/pages/candidates/index";
     set(STORAGE_KEYS.RECENT_CONTINUE_ROUTE, route);
+
     trackEvent(EVENTS.PAGE_CANDIDATE_VIEW, {
       source: this.data.source || "search"
     });
+
     this.bootstrap();
   },
 
   bootstrap() {
     const session = getSession();
+    const userId = normalizeText(session && (session.login_code || session.user_id));
+
     const intakes = get(STORAGE_KEYS.BUYER_INTAKES, [])
-      .filter((item) => item.user_id === session.login_code && item.status === "submitted")
+      .filter((item) => item && item.user_id === userId && item.status === "submitted")
       .sort(byUpdatedDesc);
     const intake = intakes.length ? intakes[0] : null;
 
     const allListings = get(STORAGE_KEYS.LISTINGS, []).filter(
-      (item) => item.user_id === session.login_code && item.status === "active"
+      (item) => item && item.user_id === userId && item.status === "active"
     );
 
-    const compareIds = get(STORAGE_KEYS.COMPARE_LISTING_IDS, []);
-    const nextState = {
-      intake,
-      has_intake: Boolean(intake),
-      all_listings: allListings,
-      compare_ids: compareIds,
-      has_source_listings: allListings.length > 0
-    };
+    const favoriteIdsRaw = get(STORAGE_KEYS.FAVORITE_LISTING_IDS, []);
+    const favoriteIds = Array.isArray(favoriteIdsRaw)
+      ? Array.from(new Set(favoriteIdsRaw.map((item) => normalizeText(item)).filter(Boolean)))
+      : [];
 
-    if (!this.data.filter_budget_min && intake && intake.budget_min !== null && intake.budget_min !== undefined) {
-      nextState.filter_budget_min = String(intake.budget_min);
-    }
-    if (!this.data.filter_budget_max && intake && intake.budget_max !== null && intake.budget_max !== undefined) {
-      nextState.filter_budget_max = String(intake.budget_max);
-    }
-
-    this.setData(nextState, () => {
-      this.syncHeaderView();
-      this.applyFilters();
-    });
+    this.setData(
+      {
+        intake,
+        has_intake: Boolean(intake),
+        all_listings: allListings,
+        favorite_ids: favoriteIds,
+        has_source_listings: allListings.length > 0
+      },
+      () => {
+        this.syncHeaderView();
+        this.applyFilters();
+      }
+    );
   },
 
   syncHeaderView() {
     const intake = this.data.intake;
-    const budgetMin =
-      intake && intake.budget_min !== null && intake.budget_min !== undefined
-        ? String(intake.budget_min)
-        : "-";
-    const budgetMax =
-      intake && intake.budget_max !== null && intake.budget_max !== undefined
-        ? String(intake.budget_max)
-        : "-";
+    const budgetMin = intake && intake.budget_min != null ? String(intake.budget_min) : "-";
+    const budgetMax = intake && intake.budget_max != null ? String(intake.budget_max) : "-";
+    const cityText =
+      normalizeText(this.data.search_city_filter) ||
+      (intake && intake.city ? intake.city : "全城");
+
     this.setData({
-      has_intake: Boolean(intake),
-      intake_city_text: intake && intake.city ? intake.city : "未填写",
-      intake_usage_text: intake && intake.usage_type ? intake.usage_type : "未填写",
-      intake_budget_text: `${budgetMin} - ${budgetMax} 万`,
-      selected_count_text: String((this.data.compare_ids || []).length)
+      intake_city_text: cityText,
+      intake_usage_text: intake && intake.usage_type ? intake.usage_type : "自住",
+      intake_budget_text: intake ? `${budgetMin}-${budgetMax}万` : "预算待定",
+      budget_menu_text: intake ? `${budgetMin}-${budgetMax}万` : "价格"
     });
-  },
-
-  handleFilterInput(e) {
-    const field = e.currentTarget.dataset.field;
-    this.setData({
-      [field]: e.detail.value
-    });
-  },
-
-  handleApplyFilters() {
-    this.applyFilters();
-  },
-
-  handleResetFilters() {
-    const intake = this.data.intake;
-    this.setData(
-      {
-        filter_keyword: "",
-        filter_budget_min:
-          intake && intake.budget_min !== null && intake.budget_min !== undefined
-            ? String(intake.budget_min)
-            : "",
-        filter_budget_max:
-          intake && intake.budget_max !== null && intake.budget_max !== undefined
-            ? String(intake.budget_max)
-            : ""
-      },
-      () => this.applyFilters()
-    );
   },
 
   applyFilters() {
     const {
       intake,
       all_listings: allListings,
-      filter_budget_min: filterBudgetMin,
-      filter_budget_max: filterBudgetMax,
       filter_keyword: filterKeyword,
-      compare_ids: compareIds
+      search_city_filter: cityFilter,
+      search_district_filter: districtFilter,
+      favorite_ids: favoriteIds
     } = this.data;
-
-    const min = Number(filterBudgetMin);
-    const max = Number(filterBudgetMax);
-    const hasMin = !Number.isNaN(min) && filterBudgetMin !== "";
-    const hasMax = !Number.isNaN(max) && filterBudgetMax !== "";
 
     let filtered = allListings.slice();
 
-    if (hasMin) {
-      filtered = filtered.filter((item) => item.price_total === null || item.price_total >= min);
+    if (cityFilter) {
+      filtered = filtered.filter((item) => {
+        const cityText = normalizeText(item.city);
+        return cityText === cityFilter || safeIncludes(cityText, cityFilter) || safeIncludes(cityFilter, cityText);
+      });
     }
 
-    if (hasMax) {
-      filtered = filtered.filter((item) => item.price_total === null || item.price_total <= max);
+    if (districtFilter) {
+      filtered = filtered.filter((item) => safeIncludes(item.district, districtFilter));
     }
 
     if (filterKeyword) {
@@ -172,34 +256,36 @@ Page({
       );
     }
 
-    const withReason = filtered.map((item) => ({
-      ...item,
-      recommendation_reason: this.getRecommendation(item, intake),
-      selected_for_compare: compareIds.includes(item.listing_id),
-      display_title: item.title || "待完善房源",
-      display_price:
-        item.price_total === null || item.price_total === undefined
-          ? "待补充"
-          : `${item.price_total}万`,
-      display_area:
-        item.area_sqm === null || item.area_sqm === undefined ? "待补充" : `${item.area_sqm}㎡`,
-      display_city: item.city || "未知",
-      display_community: item.community_name || "待补充",
-      compare_button_text: compareIds.includes(item.listing_id) ? "移出已选" : "加入已选"
-    }));
+    const favoriteSet = new Set((favoriteIds || []).map((item) => normalizeText(item)).filter(Boolean));
+
+    const listings = filtered.map((item) => {
+      const displayTags = normalizeTags(item.tags_json || item.tags).slice(0, 4);
+      const badge = displayTags[0] || "精选房源";
+
+      return {
+        ...item,
+        display_title: normalizeText(item.title, "待完善房源"),
+        display_meta: buildListingMeta(item),
+        display_location: `${normalizeText(item.city, "未知")}-${normalizeText(item.district, "区域待补充")}`,
+        display_price: item.price_total == null ? "价格待补充" : `${item.price_total}万`,
+        display_tags: displayTags,
+        display_badge: badge,
+        cover_image_url: normalizeText(item.cover_image_url || item.image_url || item.raw_file_url, "/img/image.png"),
+        recommendation_reason: this.getRecommendation(item, intake),
+        favorited: favoriteSet.has(normalizeText(item.listing_id))
+      };
+    });
 
     let emptyTitle = "当前筛选无结果";
-    let emptyDesc = "请调整预算或关键词，再继续搜索。";
+    let emptyDesc = "请调整关键词或位置后继续搜索。";
     if (!allListings.length) {
       emptyTitle = "暂无可搜索房源";
-      emptyDesc = "传统搜索基于你已导入的房源，请先去 AI 线路导入。";
+      emptyDesc = "传统搜索基于你已导入的房源，先去导入再回来更高效。";
     }
 
     this.setData({
-      listings: withReason,
-      has_listings: withReason.length > 0,
-      has_source_listings: allListings.length > 0,
-      show_empty_list: withReason.length === 0,
+      listings,
+      show_empty_list: listings.length === 0,
       empty_title: emptyTitle,
       empty_desc: emptyDesc
     });
@@ -209,33 +295,107 @@ Page({
     const reasons = [];
 
     if (intake && intake.city && listing.city && intake.city === listing.city) {
-      reasons.push("AI 偏好参考：城市匹配");
+      reasons.push("城市匹配");
     }
 
     if (
       intake &&
-      intake.budget_min !== null &&
-      intake.budget_max !== null &&
-      listing.price_total !== null &&
+      intake.budget_min != null &&
+      intake.budget_max != null &&
+      listing.price_total != null &&
       listing.price_total >= intake.budget_min &&
       listing.price_total <= intake.budget_max
     ) {
-      reasons.push("AI 偏好参考：预算区间内");
-    }
-
-    const missingCount = (listing.missing_fields_json || []).length;
-    if (missingCount > 0) {
-      reasons.push(`仍缺少 ${missingCount} 个关键字段`);
-    }
-
-    if (!reasons.length && intake) {
-      reasons.push("与当前 AI 偏好无明显冲突，可结合详情继续判断");
+      reasons.push("预算区间内");
     }
 
     if (!reasons.length) {
-      reasons.push("独立搜索模式：可先勾选房源，再交给 AI 分析");
+      reasons.push("点击收藏后可交给AI比较");
     }
-    return reasons.join(" / ");
+
+    return reasons.join(" · ");
+  },
+
+  handleFilterInput(e) {
+    const field = e.currentTarget.dataset.field;
+    this.setData({
+      [field]: e.detail.value
+    });
+  },
+
+  handleSearchConfirm() {
+    const keyword = normalizeKeyword(this.data.filter_keyword);
+    this.setData(
+      {
+        filter_keyword: keyword
+      },
+      () => {
+        if (keyword) {
+          this.saveSearchHistory(keyword);
+        }
+        this.applyFilters();
+      }
+    );
+  },
+
+  saveSearchHistory(keyword) {
+    const current = normalizeHistory(get(STORAGE_KEYS.SEARCH_HISTORY, []));
+    const next = [keyword]
+      .concat(current.filter((item) => item !== keyword))
+      .slice(0, HISTORY_LIMIT);
+    set(STORAGE_KEYS.SEARCH_HISTORY, next);
+  },
+
+  handleRegionChange(e) {
+    const regionValue = Array.isArray(e.detail.value) ? e.detail.value : [];
+    const city = normalizeKeyword(regionValue[1] || regionValue[0]);
+    const district = normalizeKeyword(regionValue[2]);
+    set(STORAGE_KEYS.SEARCH_REGION_FILTER, regionValue);
+
+    this.setData(
+      {
+        search_city_filter: city,
+        search_district_filter: district,
+        search_region_value: regionValue,
+        search_region_text: formatRegionText(city, district),
+        has_region_selected: regionValue.length > 0
+      },
+      () => {
+        this.syncHeaderView();
+        this.applyFilters();
+      }
+    );
+  },
+
+  handleClearRegion() {
+    set(STORAGE_KEYS.SEARCH_REGION_FILTER, []);
+    this.setData(
+      {
+        search_city_filter: "",
+        search_district_filter: "",
+        search_region_value: [],
+        search_region_text: "全城",
+        has_region_selected: false
+      },
+      () => {
+        this.syncHeaderView();
+        this.applyFilters();
+      }
+    );
+  },
+
+  handlePickPrice() {
+    wx.showToast({
+      title: "价格筛选开发中",
+      icon: "none"
+    });
+  },
+
+  handlePickLayout() {
+    wx.showToast({
+      title: "户型筛选开发中",
+      icon: "none"
+    });
   },
 
   handleOpenDetail(e) {
@@ -245,57 +405,74 @@ Page({
     });
   },
 
-  handleToggleCompare(e) {
-    const listingId = e.currentTarget.dataset.listingId;
-    const ids = [...this.data.compare_ids];
-    const existingIndex = ids.indexOf(listingId);
+  handleToggleFavorite(e) {
+    const listingId = normalizeText(e.currentTarget.dataset.listingId);
+    if (!listingId) {
+      return;
+    }
 
+    const favoriteIds = get(STORAGE_KEYS.FAVORITE_LISTING_IDS, []);
+    const next = Array.isArray(favoriteIds)
+      ? Array.from(new Set(favoriteIds.map((item) => normalizeText(item)).filter(Boolean)))
+      : [];
+
+    const existingIndex = next.indexOf(listingId);
+    let favorited = false;
     if (existingIndex >= 0) {
-      ids.splice(existingIndex, 1);
+      next.splice(existingIndex, 1);
+      favorited = false;
     } else {
-      if (ids.length >= 5) {
-        wx.showToast({
-          title: "最多只能勾选 5 套房源",
-          icon: "none"
-        });
-        return;
-      }
-      ids.push(listingId);
-      trackEvent(EVENTS.ADD_TO_COMPARE, {
-        listing_id: listingId,
-        selected_count: ids.length
-      });
-      writeActivityLog({
-        action_type: "add_to_compare",
-        object_type: "listing",
-        object_id: listingId,
-        detail_json: { selected_count: ids.length }
+      next.push(listingId);
+      favorited = true;
+    }
+
+    set(STORAGE_KEYS.FAVORITE_LISTING_IDS, next);
+    this.setData(
+      {
+        favorite_ids: next
+      },
+      () => this.applyFilters()
+    );
+
+    if (favorited) {
+      wx.showToast({
+        title: "收藏成功",
+        icon: "none"
       });
     }
 
-    set(STORAGE_KEYS.COMPARE_LISTING_IDS, ids);
-    this.setData({ compare_ids: ids }, () => {
-      this.syncHeaderView();
-      this.applyFilters();
+    trackEvent(EVENTS.LISTING_FAVORITE, {
+      source: "candidates",
+      listing_id: listingId,
+      favorited
+    });
+    writeActivityLog({
+      action_type: "listing_favorite_toggle",
+      object_type: "listing",
+      object_id: listingId,
+      detail_json: {
+        source: "candidates",
+        favorited
+      }
     });
   },
 
   handleGoAI() {
-    const ids = this.data.compare_ids || [];
     trackEvent(EVENTS.SEARCH_HANDOFF_AI_CLICK, {
-      selected_count: ids.length,
+      selected_count: 0,
       source: this.data.source || "search"
     });
     writeActivityLog({
       action_type: "search_handoff_ai_click",
       object_type: "page_candidates",
       detail_json: {
-        selected_count: ids.length,
+        selected_count: 0,
         source: this.data.source || "search"
       }
     });
+
     wx.navigateTo({
-      url: "/pages/ai/index?source=search"
+      url: "/pages/ai/index"
     });
   },
 

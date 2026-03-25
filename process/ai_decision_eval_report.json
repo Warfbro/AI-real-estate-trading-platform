@@ -1,0 +1,471 @@
+{
+  "dataset_version": "2026-03-25.v1",
+  "generated_at": "2026-03-25T12:56:37.538Z",
+  "provider": {
+    "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
+    "model": "qwen-plus",
+    "proxy_enabled": true
+  },
+  "summaries": [
+    {
+      "baseline": "Current System",
+      "total_cases": 6,
+      "successful_cases": 6,
+      "top1_accuracy": 0.6667,
+      "hit_at_3": 1,
+      "ndcg_at_3": 0.8509,
+      "top1_rule_hit_rate": 0.8333,
+      "pairwise_win_rate": 0.25,
+      "case_results": [
+        {
+          "case_id": "balanced_three_room_easy",
+          "title": "电梯三房基础排序",
+          "gold_top_listing_id": "c1_b",
+          "predicted_top_listing_id": "c1_b",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9721,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "c1_b",
+            "c1_c",
+            "c1_a",
+            "c1_d"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "elevator_critique_override",
+          "title": "通过 critique 把电梯升为硬约束",
+          "gold_top_listing_id": "c2_b",
+          "predicted_top_listing_id": "c2_b",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9173,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": 0,
+          "ranking": [
+            "c2_b"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "price_over_area_pairwise",
+          "title": "通过显式偏好把预算压力抬升",
+          "gold_top_listing_id": "c3_a",
+          "predicted_top_listing_id": "c3_b",
+          "top1_hit": 0,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.6064,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": 0,
+          "ranking": [
+            "c3_b",
+            "c3_c",
+            "c3_a",
+            "c3_d"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "completeness_pairwise",
+          "title": "通过 pairwise 放大信息完整度偏好",
+          "gold_top_listing_id": "c4_b",
+          "predicted_top_listing_id": "c4_a",
+          "top1_hit": 0,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.6443,
+          "top1_rule_hit": 0,
+          "pairwise_win_rate": 0,
+          "ranking": [
+            "c4_a",
+            "c4_b",
+            "c4_d"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "layout_over_price_pairwise",
+          "title": "通过 pairwise + critique 强化户型偏好",
+          "gold_top_listing_id": "c5_b",
+          "predicted_top_listing_id": "c5_b",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9828,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": 1,
+          "ranking": [
+            "c5_b",
+            "c5_a",
+            "c5_c"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "memory_elevator_constraint_easy",
+          "title": "历史偏好中的电梯约束",
+          "gold_top_listing_id": "c6_b",
+          "predicted_top_listing_id": "c6_b",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9828,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "c6_b",
+            "c6_d",
+            "c6_c"
+          ],
+          "error": ""
+        }
+      ]
+    },
+    {
+      "baseline": "Baseline 1 - Pure Rules",
+      "total_cases": 6,
+      "successful_cases": 6,
+      "top1_accuracy": 0.3333,
+      "hit_at_3": 1,
+      "ndcg_at_3": 0.7758,
+      "top1_rule_hit_rate": 0.5,
+      "pairwise_win_rate": 0.5,
+      "case_results": [
+        {
+          "case_id": "balanced_three_room_easy",
+          "title": "电梯三房基础排序",
+          "gold_top_listing_id": "c1_b",
+          "predicted_top_listing_id": "c1_a",
+          "top1_hit": 0,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.7592,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "c1_a",
+            "c1_c",
+            "c1_b",
+            "c1_d"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "elevator_critique_override",
+          "title": "通过 critique 把电梯升为硬约束",
+          "gold_top_listing_id": "c2_b",
+          "predicted_top_listing_id": "c2_a",
+          "top1_hit": 0,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.6443,
+          "top1_rule_hit": 0,
+          "pairwise_win_rate": 0,
+          "ranking": [
+            "c2_a",
+            "c2_b",
+            "c2_c"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "price_over_area_pairwise",
+          "title": "通过显式偏好把预算压力抬升",
+          "gold_top_listing_id": "c3_a",
+          "predicted_top_listing_id": "c3_a",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 1,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": 1,
+          "ranking": [
+            "c3_a",
+            "c3_c",
+            "c3_b",
+            "c3_d"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "completeness_pairwise",
+          "title": "通过 pairwise 放大信息完整度偏好",
+          "gold_top_listing_id": "c4_b",
+          "predicted_top_listing_id": "c4_a",
+          "top1_hit": 0,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.5413,
+          "top1_rule_hit": 0,
+          "pairwise_win_rate": 0,
+          "ranking": [
+            "c4_a",
+            "c4_d",
+            "c4_b"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "layout_over_price_pairwise",
+          "title": "通过 pairwise + critique 强化户型偏好",
+          "gold_top_listing_id": "c5_b",
+          "predicted_top_listing_id": "c5_c",
+          "top1_hit": 0,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.7098,
+          "top1_rule_hit": 0,
+          "pairwise_win_rate": 1,
+          "ranking": [
+            "c5_c",
+            "c5_b",
+            "c5_a"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "memory_elevator_constraint_easy",
+          "title": "历史偏好中的电梯约束",
+          "gold_top_listing_id": "c6_b",
+          "predicted_top_listing_id": "c6_b",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 1,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "c6_b",
+            "c6_c",
+            "c6_d"
+          ],
+          "error": ""
+        }
+      ]
+    },
+    {
+      "baseline": "Baseline 2 - LLM Direct",
+      "total_cases": 6,
+      "successful_cases": 6,
+      "top1_accuracy": 1,
+      "hit_at_3": 1,
+      "ndcg_at_3": 1,
+      "top1_rule_hit_rate": 1,
+      "pairwise_win_rate": 0.75,
+      "case_results": [
+        {
+          "case_id": "balanced_three_room_easy",
+          "title": "电梯三房基础排序",
+          "gold_top_listing_id": "c1_b",
+          "predicted_top_listing_id": "c1_b",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 1,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "c1_b",
+            "c1_a",
+            "c1_c"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "elevator_critique_override",
+          "title": "通过 critique 把电梯升为硬约束",
+          "gold_top_listing_id": "c2_b",
+          "predicted_top_listing_id": "c2_b",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 1,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": 1,
+          "ranking": [
+            "c2_b",
+            "c2_c",
+            "c2_a"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "price_over_area_pairwise",
+          "title": "通过显式偏好把预算压力抬升",
+          "gold_top_listing_id": "c3_a",
+          "predicted_top_listing_id": "c3_a",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 1,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": 1,
+          "ranking": [
+            "c3_a",
+            "c3_c",
+            "c3_b"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "completeness_pairwise",
+          "title": "通过 pairwise 放大信息完整度偏好",
+          "gold_top_listing_id": "c4_b",
+          "predicted_top_listing_id": "c4_b",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 1,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": 1,
+          "ranking": [
+            "c4_b",
+            "c4_d",
+            "c4_a"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "layout_over_price_pairwise",
+          "title": "通过 pairwise + critique 强化户型偏好",
+          "gold_top_listing_id": "c5_b",
+          "predicted_top_listing_id": "c5_b",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 1,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": 0,
+          "ranking": [
+            "c5_b",
+            "c5_c",
+            "c5_d"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "memory_elevator_constraint_easy",
+          "title": "历史偏好中的电梯约束",
+          "gold_top_listing_id": "c6_b",
+          "predicted_top_listing_id": "c6_b",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 1,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "c6_b",
+            "c6_c",
+            "c6_a"
+          ],
+          "error": ""
+        }
+      ]
+    },
+    {
+      "baseline": "Baseline 3 - No Explicit State",
+      "total_cases": 6,
+      "successful_cases": 6,
+      "top1_accuracy": 0.3333,
+      "hit_at_3": 1,
+      "ndcg_at_3": 0.7319,
+      "top1_rule_hit_rate": 0.5,
+      "pairwise_win_rate": 0,
+      "case_results": [
+        {
+          "case_id": "balanced_three_room_easy",
+          "title": "电梯三房基础排序",
+          "gold_top_listing_id": "c1_b",
+          "predicted_top_listing_id": "c1_b",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9721,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "c1_b",
+            "c1_c",
+            "c1_a",
+            "c1_d"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "elevator_critique_override",
+          "title": "通过 critique 把电梯升为硬约束",
+          "gold_top_listing_id": "c2_b",
+          "predicted_top_listing_id": "c2_a",
+          "top1_hit": 0,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.6443,
+          "top1_rule_hit": 0,
+          "pairwise_win_rate": 0,
+          "ranking": [
+            "c2_a",
+            "c2_b",
+            "c2_c"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "price_over_area_pairwise",
+          "title": "通过显式偏好把预算压力抬升",
+          "gold_top_listing_id": "c3_a",
+          "predicted_top_listing_id": "c3_b",
+          "top1_hit": 0,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.6064,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": 0,
+          "ranking": [
+            "c3_b",
+            "c3_c",
+            "c3_a",
+            "c3_d"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "completeness_pairwise",
+          "title": "通过 pairwise 放大信息完整度偏好",
+          "gold_top_listing_id": "c4_b",
+          "predicted_top_listing_id": "c4_a",
+          "top1_hit": 0,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.5413,
+          "top1_rule_hit": 0,
+          "pairwise_win_rate": 0,
+          "ranking": [
+            "c4_a",
+            "c4_d",
+            "c4_b"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "layout_over_price_pairwise",
+          "title": "通过 pairwise + critique 强化户型偏好",
+          "gold_top_listing_id": "c5_b",
+          "predicted_top_listing_id": "c5_a",
+          "top1_hit": 0,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.6443,
+          "top1_rule_hit": 0,
+          "pairwise_win_rate": 0,
+          "ranking": [
+            "c5_a",
+            "c5_b",
+            "c5_c"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "memory_elevator_constraint_easy",
+          "title": "历史偏好中的电梯约束",
+          "gold_top_listing_id": "c6_b",
+          "predicted_top_listing_id": "c6_b",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9828,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "c6_b",
+            "c6_d",
+            "c6_c"
+          ],
+          "error": ""
+        }
+      ]
+    }
+  ]
+}

@@ -175,3 +175,19 @@
 - 取消旧版横幅广告与冗余进度卡。
 - 引入顶部搜索、横向滑动“热门房源”与垂直流式“猜你喜欢”列表，数据均依托现有房源数据库，不新增资讯模型。
 =============================================
+
+8. 2026-03-24 补充：AI 最小决策闭环验收
+
+验收项：
+1）AI 页可从当前会话启动 1 个 decision_session。
+2）decisionEngine start 成功后，decision_sessions 可写入 decision_session_id / state_json / result_json。
+3）AI 页可展示三档候选（stable / balanced / value）中的至少一档结果。
+4）完成 1 次 pairwise 后，state_json.soft_weights 或 pairwise_memory 有变化，且 state 接口返回的新候选结果可见变化。
+5）提交 1 次 critique 后，state_json.critique_memory 或 blockers 有变化，且 state 接口仍可正常返回。
+6）当可行候选不足时，relax 接口可返回至少 1 条放宽建议。
+7）原 AI 聊天、会话摘要、memory_patch、收藏房源送 AI 分析链路不被破坏。
+
+通过标准：
+- `node --check` 通过：pages/ai/index.js、utils/decision.js、cloudfunctions/decisionEngine/index.js、process/decision_engine_smoke.js、cloudfunctions/queryPropertyRecommend/providers/openaiCompatible.js
+- `node process/decision_engine_smoke.js` 通过
+- 使用临时 apikey 执行 `node process/ai_provider_smoke.js` 时，openai_compatible 能返回兼容结构，且日志中不出现明文 key

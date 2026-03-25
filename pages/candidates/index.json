@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "候选房源"
+  "navigationBarTitleText": "传统搜索",
+  "usingComponents": {
+    "favorite-chip": "/components/favorite-chip/index"
+  }
 }

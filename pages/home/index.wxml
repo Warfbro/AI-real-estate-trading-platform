@@ -1,48 +1,143 @@
 <view class="page">
-  <view class="search-bar" bindtap="handleSearch" hover-class="search-bar-hover" hover-start-time="0" hover-stay-time="100">
-    <icon class="search-icon" type="search" size="14" color="#999" />
-    <view class="search-text">搜索感兴趣的房源或区域</view>
+  <view class="search-row">
+    <picker
+      mode="region"
+      value="{{home_region_value}}"
+      bindchange="handleCityChange"
+    >
+      <view
+        class="address-pill"
+        hover-class="search-hover"
+        hover-start-time="0"
+        hover-stay-time="100"
+      >
+        <icon class="address-icon" type="location" size="14" color="#5C4033" />
+        <view class="address-text">{{selected_location_text}}</view>
+      </view>
+    </picker>
+
+    <view
+      class="search-bar"
+      bindtap="handleSearchTap"
+      hover-class="search-hover"
+      hover-start-time="0"
+      hover-stay-time="100"
+    >
+      <icon class="search-icon" type="search" size="14" color="#7B6A5F" />
+      <view class="search-text">
+        {{search_placeholder_text}}
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{location_sort_hint_text}}" class="location-hint">
+    {{location_sort_hint_text}}
   </view>
 
   <view class="horizontal-section">
     <view class="section-title">热门房源</view>
-    <scroll-view class="hot-scroll" scroll-x="true">
-      <block wx:if="{{has_hot_listings}}">
+    <block wx:if="{{has_hot_listings}}">
+      <swiper
+        class="hot-swiper"
+        circular
+        autoplay
+        interval="4200"
+        duration="320"
+        previous-margin="44rpx"
+        next-margin="44rpx"
+      >
         <block wx:for="{{hot_listings}}" wx:key="listing_id">
-          <view class="h-card card" bindtap="handleOpenListing" data-listing-id="{{item.listing_id}}" hover-class="card-hover" hover-start-time="0" hover-stay-time="100">
-            <image wx:if="{{item.cover_image_url}}" class="h-img" src="{{item.cover_image_url}}" mode="aspectFill"></image>
-            <view wx:else class="h-img h-img-placeholder"></view>
-            <view class="h-info">
-              <view class="h-title">{{item.title_text}}</view>
-              <view class="h-desc">{{item.hot_desc_text}}</view>
+          <swiper-item>
+            <view class="hot-swiper-item">
+              <view
+                class="h-card"
+                bindtap="handleOpenListing"
+                data-listing-id="{{item.listing_id}}"
+                hover-class="card-hover"
+                hover-start-time="0"
+                hover-stay-time="100"
+              >
+                <image
+                  wx:if="{{item.cover_image_url}}"
+                  class="h-img"
+                  src="{{item.cover_image_url}}"
+                  mode="aspectFill"
+                />
+                <view wx:else class="h-img h-img-placeholder" />
+
+                <view class="h-info">
+                  <view class="h-top">
+                    <view class="h-title">{{item.title_text}}</view>
+                    <view
+                      class="favorite-chip-wrap"
+                      catchtap="handleToggleFavorite"
+                      data-listing-id="{{item.listing_id}}"
+                    >
+                      <favorite-chip favorited="{{item.favorited}}" />
+                    </view>
+                  </view>
+                  <view class="h-desc">{{item.hot_desc_text}}</view>
+                  <view wx:if="{{item.distance_text}}" class="h-distance">
+                    距离 {{item.distance_text}}
+                  </view>
+                </view>
+              </view>
             </view>
-          </view>
+          </swiper-item>
         </block>
-      </block>
-      <view wx:else class="h-card card h-card-empty">
-        <view class="h-info">
-          <view class="h-title">暂无热门房源</view>
-          <view class="h-desc">请稍后刷新重试</view>
-        </view>
+      </swiper>
+    </block>
+
+    <view wx:else class="h-card h-card-empty">
+      <view class="h-info">
+        <view class="h-title">暂无热门房源</view>
+        <view class="h-desc">请稍后刷新重试</view>
       </view>
-    </scroll-view>
+    </view>
   </view>
 
   <view class="hot-properties-section">
     <view class="section-title">猜你喜欢</view>
-    <view wx:if="{{guess_strategy_text}}" class="strategy-text">{{guess_strategy_text}}</view>
+
     <block wx:if="{{has_guess_listings}}">
       <block wx:for="{{guess_listings}}" wx:key="listing_id">
-        <view class="card property-item" bindtap="handleOpenListing" data-listing-id="{{item.listing_id}}" hover-class="card-hover" hover-start-time="0" hover-stay-time="100">
-          <image wx:if="{{item.cover_image_url}}" class="item-img" src="{{item.cover_image_url}}" mode="aspectFill"></image>
-          <view wx:else class="item-img item-img-placeholder"></view>
+        <view
+          class="property-item"
+          bindtap="handleOpenListing"
+          data-listing-id="{{item.listing_id}}"
+          hover-class="card-hover"
+          hover-start-time="0"
+          hover-stay-time="100"
+        >
+          <image
+            wx:if="{{item.cover_image_url}}"
+            class="item-img"
+            src="{{item.cover_image_url}}"
+            mode="aspectFill"
+          />
+          <view wx:else class="item-img item-img-placeholder" />
+
           <view class="item-info">
             <view class="item-title">{{item.title_text}}</view>
             <view class="item-desc">{{item.guess_desc_text}}</view>
+            <view wx:if="{{item.distance_text}}" class="item-distance">
+              距离 {{item.distance_text}}
+            </view>
+          </view>
+          <view
+            class="favorite-chip-wrap property-fav-wrap"
+            catchtap="handleToggleFavorite"
+            data-listing-id="{{item.listing_id}}"
+          >
+            <favorite-chip favorited="{{item.favorited}}" />
           </view>
         </view>
       </block>
     </block>
-    <view wx:else class="card empty-block">暂无可推荐房源，请先导入房源。</view>
+
+    <view wx:else class="empty-block">
+      暂无可推荐房源，请先导入房源。
+    </view>
   </view>
 </view>
+

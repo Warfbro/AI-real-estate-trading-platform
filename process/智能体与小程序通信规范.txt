@@ -1,0 +1,208 @@
+﻿文档名称：智能体与小程序通信规范
+版本：V1.0
+日期：2026-03-20
+适用范围：pages/ai/index 与 cloudfunctions/queryPropertyRecommend 调用链路
+
+一、目标
+1）确保小程序与云端 AI provider 之间“可稳定、可追踪、可演进”地交换信息。
+2）保证前端展示、业务流转、日志追踪使用同一套字段语义。
+3）避免把智能体地址、密钥暴露到客户端。
+
+二、链路拓扑（唯一建议）
+小程序（pages/ai/index）
+-> 云函数（queryPropertyRecommend）
+-> 云端 AI provider HTTP 接口（当前默认：阿里云百炼 OpenAI 兼容端点）
+
+约束：
+1）小程序只调用云函数，不直连智能体。
+2）provider 地址与鉴权仅由云函数环境变量提供。
+3）任何第三方地址、token 不通过小程序参数透传。
+
+三、云函数入参契约（小程序 -> 云函数）
+请求体 JSON：
+- query: string，必填，1~1000 字。
+- user_id: string，可选，建议登录态传 user_id/openid。
+- session_id: string，可选，建议单会话稳定复用。
+- source: string，可选，建议值：wechat。
+- context: object，可选，结构见下。
+
+context 推荐结构：
+- source_page: string，来源页面（home/search/ai）。
+- selected_listing_ids: string[]，当前已勾选房源 ID 列表。
+- selected_count: number，已勾选数量。
+- imported_listing_count: number，用户已导入房源数量。
+- recent_messages: object[]，最近 5 条原文消息（role/content/created_at）。
+- session_summary: string，可选，当前会话历史摘要。
+- memory_profile: object，可选，白名单结构化记忆快照。
+- active_requirement: object，可选，当前需求结构化记忆快照。
+- compact_context: object，可选，AI 上一轮返回的精简对话上下文（原样回传）。
+- previous_understanding: object，可选：
+  intake_id/city/budget_min/budget_max/usage_type/max_concern。
+
+四、上游 AI provider 请求契约（云函数 -> provider）
+云函数转发字段保持同名：
+- query
+- user_id
+- session_id
+- source
+- context
+
+超时规范：
+- 默认 30s（可通过 AI_AGENT_TIMEOUT_MS 调整）。
+
+鉴权规范：
+- 环境变量 `CLOUD_MANAGED_AGENT_TOKEN` 或 `AI_MANAGED_AGENT_TOKEN` 存在时，
+  云函数自动追加 `Authorization: Bearer <token>`。
+
+五、统一响应契约（云函数 -> 小程序）
+无论智能体原始返回结构如何，云函数统一输出：
+- success: boolean
+- type: recommendation | clarification_needed | error
+- data: object | null
+- error: object | null
+- meta: object
+  trace_id: string
+  duration_ms: number
+  upstream_status: number
+  mode: openai_compatible | managed_agent
+
+data 推荐字段：
+- understanding: string
+- summary: string
+- advice: string
+- questions: string[]（仅 clarification_needed 必填）
+- recommendations: object[]（推荐场景可选）
+- next_steps: string[]（可选）
+- session_summary: string（可选，云函数标准化后的会话摘要）
+- memory_patch: object（可选，仅返回白名单且通过格式校验的字段）
+- memory_patch_rejected: object[]（可选，未通过校验的字段与原因）
+- compact_context: object（可选，AI 每轮返回，用于下一轮请求上下文）
+
+error 字段：
+- code: string
+- message: string
+- details: any
+
+六、错误码规范（最小集）
+- INVALID_QUERY：query 为空。
+- QUERY_TOO_LONG：超过 1000 字。
+- AGENT_ENDPOINT_MISSING：仅当显式切回 `managed_agent` 且未配置托管智能体地址时出现。
+- UPSTREAM_HTTP_ERROR：上游 HTTP 非 2xx。
+- UPSTREAM_INVALID_JSON：上游返回不可解析 JSON。
+- REQUEST_FAILED：网络异常、DNS、超时等请求失败。
+
+前端处理要求：
+1）统一 toast + 聊天气泡展示 message。
+2）保留错误码，便于客服和研发排障。
+3）错误不阻断用户继续输入下一条需求。
+4）按 session_id 持久化 messages 与 compact_context，页面重进后恢复历史会话。
+5）按 session_id 额外保存 `session_summary`，调用 AI 时只带最近 5 条原文消息 + 摘要 + 结构化记忆。
+6）对云函数返回的 `memory_patch` 做本地持久化与业务对象同步，不自行接受未校验字段。
+
+七、日志与可观测性规范
+云函数必须写 activity_logs：
+- action_type: ai_property_recommend_query
+- object_type: ai_recommendation
+- object_id: trace_id
+- detail_json 最小字段：
+  session_id/source/query_length/success/response_type/error_code/memory_patch_field_count/session_summary_present/duration_ms/engine_mode
+
+小程序必须写本地行为日志：
+- ai_recommend_submit
+- ai_recommend_success / ai_recommend_fail / ai_recommend_exception
+
+禁止：
+1）日志落用户 query 原文。
+2）日志落 token、手机号、邮箱、证件号等敏感信息明文。
+
+八、安全与配置规范
+环境变量优先级（地址）：
+1）CLOUD_MANAGED_AGENT_ENDPOINT_URL
+2）AI_MANAGED_AGENT_ENDPOINT_URL
+3）PROPERTY_RECOMMEND_WEBHOOK_URL（兼容旧配置，后续可下线）
+
+环境变量（鉴权）：
+- CLOUD_MANAGED_AGENT_TOKEN
+- AI_MANAGED_AGENT_TOKEN
+
+安全要求：
+1）生产环境必须使用 HTTPS 端点。
+2）token 仅存云函数环境变量，不写入仓库。
+3）客户端不得携带 endpoint/token 相关字段。
+
+九、兼容与演进规范
+1）向后兼容：新增字段只能“增加不删除”。
+2）type 扩展：新增 type 时前端必须有默认渲染兜底（按 recommendation 文本展示）。
+3）字段缺失兜底：无 summary 时展示默认提示，不报错白屏。
+4）建议在后续引入 protocol_version 字段进行版本协商。
+
+补充约束（2026-03-23）
+1）小程序页面不得直接依赖具体 AI 云函数名或第三方接入细节。
+2）前端统一通过 `utils/ai` 接入层发起 AI 请求，再由接入层路由到具体适配器。
+3）当前默认场景为 `property_consult`，当前适配器为 `utils/ai/adapters/propertyConsult.js`。
+4）后续切换 AI 提供方、托管方式或云函数名时，优先只修改 `utils/ai/adapters/*` 或云函数内部适配层，不直接改页面业务代码。
+
+服务端 provider 约束（2026-03-24）
+1）`cloudfunctions/queryPropertyRecommend/index.js` 只负责通用入参校验、trace/log、标准输出和 provider 调度。
+2）具体上游接入实现统一放在 `cloudfunctions/queryPropertyRecommend/providers/*`。
+3）当前默认 provider 为 `openai_compatible`（百炼 OpenAI 兼容模式），后续新增 provider 时，优先新增 provider 文件并在 `providers/index.js` 注册。
+4）可通过环境变量 `AI_PROVIDER_MODE` 或 `CLOUD_AI_PROVIDER_MODE` 选择 provider；未配置时默认 `openai_compatible`。
+
+兼容补充（2026-03-24）
+1）云函数同时接受旧上下文字段 `previous_understanding`、`favorite_listing_ids`、`favorite_listings`，并在转发托管智能体前归一补齐为 `active_intake`、`selected_listing_ids`、`selected_listings`。
+2）云函数可从 `active_requirement.current_stage` 推导 `flow_stage`，以减少前端同步改造幅度。
+3）云函数兼容上游返回别名 `reply`、`reply_text`、`reply_type`、`candidates`、`question`、`memoryPatch`、`preference_update`，并统一折叠回当前小程序可消费结构。
+
+十、最小验收清单
+1）recommendation 场景：能展示理解、摘要、推荐/建议。
+2）clarification_needed 场景：能展示问题列表。
+3）error 场景：能展示 message + code。
+4）日志场景：activity_logs 可按 trace_id 反查一次完整调用。
+5）安全场景：前端抓包中不出现 endpoint/token。
+
+补充链路（2026-03-24，Sprint 1 最小决策闭环）
+1）AI 页除聊天外，新增结构化决策调用链：
+小程序（pages/ai/index）
+-> utils/decision.js
+-> 云函数（decisionEngine）
+
+2）`decisionEngine` 不调用托管智能体，不承担自然语言聊天职责；
+其职责仅为：
+- 读取候选房源池
+- 计算可行候选
+- 更新 pairwise/critique 偏好状态
+- 输出三档候选与放宽建议
+
+3）`decisionEngine` 统一请求结构：
+- action: start | state | pairwise | critique | relax
+- user_id: string，可选
+- decision_session_id: string，可选
+- chat_session_id: string，可选
+- selected_listing_ids: string[]，仅 start 场景需要
+- winner_listing_id / loser_listing_id：仅 pairwise 场景需要
+- text：仅 critique 场景需要
+- context: object，可选
+
+4）`decisionEngine` 统一响应结构：
+- success: boolean
+- data: object | null
+- error: object | null
+- meta:
+  - trace_id: string
+  - action: string
+
+5）`decisionEngine.data` 推荐字段：
+- decision_session_id
+- current_stage
+- selected_listing_ids
+- candidate_listing_ids
+- candidate_buckets
+- top_listing_ids
+- next_pairwise_question
+- blockers
+- relaxation_options
+
+6）安全与日志要求补充
+- `decisionEngine` 的关键动作同样应写 `activity_logs`；
+- 不记录 critique 原文全量明文到服务端日志；
+- 若需输出错误详情，只保留脱敏摘要。

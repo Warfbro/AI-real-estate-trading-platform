@@ -220,3 +220,24 @@ EVT_SEARCH_HANDOFF_AI_CLICK
 - 取消旧版横幅广告与冗余进度卡。
 - 引入顶部搜索、横向滑动“热门房源”与垂直流式“猜你喜欢”列表，数据均依托现有房源数据库，不新增资讯模型。
 =============================================
+
+10. 2026-03-24 AI 最小决策闭环补充埋点
+
+EVT_AI_DECISION_START
+动作：AI 页启动结构化决策
+关键字段：session_id、selected_count、source
+目的：观察 AI 决策入口点击率与带入房源规模
+
+EVT_AI_DECISION_PAIRWISE_SUBMIT
+动作：提交一次二选一偏好
+关键字段：session_id、decision_session_id、winner_listing_id、loser_listing_id
+目的：观察用户是否愿意完成结构化偏好学习
+
+EVT_AI_DECISION_CRITIQUE_SUBMIT
+动作：提交一次文字修正意见
+关键字段：session_id、decision_session_id、text_length
+目的：观察结构化决策中自然语言修正的使用率
+
+说明：
+1）以上事件为 Sprint 1 新增最小事件，命名保持 EVT_ 前缀。
+2）暂不新增独立 relaxation 点击埋点，后续依据数据再决定是否补充。

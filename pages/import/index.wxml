@@ -1,0 +1,52 @@
+<view class="page">
+  <view class="title">添加意向房源</view>
+  <view class="subtitle">将您看中的房源导入系统，稍后即可进行全方位比较与风险评估。</view>
+
+  <view class="card">
+    <view class="label">选择添加方式</view>
+    <view class="row format-tabs">
+      <button class="{{btn_class_url}} btn-tab" data-type="url" bindtap="handleTypeChange">链接</button>
+      <button class="{{btn_class_text}} btn-tab" data-type="text" bindtap="handleTypeChange">文本</button>
+      <button class="{{btn_class_image}} btn-tab" data-type="image" bindtap="handleTypeChange">截图</button>
+    </view>
+  </view>
+
+  <!-- 动态表单区域 -->
+  <view class="card" wx:if="{{show_url_form}}">
+    <view class="label">房源分享链接</view>
+    <view class="hint" style="margin-bottom: 24rpx;">支持贝壳、链家、自如等常用房产平台链接。</view>
+    <input
+      class="input"
+      placeholder="长按粘贴：https://..."
+      value="{{source_url}}"
+      data-field="source_url"
+      bindinput="handleInput"
+    />
+  </view>
+
+  <view class="card" wx:if="{{show_text_form}}">
+    <view class="label">房源基本信息</view>
+    <view class="hint" style="margin-bottom: 24rpx;">请包含小区、面积、总价、楼层等核心数据。</view>
+    <textarea
+      class="textarea"
+      placeholder="粘贴中介发送的房源文字描述..."
+      value="{{source_text}}"
+      data-field="source_text"
+      bindinput="handleInput"
+    />
+  </view>
+
+  <view class="card" wx:if="{{show_image_form}}">
+    <view class="label">上传房源截图</view>
+    <view class="hint" style="margin-bottom: 24rpx;">截取包含房屋关键信息的屏幕图片。</view>
+    <view class="image-upload-area" bindtap="handleChooseImage" hover-class="click-hover" hover-start-time="0" hover-stay-time="100">
+      <view class="upload-placeholder" wx:if="{{!has_image_path}}">
+         + 点击选择相册图片
+      </view>
+      <image class="upload-preview" mode="aspectFill" src="{{image_path}}" wx:else></image>
+    </view>
+    <button class="btn-secondary" style="margin-top: 24rpx;" bindtap="handleChooseImage" wx:if="{{has_image_path}}">重新选择图片</button>
+  </view>
+
+  <button class="btn-primary" bindtap="handleImport">确认上传并解析</button>
+</view>

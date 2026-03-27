@@ -1,0 +1,4498 @@
+{
+  "dataset_version": "2026-03-26.v3",
+  "description": "AI 买房决策离线评测集 v3。基于200条房源数据和100条需求样本生成，覆盖学区刚需、舒适自住、低总价上车、性价比折中等真实场景。",
+  "cases": [
+    {
+      "case_id": "d001",
+      "title": "学区刚需 - 预算90",
+      "tags": [
+        "demand",
+        "学区刚需",
+        "budget_constraint",
+        "school_priority",
+        "layout_specified"
+      ],
+      "query": "我孩子明年上学，想在南昌县找套学区别太差的房子，预算控制在90万内，最好2室。",
+      "context": {
+        "active_intake": {
+          "user_query": "我孩子明年上学，想在南昌县找套学区别太差的房子，预算控制在90万内，最好2室。",
+          "intent": "孩子读书",
+          "budget_max_wan": 90,
+          "layout_pref": "2室2厅1卫",
+          "target_area": {
+            "district": "南昌县"
+          }
+        },
+        "memory_profile": {
+          "school_priority": true
+        }
+      },
+      "listings": [
+        {
+          "listing_id": "L002",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "文苑里一期",
+          "title": "文苑里一期 2室2厅1卫 85万",
+          "price_total": 850000,
+          "area_sqm": 71,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "高",
+          "facing": "南",
+          "decoration": "毛坯",
+          "year_built": 2014,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "低",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感"
+          ],
+          "summary": "学区导向明显，2室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L039",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "学府春晓",
+          "title": "学府春晓 2室2厅1卫 88万",
+          "price_total": 880000,
+          "area_sqm": 69,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "中",
+          "facing": "东南",
+          "decoration": "简装",
+          "year_built": 2014,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "低",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感"
+          ],
+          "summary": "学区导向明显，2室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L013",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "书香雅苑",
+          "title": "书香雅苑 2室2厅1卫 89万",
+          "price_total": 890000,
+          "area_sqm": 76,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "高",
+          "facing": "南",
+          "decoration": "精装",
+          "year_built": 2010,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "中",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感"
+          ],
+          "summary": "学区导向明显，2室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [],
+      "gold": {
+        "top_listing_id": "L002",
+        "relevance": {
+          "L002": 3,
+          "L039": 2,
+          "L013": 1
+        },
+        "top1_rules": {
+          "budget_max": 900000,
+          "layout_includes": "2室2厅1卫"
+        }
+      }
+    },
+    {
+      "case_id": "d002",
+      "title": "学区刚需 - 预算95",
+      "tags": [
+        "demand",
+        "学区刚需",
+        "budget_constraint",
+        "school_priority",
+        "layout_specified"
+      ],
+      "query": "主要是为了孩子读书，预算大概95万，想买套3室，老一点没关系，但别太折腾。",
+      "context": {
+        "active_intake": {
+          "user_query": "主要是为了孩子读书，预算大概95万，想买套3室，老一点没关系，但别太折腾。",
+          "intent": "孩子读书",
+          "budget_max_wan": 95,
+          "layout_pref": "3室2厅1卫",
+          "target_area": {
+            "district": "南昌县"
+          }
+        },
+        "memory_profile": {
+          "school_priority": true
+        }
+      },
+      "listings": [
+        {
+          "listing_id": "L018",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "文教新村",
+          "title": "文教新村 3室2厅1卫 88万",
+          "price_total": 880000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "高",
+          "facing": "南",
+          "decoration": "简装",
+          "year_built": 2007,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "中",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L025",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "育才家园",
+          "title": "育才家园 3室2厅1卫 90万",
+          "price_total": 900000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "高",
+          "facing": "南北",
+          "decoration": "精装",
+          "year_built": 2014,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "低",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L001",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "文苑里一期",
+          "title": "文苑里一期 3室2厅1卫 94万",
+          "price_total": 940000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南北",
+          "decoration": "简装",
+          "year_built": 2007,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "高",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "低楼层采光一般",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L035",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "学府春晓",
+          "title": "学府春晓 3室2厅1卫 94万",
+          "price_total": 940000,
+          "area_sqm": 85,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南北",
+          "decoration": "简装",
+          "year_built": 2008,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "高",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "低楼层采光一般",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [],
+      "gold": {
+        "top_listing_id": "L018",
+        "relevance": {
+          "L018": 3,
+          "L025": 2,
+          "L001": 1,
+          "L035": 0
+        },
+        "top1_rules": {
+          "budget_max": 950000,
+          "layout_includes": "3室2厅1卫"
+        }
+      }
+    },
+    {
+      "case_id": "d003",
+      "title": "学区刚需 - 预算100",
+      "tags": [
+        "demand",
+        "学区刚需",
+        "budget_constraint",
+        "school_priority",
+        "layout_specified"
+      ],
+      "query": "想给小孩上学准备房子，预算别超过100万，想看3室，最好离学校近些。",
+      "context": {
+        "active_intake": {
+          "user_query": "想给小孩上学准备房子，预算别超过100万，想看3室，最好离学校近些。",
+          "intent": "孩子读书",
+          "budget_max_wan": 100,
+          "layout_pref": "3室2厅2卫",
+          "target_area": {
+            "district": "南昌县"
+          }
+        },
+        "memory_profile": {
+          "school_priority": true
+        }
+      },
+      "listings": [
+        {
+          "listing_id": "L018",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "文教新村",
+          "title": "文教新村 3室2厅1卫 88万",
+          "price_total": 880000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "高",
+          "facing": "南",
+          "decoration": "简装",
+          "year_built": 2007,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "中",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L025",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "育才家园",
+          "title": "育才家园 3室2厅1卫 90万",
+          "price_total": 900000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "高",
+          "facing": "南北",
+          "decoration": "精装",
+          "year_built": 2014,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "低",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L001",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "文苑里一期",
+          "title": "文苑里一期 3室2厅1卫 94万",
+          "price_total": 940000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南北",
+          "decoration": "简装",
+          "year_built": 2007,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "高",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "低楼层采光一般",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L035",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "学府春晓",
+          "title": "学府春晓 3室2厅1卫 94万",
+          "price_total": 940000,
+          "area_sqm": 85,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南北",
+          "decoration": "简装",
+          "year_built": 2008,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "高",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "低楼层采光一般",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L015",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "书香雅苑",
+          "title": "书香雅苑 3室2厅1卫 97万",
+          "price_total": 970000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "高",
+          "facing": "南",
+          "decoration": "毛坯",
+          "year_built": 2013,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "中",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L028",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "育才家园",
+          "title": "育才家园 3室2厅2卫 99万",
+          "price_total": 990000,
+          "area_sqm": 94,
+          "layout_desc": "3室2厅2卫",
+          "floor_level": "中",
+          "facing": "南",
+          "decoration": "精装",
+          "year_built": 2007,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "中",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅2卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [],
+      "gold": {
+        "top_listing_id": "L018",
+        "relevance": {
+          "L018": 3,
+          "L025": 2,
+          "L001": 1,
+          "L035": 0,
+          "L015": -1,
+          "L028": -2
+        },
+        "top1_rules": {
+          "budget_max": 1000000,
+          "layout_includes": "3室2厅2卫"
+        }
+      }
+    },
+    {
+      "case_id": "d004",
+      "title": "学区刚需 - 预算105",
+      "tags": [
+        "demand",
+        "学区刚需",
+        "budget_constraint",
+        "school_priority",
+        "layout_specified"
+      ],
+      "query": "学区是第一位的，我想在南昌县买套3室，总价105万以内，停车差一点能接受。",
+      "context": {
+        "active_intake": {
+          "user_query": "学区是第一位的，我想在南昌县买套3室，总价105万以内，停车差一点能接受。",
+          "intent": "孩子读书",
+          "budget_max_wan": 105,
+          "layout_pref": "3室2厅1卫",
+          "target_area": {
+            "district": "南昌县"
+          }
+        },
+        "memory_profile": {
+          "school_priority": true
+        }
+      },
+      "listings": [
+        {
+          "listing_id": "L018",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "文教新村",
+          "title": "文教新村 3室2厅1卫 88万",
+          "price_total": 880000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "高",
+          "facing": "南",
+          "decoration": "简装",
+          "year_built": 2007,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "中",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L025",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "育才家园",
+          "title": "育才家园 3室2厅1卫 90万",
+          "price_total": 900000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "高",
+          "facing": "南北",
+          "decoration": "精装",
+          "year_built": 2014,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "低",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L001",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "文苑里一期",
+          "title": "文苑里一期 3室2厅1卫 94万",
+          "price_total": 940000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南北",
+          "decoration": "简装",
+          "year_built": 2007,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "高",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "低楼层采光一般",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L035",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "学府春晓",
+          "title": "学府春晓 3室2厅1卫 94万",
+          "price_total": 940000,
+          "area_sqm": 85,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南北",
+          "decoration": "简装",
+          "year_built": 2008,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "高",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "低楼层采光一般",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L015",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "书香雅苑",
+          "title": "书香雅苑 3室2厅1卫 97万",
+          "price_total": 970000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "高",
+          "facing": "南",
+          "decoration": "毛坯",
+          "year_built": 2013,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "中",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L028",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "育才家园",
+          "title": "育才家园 3室2厅2卫 99万",
+          "price_total": 990000,
+          "area_sqm": 94,
+          "layout_desc": "3室2厅2卫",
+          "floor_level": "中",
+          "facing": "南",
+          "decoration": "精装",
+          "year_built": 2007,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "中",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅2卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [],
+      "gold": {
+        "top_listing_id": "L018",
+        "relevance": {
+          "L018": 3,
+          "L025": 2,
+          "L001": 1,
+          "L035": 0,
+          "L015": -1,
+          "L028": -2
+        },
+        "top1_rules": {
+          "budget_max": 1050000,
+          "layout_includes": "3室2厅1卫"
+        }
+      }
+    },
+    {
+      "case_id": "d005",
+      "title": "学区刚需 - 预算110",
+      "tags": [
+        "demand",
+        "学区刚需",
+        "budget_constraint",
+        "school_priority",
+        "layout_specified"
+      ],
+      "query": "我孩子明年上学，想在南昌县找套学区别太差的房子，预算控制在110万内，最好3室。",
+      "context": {
+        "active_intake": {
+          "user_query": "我孩子明年上学，想在南昌县找套学区别太差的房子，预算控制在110万内，最好3室。",
+          "intent": "孩子读书",
+          "budget_max_wan": 110,
+          "layout_pref": "3室2厅2卫",
+          "target_area": {
+            "district": "南昌县"
+          }
+        },
+        "memory_profile": {
+          "school_priority": true
+        }
+      },
+      "listings": [
+        {
+          "listing_id": "L018",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "文教新村",
+          "title": "文教新村 3室2厅1卫 88万",
+          "price_total": 880000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "高",
+          "facing": "南",
+          "decoration": "简装",
+          "year_built": 2007,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "中",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L025",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "育才家园",
+          "title": "育才家园 3室2厅1卫 90万",
+          "price_total": 900000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "高",
+          "facing": "南北",
+          "decoration": "精装",
+          "year_built": 2014,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "低",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L001",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "文苑里一期",
+          "title": "文苑里一期 3室2厅1卫 94万",
+          "price_total": 940000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南北",
+          "decoration": "简装",
+          "year_built": 2007,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "高",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "低楼层采光一般",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L035",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "学府春晓",
+          "title": "学府春晓 3室2厅1卫 94万",
+          "price_total": 940000,
+          "area_sqm": 85,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南北",
+          "decoration": "简装",
+          "year_built": 2008,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "高",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "低楼层采光一般",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L015",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "书香雅苑",
+          "title": "书香雅苑 3室2厅1卫 97万",
+          "price_total": 970000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "高",
+          "facing": "南",
+          "decoration": "毛坯",
+          "year_built": 2013,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "中",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L028",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "育才家园",
+          "title": "育才家园 3室2厅2卫 99万",
+          "price_total": 990000,
+          "area_sqm": 94,
+          "layout_desc": "3室2厅2卫",
+          "floor_level": "中",
+          "facing": "南",
+          "decoration": "精装",
+          "year_built": 2007,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "中",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅2卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [],
+      "gold": {
+        "top_listing_id": "L018",
+        "relevance": {
+          "L018": 3,
+          "L025": 2,
+          "L001": 1,
+          "L035": 0,
+          "L015": -1,
+          "L028": -2
+        },
+        "top1_rules": {
+          "budget_max": 1100000,
+          "layout_includes": "3室2厅2卫"
+        }
+      }
+    },
+    {
+      "case_id": "d006",
+      "title": "学区刚需 - 预算115",
+      "tags": [
+        "demand",
+        "学区刚需",
+        "budget_constraint",
+        "school_priority",
+        "layout_specified"
+      ],
+      "query": "主要是为了孩子读书，预算大概115万，想买套3室，老一点没关系，但别太折腾。",
+      "context": {
+        "active_intake": {
+          "user_query": "主要是为了孩子读书，预算大概115万，想买套3室，老一点没关系，但别太折腾。",
+          "intent": "孩子读书",
+          "budget_max_wan": 115,
+          "layout_pref": "3室2厅1卫",
+          "target_area": {
+            "district": "南昌县"
+          }
+        },
+        "memory_profile": {
+          "school_priority": true
+        }
+      },
+      "listings": [
+        {
+          "listing_id": "L018",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "文教新村",
+          "title": "文教新村 3室2厅1卫 88万",
+          "price_total": 880000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "高",
+          "facing": "南",
+          "decoration": "简装",
+          "year_built": 2007,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "中",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L025",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "育才家园",
+          "title": "育才家园 3室2厅1卫 90万",
+          "price_total": 900000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "高",
+          "facing": "南北",
+          "decoration": "精装",
+          "year_built": 2014,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "低",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L001",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "文苑里一期",
+          "title": "文苑里一期 3室2厅1卫 94万",
+          "price_total": 940000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南北",
+          "decoration": "简装",
+          "year_built": 2007,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "高",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "低楼层采光一般",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L035",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "学府春晓",
+          "title": "学府春晓 3室2厅1卫 94万",
+          "price_total": 940000,
+          "area_sqm": 85,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南北",
+          "decoration": "简装",
+          "year_built": 2008,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "高",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "低楼层采光一般",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L015",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "书香雅苑",
+          "title": "书香雅苑 3室2厅1卫 97万",
+          "price_total": 970000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "高",
+          "facing": "南",
+          "decoration": "毛坯",
+          "year_built": 2013,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "中",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L028",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "育才家园",
+          "title": "育才家园 3室2厅2卫 99万",
+          "price_total": 990000,
+          "area_sqm": 94,
+          "layout_desc": "3室2厅2卫",
+          "floor_level": "中",
+          "facing": "南",
+          "decoration": "精装",
+          "year_built": 2007,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "中",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅2卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [],
+      "gold": {
+        "top_listing_id": "L018",
+        "relevance": {
+          "L018": 3,
+          "L025": 2,
+          "L001": 1,
+          "L035": 0,
+          "L015": -1,
+          "L028": -2
+        },
+        "top1_rules": {
+          "budget_max": 1150000,
+          "layout_includes": "3室2厅1卫"
+        }
+      }
+    },
+    {
+      "case_id": "d007",
+      "title": "学区刚需 - 预算120",
+      "tags": [
+        "demand",
+        "学区刚需",
+        "budget_constraint",
+        "school_priority",
+        "layout_specified"
+      ],
+      "query": "想给小孩上学准备房子，预算别超过120万，想看4室，最好离学校近些。",
+      "context": {
+        "active_intake": {
+          "user_query": "想给小孩上学准备房子，预算别超过120万，想看4室，最好离学校近些。",
+          "intent": "孩子读书",
+          "budget_max_wan": 120,
+          "layout_pref": "4室2厅2卫",
+          "target_area": {
+            "district": "南昌县"
+          }
+        },
+        "memory_profile": {
+          "school_priority": true
+        }
+      },
+      "listings": [],
+      "interactions": [],
+      "gold": {
+        "top_listing_id": "待补充",
+        "relevance": {},
+        "top1_rules": {
+          "budget_max": 1200000,
+          "layout_includes": "4室2厅2卫"
+        }
+      }
+    },
+    {
+      "case_id": "d008",
+      "title": "学区刚需 - 预算125",
+      "tags": [
+        "demand",
+        "学区刚需",
+        "budget_constraint",
+        "school_priority",
+        "layout_specified"
+      ],
+      "query": "学区是第一位的，我想在南昌县买套3室，总价125万以内，停车差一点能接受。",
+      "context": {
+        "active_intake": {
+          "user_query": "学区是第一位的，我想在南昌县买套3室，总价125万以内，停车差一点能接受。",
+          "intent": "孩子读书",
+          "budget_max_wan": 125,
+          "layout_pref": "3室2厅2卫",
+          "target_area": {
+            "district": "南昌县"
+          }
+        },
+        "memory_profile": {
+          "school_priority": true
+        }
+      },
+      "listings": [
+        {
+          "listing_id": "L018",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "文教新村",
+          "title": "文教新村 3室2厅1卫 88万",
+          "price_total": 880000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "高",
+          "facing": "南",
+          "decoration": "简装",
+          "year_built": 2007,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "中",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L025",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "育才家园",
+          "title": "育才家园 3室2厅1卫 90万",
+          "price_total": 900000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "高",
+          "facing": "南北",
+          "decoration": "精装",
+          "year_built": 2014,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "低",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L001",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "文苑里一期",
+          "title": "文苑里一期 3室2厅1卫 94万",
+          "price_total": 940000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南北",
+          "decoration": "简装",
+          "year_built": 2007,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "高",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "低楼层采光一般",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L035",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "学府春晓",
+          "title": "学府春晓 3室2厅1卫 94万",
+          "price_total": 940000,
+          "area_sqm": 85,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南北",
+          "decoration": "简装",
+          "year_built": 2008,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "高",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "低楼层采光一般",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L015",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "书香雅苑",
+          "title": "书香雅苑 3室2厅1卫 97万",
+          "price_total": 970000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "高",
+          "facing": "南",
+          "decoration": "毛坯",
+          "year_built": 2013,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "中",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L028",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "育才家园",
+          "title": "育才家园 3室2厅2卫 99万",
+          "price_total": 990000,
+          "area_sqm": 94,
+          "layout_desc": "3室2厅2卫",
+          "floor_level": "中",
+          "facing": "南",
+          "decoration": "精装",
+          "year_built": 2007,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "中",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅2卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [],
+      "gold": {
+        "top_listing_id": "L018",
+        "relevance": {
+          "L018": 3,
+          "L025": 2,
+          "L001": 1,
+          "L035": 0,
+          "L015": -1,
+          "L028": -2
+        },
+        "top1_rules": {
+          "budget_max": 1250000,
+          "layout_includes": "3室2厅2卫"
+        }
+      }
+    },
+    {
+      "case_id": "d009",
+      "title": "学区刚需 - 预算130",
+      "tags": [
+        "demand",
+        "学区刚需",
+        "budget_constraint",
+        "school_priority",
+        "layout_specified"
+      ],
+      "query": "我孩子明年上学，想在南昌县找套学区别太差的房子，预算控制在130万内，最好3室。",
+      "context": {
+        "active_intake": {
+          "user_query": "我孩子明年上学，想在南昌县找套学区别太差的房子，预算控制在130万内，最好3室。",
+          "intent": "孩子读书",
+          "budget_max_wan": 130,
+          "layout_pref": "3室2厅1卫",
+          "target_area": {
+            "district": "南昌县"
+          }
+        },
+        "memory_profile": {
+          "school_priority": true
+        }
+      },
+      "listings": [
+        {
+          "listing_id": "L018",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "文教新村",
+          "title": "文教新村 3室2厅1卫 88万",
+          "price_total": 880000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "高",
+          "facing": "南",
+          "decoration": "简装",
+          "year_built": 2007,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "中",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L025",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "育才家园",
+          "title": "育才家园 3室2厅1卫 90万",
+          "price_total": 900000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "高",
+          "facing": "南北",
+          "decoration": "精装",
+          "year_built": 2014,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "低",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L001",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "文苑里一期",
+          "title": "文苑里一期 3室2厅1卫 94万",
+          "price_total": 940000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南北",
+          "decoration": "简装",
+          "year_built": 2007,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "高",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "低楼层采光一般",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L035",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "学府春晓",
+          "title": "学府春晓 3室2厅1卫 94万",
+          "price_total": 940000,
+          "area_sqm": 85,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南北",
+          "decoration": "简装",
+          "year_built": 2008,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "高",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "低楼层采光一般",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L015",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "书香雅苑",
+          "title": "书香雅苑 3室2厅1卫 97万",
+          "price_total": 970000,
+          "area_sqm": 82,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "高",
+          "facing": "南",
+          "decoration": "毛坯",
+          "year_built": 2013,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "中",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张",
+            "高峰拥堵"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅1卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L028",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "莲塘老城",
+          "community": "育才家园",
+          "title": "育才家园 3室2厅2卫 99万",
+          "price_total": 990000,
+          "area_sqm": 94,
+          "layout_desc": "3室2厅2卫",
+          "floor_level": "中",
+          "facing": "南",
+          "decoration": "精装",
+          "year_built": 2007,
+          "elevator_flag": null,
+          "school_strength": "强",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "差",
+          "medical_level": "中",
+          "risk_level": "中",
+          "risk_tags": [
+            "房龄偏老",
+            "车位紧张"
+          ],
+          "fit_tags": [
+            "学区刚需",
+            "预算敏感",
+            "孩子读书"
+          ],
+          "summary": "学区导向明显，3室2厅2卫门槛相对可控，但房龄与停车体验一般。",
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [],
+      "gold": {
+        "top_listing_id": "L018",
+        "relevance": {
+          "L018": 3,
+          "L025": 2,
+          "L001": 1,
+          "L035": 0,
+          "L015": -1,
+          "L028": -2
+        },
+        "top1_rules": {
+          "budget_max": 1300000,
+          "layout_includes": "3室2厅1卫"
+        }
+      }
+    },
+    {
+      "case_id": "d010",
+      "title": "学区刚需 - 预算135",
+      "tags": [
+        "demand",
+        "学区刚需",
+        "budget_constraint",
+        "school_priority",
+        "layout_specified"
+      ],
+      "query": "主要是为了孩子读书，预算大概135万，想买套4室，老一点没关系，但别太折腾。",
+      "context": {
+        "active_intake": {
+          "user_query": "主要是为了孩子读书，预算大概135万，想买套4室，老一点没关系，但别太折腾。",
+          "intent": "孩子读书",
+          "budget_max_wan": 135,
+          "layout_pref": "4室2厅2卫",
+          "target_area": {
+            "district": "南昌县"
+          }
+        },
+        "memory_profile": {
+          "school_priority": true
+        }
+      },
+      "listings": [],
+      "interactions": [],
+      "gold": {
+        "top_listing_id": "待补充",
+        "relevance": {},
+        "top1_rules": {
+          "budget_max": 1350000,
+          "layout_includes": "4室2厅2卫"
+        }
+      }
+    },
+    {
+      "case_id": "d011",
+      "title": "低总价上车 - 预算70",
+      "tags": [
+        "demand",
+        "低总价上车",
+        "budget_constraint",
+        "layout_specified"
+      ],
+      "query": "我刚工作没多久，首套想控制在70万左右，能上车就行，2室2厅1卫优先。",
+      "context": {
+        "active_intake": {
+          "user_query": "我刚工作没多久，首套想控制在70万左右，能上车就行，2室2厅1卫优先。",
+          "intent": "首套上车",
+          "budget_max_wan": 70,
+          "layout_pref": "2室2厅1卫"
+        },
+        "memory_profile": {}
+      },
+      "listings": [
+        {
+          "listing_id": "L095",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "云溪首府",
+          "title": "云溪首府 2室2厅1卫 65万",
+          "price_total": 650000,
+          "area_sqm": 72,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "中",
+          "facing": "东南",
+          "decoration": "毛坯",
+          "year_built": 2024,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L119",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "山水云庭",
+          "title": "山水云庭 2室2厅1卫 67万",
+          "price_total": 670000,
+          "area_sqm": 73,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "低",
+          "facing": "南北",
+          "decoration": "毛坯",
+          "year_built": 2024,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L120",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "山水云庭",
+          "title": "山水云庭 2室2厅1卫 69万",
+          "price_total": 690000,
+          "area_sqm": 76,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "中",
+          "facing": "南北",
+          "decoration": "毛坯",
+          "year_built": 2022,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L098",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "云麓和苑",
+          "title": "云麓和苑 2室2厅1卫 70万",
+          "price_total": 700000,
+          "area_sqm": 71,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "高",
+          "facing": "南北",
+          "decoration": "精装",
+          "year_built": 2020,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "中",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "中",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [],
+      "gold": {
+        "top_listing_id": "L095",
+        "relevance": {
+          "L095": 3,
+          "L119": 2,
+          "L120": 1,
+          "L098": 0
+        },
+        "top1_rules": {
+          "budget_max": 700000,
+          "layout_includes": "2室2厅1卫"
+        }
+      }
+    },
+    {
+      "case_id": "d012",
+      "title": "低总价上车 - 预算75",
+      "tags": [
+        "demand",
+        "低总价上车",
+        "budget_constraint",
+        "layout_specified"
+      ],
+      "query": "预算比较紧，最好75万内，先买一套自己住，别太偏就行，想看2室2厅1卫。",
+      "context": {
+        "active_intake": {
+          "user_query": "预算比较紧，最好75万内，先买一套自己住，别太偏就行，想看2室2厅1卫。",
+          "intent": "首套上车",
+          "budget_max_wan": 75,
+          "layout_pref": "2室2厅1卫"
+        },
+        "memory_profile": {}
+      },
+      "listings": [
+        {
+          "listing_id": "L095",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "云溪首府",
+          "title": "云溪首府 2室2厅1卫 65万",
+          "price_total": 650000,
+          "area_sqm": 72,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "中",
+          "facing": "东南",
+          "decoration": "毛坯",
+          "year_built": 2024,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L119",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "山水云庭",
+          "title": "山水云庭 2室2厅1卫 67万",
+          "price_total": 670000,
+          "area_sqm": 73,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "低",
+          "facing": "南北",
+          "decoration": "毛坯",
+          "year_built": 2024,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L120",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "山水云庭",
+          "title": "山水云庭 2室2厅1卫 69万",
+          "price_total": 690000,
+          "area_sqm": 76,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "中",
+          "facing": "南北",
+          "decoration": "毛坯",
+          "year_built": 2022,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L098",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "云麓和苑",
+          "title": "云麓和苑 2室2厅1卫 70万",
+          "price_total": 700000,
+          "area_sqm": 71,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "高",
+          "facing": "南北",
+          "decoration": "精装",
+          "year_built": 2020,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "中",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "中",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L082",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "象南悦居",
+          "title": "象南悦居 2室2厅1卫 72万",
+          "price_total": 720000,
+          "area_sqm": 73,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "高",
+          "facing": "南",
+          "decoration": "毛坯",
+          "year_built": 2022,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "中",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L126",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "银三角",
+          "community": "银城家园",
+          "title": "银城家园 2室2厅1卫 72万",
+          "price_total": 720000,
+          "area_sqm": 69,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "中",
+          "facing": "南北",
+          "decoration": "毛坯",
+          "year_built": 2019,
+          "elevator_flag": null,
+          "school_strength": "中",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "中",
+          "medical_level": "中",
+          "risk_level": "低",
+          "risk_tags": [
+            "板块辨识度一般",
+            "临近交通干道"
+          ],
+          "fit_tags": [
+            "性价比导向",
+            "通勤兼顾",
+            "首套过渡"
+          ],
+          "summary": "更偏性价比和通勤折中，不算最热门板块，但综合成本相对可控。",
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [],
+      "gold": {
+        "top_listing_id": "L095",
+        "relevance": {
+          "L095": 3,
+          "L119": 2,
+          "L120": 1,
+          "L098": 0,
+          "L082": -1,
+          "L126": -2
+        },
+        "top1_rules": {
+          "budget_max": 750000,
+          "layout_includes": "2室2厅1卫"
+        }
+      }
+    },
+    {
+      "case_id": "d013",
+      "title": "低总价上车 - 预算80",
+      "tags": [
+        "demand",
+        "低总价上车",
+        "budget_constraint",
+        "layout_specified"
+      ],
+      "query": "我想先上车，预算别超过80万，接受新一点但远一些的房子，2室2厅1卫都可以。",
+      "context": {
+        "active_intake": {
+          "user_query": "我想先上车，预算别超过80万，接受新一点但远一些的房子，2室2厅1卫都可以。",
+          "intent": "首套上车",
+          "budget_max_wan": 80,
+          "layout_pref": "2室2厅1卫"
+        },
+        "memory_profile": {}
+      },
+      "listings": [
+        {
+          "listing_id": "L095",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "云溪首府",
+          "title": "云溪首府 2室2厅1卫 65万",
+          "price_total": 650000,
+          "area_sqm": 72,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "中",
+          "facing": "东南",
+          "decoration": "毛坯",
+          "year_built": 2024,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L119",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "山水云庭",
+          "title": "山水云庭 2室2厅1卫 67万",
+          "price_total": 670000,
+          "area_sqm": 73,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "低",
+          "facing": "南北",
+          "decoration": "毛坯",
+          "year_built": 2024,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L120",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "山水云庭",
+          "title": "山水云庭 2室2厅1卫 69万",
+          "price_total": 690000,
+          "area_sqm": 76,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "中",
+          "facing": "南北",
+          "decoration": "毛坯",
+          "year_built": 2022,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L098",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "云麓和苑",
+          "title": "云麓和苑 2室2厅1卫 70万",
+          "price_total": 700000,
+          "area_sqm": 71,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "高",
+          "facing": "南北",
+          "decoration": "精装",
+          "year_built": 2020,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "中",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "中",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L082",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "象南悦居",
+          "title": "象南悦居 2室2厅1卫 72万",
+          "price_total": 720000,
+          "area_sqm": 73,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "高",
+          "facing": "南",
+          "decoration": "毛坯",
+          "year_built": 2022,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "中",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L126",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "银三角",
+          "community": "银城家园",
+          "title": "银城家园 2室2厅1卫 72万",
+          "price_total": 720000,
+          "area_sqm": 69,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "中",
+          "facing": "南北",
+          "decoration": "毛坯",
+          "year_built": 2019,
+          "elevator_flag": null,
+          "school_strength": "中",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "中",
+          "medical_level": "中",
+          "risk_level": "低",
+          "risk_tags": [
+            "板块辨识度一般",
+            "临近交通干道"
+          ],
+          "fit_tags": [
+            "性价比导向",
+            "通勤兼顾",
+            "首套过渡"
+          ],
+          "summary": "更偏性价比和通勤折中，不算最热门板块，但综合成本相对可控。",
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [],
+      "gold": {
+        "top_listing_id": "L095",
+        "relevance": {
+          "L095": 3,
+          "L119": 2,
+          "L120": 1,
+          "L098": 0,
+          "L082": -1,
+          "L126": -2
+        },
+        "top1_rules": {
+          "budget_max": 800000,
+          "layout_includes": "2室2厅1卫"
+        }
+      }
+    },
+    {
+      "case_id": "d014",
+      "title": "低总价上车 - 预算82",
+      "tags": [
+        "demand",
+        "低总价上车",
+        "budget_constraint",
+        "layout_specified"
+      ],
+      "query": "首套过渡用，压力不要太大，预算82万以内，想看总价低一些的2室2厅1卫。",
+      "context": {
+        "active_intake": {
+          "user_query": "首套过渡用，压力不要太大，预算82万以内，想看总价低一些的2室2厅1卫。",
+          "intent": "首套上车",
+          "budget_max_wan": 82,
+          "layout_pref": "2室2厅1卫"
+        },
+        "memory_profile": {}
+      },
+      "listings": [
+        {
+          "listing_id": "L095",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "云溪首府",
+          "title": "云溪首府 2室2厅1卫 65万",
+          "price_total": 650000,
+          "area_sqm": 72,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "中",
+          "facing": "东南",
+          "decoration": "毛坯",
+          "year_built": 2024,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L119",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "山水云庭",
+          "title": "山水云庭 2室2厅1卫 67万",
+          "price_total": 670000,
+          "area_sqm": 73,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "低",
+          "facing": "南北",
+          "decoration": "毛坯",
+          "year_built": 2024,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L120",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "山水云庭",
+          "title": "山水云庭 2室2厅1卫 69万",
+          "price_total": 690000,
+          "area_sqm": 76,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "中",
+          "facing": "南北",
+          "decoration": "毛坯",
+          "year_built": 2022,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L098",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "云麓和苑",
+          "title": "云麓和苑 2室2厅1卫 70万",
+          "price_total": 700000,
+          "area_sqm": 71,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "高",
+          "facing": "南北",
+          "decoration": "精装",
+          "year_built": 2020,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "中",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "中",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L082",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "象南悦居",
+          "title": "象南悦居 2室2厅1卫 72万",
+          "price_total": 720000,
+          "area_sqm": 73,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "高",
+          "facing": "南",
+          "decoration": "毛坯",
+          "year_built": 2022,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "中",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L126",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "银三角",
+          "community": "银城家园",
+          "title": "银城家园 2室2厅1卫 72万",
+          "price_total": 720000,
+          "area_sqm": 69,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "中",
+          "facing": "南北",
+          "decoration": "毛坯",
+          "year_built": 2019,
+          "elevator_flag": null,
+          "school_strength": "中",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "中",
+          "medical_level": "中",
+          "risk_level": "低",
+          "risk_tags": [
+            "板块辨识度一般",
+            "临近交通干道"
+          ],
+          "fit_tags": [
+            "性价比导向",
+            "通勤兼顾",
+            "首套过渡"
+          ],
+          "summary": "更偏性价比和通勤折中，不算最热门板块，但综合成本相对可控。",
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [],
+      "gold": {
+        "top_listing_id": "L095",
+        "relevance": {
+          "L095": 3,
+          "L119": 2,
+          "L120": 1,
+          "L098": 0,
+          "L082": -1,
+          "L126": -2
+        },
+        "top1_rules": {
+          "budget_max": 820000,
+          "layout_includes": "2室2厅1卫"
+        }
+      }
+    },
+    {
+      "case_id": "d015",
+      "title": "低总价上车 - 预算85",
+      "tags": [
+        "demand",
+        "低总价上车",
+        "budget_constraint",
+        "layout_specified"
+      ],
+      "query": "我刚工作没多久，首套想控制在85万左右，能上车就行，2室2厅1卫优先。",
+      "context": {
+        "active_intake": {
+          "user_query": "我刚工作没多久，首套想控制在85万左右，能上车就行，2室2厅1卫优先。",
+          "intent": "首套上车",
+          "budget_max_wan": 85,
+          "layout_pref": "2室2厅1卫"
+        },
+        "memory_profile": {}
+      },
+      "listings": [
+        {
+          "listing_id": "L095",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "云溪首府",
+          "title": "云溪首府 2室2厅1卫 65万",
+          "price_total": 650000,
+          "area_sqm": 72,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "中",
+          "facing": "东南",
+          "decoration": "毛坯",
+          "year_built": 2024,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L119",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "山水云庭",
+          "title": "山水云庭 2室2厅1卫 67万",
+          "price_total": 670000,
+          "area_sqm": 73,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "低",
+          "facing": "南北",
+          "decoration": "毛坯",
+          "year_built": 2024,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L120",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "山水云庭",
+          "title": "山水云庭 2室2厅1卫 69万",
+          "price_total": 690000,
+          "area_sqm": 76,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "中",
+          "facing": "南北",
+          "decoration": "毛坯",
+          "year_built": 2022,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L098",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "云麓和苑",
+          "title": "云麓和苑 2室2厅1卫 70万",
+          "price_total": 700000,
+          "area_sqm": 71,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "高",
+          "facing": "南北",
+          "decoration": "精装",
+          "year_built": 2020,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "中",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "中",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L082",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "象南悦居",
+          "title": "象南悦居 2室2厅1卫 72万",
+          "price_total": 720000,
+          "area_sqm": 73,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "高",
+          "facing": "南",
+          "decoration": "毛坯",
+          "year_built": 2022,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "中",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L126",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "银三角",
+          "community": "银城家园",
+          "title": "银城家园 2室2厅1卫 72万",
+          "price_total": 720000,
+          "area_sqm": 69,
+          "layout_desc": "2室2厅1卫",
+          "floor_level": "中",
+          "facing": "南北",
+          "decoration": "毛坯",
+          "year_built": 2019,
+          "elevator_flag": null,
+          "school_strength": "中",
+          "commerce_level": "中",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "中",
+          "parking_level": "中",
+          "medical_level": "中",
+          "risk_level": "低",
+          "risk_tags": [
+            "板块辨识度一般",
+            "临近交通干道"
+          ],
+          "fit_tags": [
+            "性价比导向",
+            "通勤兼顾",
+            "首套过渡"
+          ],
+          "summary": "更偏性价比和通勤折中，不算最热门板块，但综合成本相对可控。",
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [],
+      "gold": {
+        "top_listing_id": "L095",
+        "relevance": {
+          "L095": 3,
+          "L119": 2,
+          "L120": 1,
+          "L098": 0,
+          "L082": -1,
+          "L126": -2
+        },
+        "top1_rules": {
+          "budget_max": 850000,
+          "layout_includes": "2室2厅1卫"
+        }
+      }
+    },
+    {
+      "case_id": "d016",
+      "title": "低总价上车 - 预算88",
+      "tags": [
+        "demand",
+        "低总价上车",
+        "budget_constraint",
+        "layout_specified"
+      ],
+      "query": "预算比较紧，最好88万内，先买一套自己住，别太偏就行，想看3室2厅1卫。",
+      "context": {
+        "active_intake": {
+          "user_query": "预算比较紧，最好88万内，先买一套自己住，别太偏就行，想看3室2厅1卫。",
+          "intent": "首套上车",
+          "budget_max_wan": 88,
+          "layout_pref": "3室2厅1卫"
+        },
+        "memory_profile": {}
+      },
+      "listings": [
+        {
+          "listing_id": "L116",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "山水云庭",
+          "title": "山水云庭 3室2厅1卫 77万",
+          "price_total": 770000,
+          "area_sqm": 85,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "中",
+          "facing": "南",
+          "decoration": "简装",
+          "year_built": 2020,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "中",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L103",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "云麓和苑",
+          "title": "云麓和苑 3室2厅1卫 78万",
+          "price_total": 780000,
+          "area_sqm": 83,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南",
+          "decoration": "毛坯",
+          "year_built": 2023,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L099",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "云麓和苑",
+          "title": "云麓和苑 3室2厅1卫 81万",
+          "price_total": 810000,
+          "area_sqm": 83,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "中",
+          "facing": "南北",
+          "decoration": "毛坯",
+          "year_built": 2021,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L114",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "山水云庭",
+          "title": "山水云庭 3室2厅1卫 81万",
+          "price_total": 810000,
+          "area_sqm": 89,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南",
+          "decoration": "毛坯",
+          "year_built": 2023,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "中",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L111",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "青岸新城",
+          "title": "青岸新城 3室2厅2卫 84万",
+          "price_total": 840000,
+          "area_sqm": 94,
+          "layout_desc": "3室2厅2卫",
+          "floor_level": "中",
+          "facing": "南",
+          "decoration": "毛坯",
+          "year_built": 2020,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L094",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "云溪首府",
+          "title": "云溪首府 3室2厅1卫 87万",
+          "price_total": 870000,
+          "area_sqm": 91,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南北",
+          "decoration": "毛坯",
+          "year_built": 2024,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "中",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "中",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [],
+      "gold": {
+        "top_listing_id": "L116",
+        "relevance": {
+          "L116": 3,
+          "L103": 2,
+          "L099": 1,
+          "L114": 0,
+          "L111": -1,
+          "L094": -2
+        },
+        "top1_rules": {
+          "budget_max": 880000,
+          "layout_includes": "3室2厅1卫"
+        }
+      }
+    },
+    {
+      "case_id": "d017",
+      "title": "低总价上车 - 预算90",
+      "tags": [
+        "demand",
+        "低总价上车",
+        "budget_constraint",
+        "layout_specified"
+      ],
+      "query": "我想先上车，预算别超过90万，接受新一点但远一些的房子，3室2厅1卫都可以。",
+      "context": {
+        "active_intake": {
+          "user_query": "我想先上车，预算别超过90万，接受新一点但远一些的房子，3室2厅1卫都可以。",
+          "intent": "首套上车",
+          "budget_max_wan": 90,
+          "layout_pref": "3室2厅1卫"
+        },
+        "memory_profile": {}
+      },
+      "listings": [
+        {
+          "listing_id": "L116",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "山水云庭",
+          "title": "山水云庭 3室2厅1卫 77万",
+          "price_total": 770000,
+          "area_sqm": 85,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "中",
+          "facing": "南",
+          "decoration": "简装",
+          "year_built": 2020,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "中",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L103",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "云麓和苑",
+          "title": "云麓和苑 3室2厅1卫 78万",
+          "price_total": 780000,
+          "area_sqm": 83,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南",
+          "decoration": "毛坯",
+          "year_built": 2023,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L099",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "云麓和苑",
+          "title": "云麓和苑 3室2厅1卫 81万",
+          "price_total": 810000,
+          "area_sqm": 83,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "中",
+          "facing": "南北",
+          "decoration": "毛坯",
+          "year_built": 2021,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L114",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "山水云庭",
+          "title": "山水云庭 3室2厅1卫 81万",
+          "price_total": 810000,
+          "area_sqm": 89,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南",
+          "decoration": "毛坯",
+          "year_built": 2023,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "中",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L111",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "青岸新城",
+          "title": "青岸新城 3室2厅2卫 84万",
+          "price_total": 840000,
+          "area_sqm": 94,
+          "layout_desc": "3室2厅2卫",
+          "floor_level": "中",
+          "facing": "南",
+          "decoration": "毛坯",
+          "year_built": 2020,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L094",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "云溪首府",
+          "title": "云溪首府 3室2厅1卫 87万",
+          "price_total": 870000,
+          "area_sqm": 91,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南北",
+          "decoration": "毛坯",
+          "year_built": 2024,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "中",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "中",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [],
+      "gold": {
+        "top_listing_id": "L116",
+        "relevance": {
+          "L116": 3,
+          "L103": 2,
+          "L099": 1,
+          "L114": 0,
+          "L111": -1,
+          "L094": -2
+        },
+        "top1_rules": {
+          "budget_max": 900000,
+          "layout_includes": "3室2厅1卫"
+        }
+      }
+    },
+    {
+      "case_id": "d018",
+      "title": "低总价上车 - 预算92",
+      "tags": [
+        "demand",
+        "低总价上车",
+        "budget_constraint",
+        "layout_specified"
+      ],
+      "query": "首套过渡用，压力不要太大，预算92万以内，想看总价低一些的3室2厅1卫。",
+      "context": {
+        "active_intake": {
+          "user_query": "首套过渡用，压力不要太大，预算92万以内，想看总价低一些的3室2厅1卫。",
+          "intent": "首套上车",
+          "budget_max_wan": 92,
+          "layout_pref": "3室2厅1卫"
+        },
+        "memory_profile": {}
+      },
+      "listings": [
+        {
+          "listing_id": "L116",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "山水云庭",
+          "title": "山水云庭 3室2厅1卫 77万",
+          "price_total": 770000,
+          "area_sqm": 85,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "中",
+          "facing": "南",
+          "decoration": "简装",
+          "year_built": 2020,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "中",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L103",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "云麓和苑",
+          "title": "云麓和苑 3室2厅1卫 78万",
+          "price_total": 780000,
+          "area_sqm": 83,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南",
+          "decoration": "毛坯",
+          "year_built": 2023,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L099",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "云麓和苑",
+          "title": "云麓和苑 3室2厅1卫 81万",
+          "price_total": 810000,
+          "area_sqm": 83,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "中",
+          "facing": "南北",
+          "decoration": "毛坯",
+          "year_built": 2021,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L114",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "山水云庭",
+          "title": "山水云庭 3室2厅1卫 81万",
+          "price_total": 810000,
+          "area_sqm": 89,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南",
+          "decoration": "毛坯",
+          "year_built": 2023,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "中",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L111",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "青岸新城",
+          "title": "青岸新城 3室2厅2卫 84万",
+          "price_total": 840000,
+          "area_sqm": 94,
+          "layout_desc": "3室2厅2卫",
+          "floor_level": "中",
+          "facing": "南",
+          "decoration": "毛坯",
+          "year_built": 2020,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L094",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "云溪首府",
+          "title": "云溪首府 3室2厅1卫 87万",
+          "price_total": 870000,
+          "area_sqm": 91,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南北",
+          "decoration": "毛坯",
+          "year_built": 2024,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "中",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "中",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [],
+      "gold": {
+        "top_listing_id": "L116",
+        "relevance": {
+          "L116": 3,
+          "L103": 2,
+          "L099": 1,
+          "L114": 0,
+          "L111": -1,
+          "L094": -2
+        },
+        "top1_rules": {
+          "budget_max": 920000,
+          "layout_includes": "3室2厅1卫"
+        }
+      }
+    },
+    {
+      "case_id": "d019",
+      "title": "低总价上车 - 预算95",
+      "tags": [
+        "demand",
+        "低总价上车",
+        "budget_constraint",
+        "layout_specified"
+      ],
+      "query": "我刚工作没多久，首套想控制在95万左右，能上车就行，3室2厅1卫优先。",
+      "context": {
+        "active_intake": {
+          "user_query": "我刚工作没多久，首套想控制在95万左右，能上车就行，3室2厅1卫优先。",
+          "intent": "首套上车",
+          "budget_max_wan": 95,
+          "layout_pref": "3室2厅1卫"
+        },
+        "memory_profile": {}
+      },
+      "listings": [
+        {
+          "listing_id": "L116",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "山水云庭",
+          "title": "山水云庭 3室2厅1卫 77万",
+          "price_total": 770000,
+          "area_sqm": 85,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "中",
+          "facing": "南",
+          "decoration": "简装",
+          "year_built": 2020,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "中",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L103",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "云麓和苑",
+          "title": "云麓和苑 3室2厅1卫 78万",
+          "price_total": 780000,
+          "area_sqm": 83,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南",
+          "decoration": "毛坯",
+          "year_built": 2023,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L099",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "云麓和苑",
+          "title": "云麓和苑 3室2厅1卫 81万",
+          "price_total": 810000,
+          "area_sqm": 83,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "中",
+          "facing": "南北",
+          "decoration": "毛坯",
+          "year_built": 2021,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L114",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "山水云庭",
+          "title": "山水云庭 3室2厅1卫 81万",
+          "price_total": 810000,
+          "area_sqm": 89,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南",
+          "decoration": "毛坯",
+          "year_built": 2023,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "中",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L111",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "青岸新城",
+          "title": "青岸新城 3室2厅2卫 84万",
+          "price_total": 840000,
+          "area_sqm": 94,
+          "layout_desc": "3室2厅2卫",
+          "floor_level": "中",
+          "facing": "南",
+          "decoration": "毛坯",
+          "year_built": 2020,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L094",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "云溪首府",
+          "title": "云溪首府 3室2厅1卫 87万",
+          "price_total": 870000,
+          "area_sqm": 91,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南北",
+          "decoration": "毛坯",
+          "year_built": 2024,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "中",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "中",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [],
+      "gold": {
+        "top_listing_id": "L116",
+        "relevance": {
+          "L116": 3,
+          "L103": 2,
+          "L099": 1,
+          "L114": 0,
+          "L111": -1,
+          "L094": -2
+        },
+        "top1_rules": {
+          "budget_max": 950000,
+          "layout_includes": "3室2厅1卫"
+        }
+      }
+    },
+    {
+      "case_id": "d020",
+      "title": "低总价上车 - 预算98",
+      "tags": [
+        "demand",
+        "低总价上车",
+        "budget_constraint",
+        "layout_specified"
+      ],
+      "query": "预算比较紧，最好98万内，先买一套自己住，别太偏就行，想看3室2厅1卫。",
+      "context": {
+        "active_intake": {
+          "user_query": "预算比较紧，最好98万内，先买一套自己住，别太偏就行，想看3室2厅1卫。",
+          "intent": "首套上车",
+          "budget_max_wan": 98,
+          "layout_pref": "3室2厅1卫"
+        },
+        "memory_profile": {}
+      },
+      "listings": [
+        {
+          "listing_id": "L116",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "山水云庭",
+          "title": "山水云庭 3室2厅1卫 77万",
+          "price_total": 770000,
+          "area_sqm": 85,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "中",
+          "facing": "南",
+          "decoration": "简装",
+          "year_built": 2020,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "中",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L103",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "云麓和苑",
+          "title": "云麓和苑 3室2厅1卫 78万",
+          "price_total": 780000,
+          "area_sqm": 83,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南",
+          "decoration": "毛坯",
+          "year_built": 2023,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L099",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "云麓和苑",
+          "title": "云麓和苑 3室2厅1卫 81万",
+          "price_total": 810000,
+          "area_sqm": 83,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "中",
+          "facing": "南北",
+          "decoration": "毛坯",
+          "year_built": 2021,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L114",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "山水云庭",
+          "title": "山水云庭 3室2厅1卫 81万",
+          "price_total": 810000,
+          "area_sqm": 89,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南",
+          "decoration": "毛坯",
+          "year_built": 2023,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "中",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "中",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L111",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "青岸新城",
+          "title": "青岸新城 3室2厅2卫 84万",
+          "price_total": 840000,
+          "area_sqm": 94,
+          "layout_desc": "3室2厅2卫",
+          "floor_level": "中",
+          "facing": "南",
+          "decoration": "毛坯",
+          "year_built": 2020,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "弱",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "高",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "L094",
+          "city": "南昌市",
+          "district": "南昌县",
+          "plate": "象湖南",
+          "community": "云溪首府",
+          "title": "云溪首府 3室2厅1卫 87万",
+          "price_total": 870000,
+          "area_sqm": 91,
+          "layout_desc": "3室2厅1卫",
+          "floor_level": "低",
+          "facing": "南北",
+          "decoration": "毛坯",
+          "year_built": 2024,
+          "elevator_flag": null,
+          "school_strength": "弱",
+          "commerce_level": "中",
+          "transport_level": "弱",
+          "property_level": "中",
+          "environment_level": "中",
+          "noise_level": "低",
+          "parking_level": "中",
+          "medical_level": "弱",
+          "risk_level": "中",
+          "risk_tags": [
+            "配套待成熟",
+            "通勤成本高",
+            "交付后装修成本"
+          ],
+          "fit_tags": [
+            "低总价上车",
+            "年轻首套",
+            "预算控制"
+          ],
+          "summary": "总价更友好，适合先上车，但板块成熟度和通勤便利仍需接受。",
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [],
+      "gold": {
+        "top_listing_id": "L116",
+        "relevance": {
+          "L116": 3,
+          "L103": 2,
+          "L099": 1,
+          "L114": 0,
+          "L111": -1,
+          "L094": -2
+        },
+        "top1_rules": {
+          "budget_max": 980000,
+          "layout_includes": "3室2厅1卫"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,305 @@
+文档名称：云端托管智能体数据契约规范
+版本：V1.0
+日期：2026-03-20
+适用范围：微信小程序 AI 咨询页（pages/ai/index）与云函数 queryPropertyRecommend
+
+一、目标与边界
+1）目标
+统一小程序与云端托管智能体的数据交换格式，明确：
+- 小程序可提供给智能体的数据
+- 智能体可返回给小程序的数据
+- 各字段的数据类型与约束
+
+2）边界
+- 本规范仅定义“请求/响应契约”。
+- 不改变 compare/risk/action 的核心状态机。
+- 不定义模型训练和提示词细节。
+
+二、通信链路
+小程序 pages/ai/index
+-> 云函数 queryPropertyRecommend
+-> 云端托管智能体 Endpoint
+-> 云函数标准化响应
+-> 小程序渲染 recommendation / clarification_needed / error
+
+三、小程序提供给智能体的数据（请求）
+
+1）请求体顶层结构
+{
+  "protocol_version": "agent-1.0",
+  "request_id": "req_1710900000000_ab12cd",
+  "session_id": "session_1710900000000_xy98",
+  "user_id": "user_xxx",
+  "source": "wechat",
+  "query": "我想在上海买500万以内三室学区房",
+  "context": {},
+  "options": {
+    "max_recommendations": 5
+  },
+  "timestamp": "2026-03-20T10:00:00.000Z"
+}
+
+2）顶层字段规范
+- protocol_version: string，必填，固定 agent-1.0
+- request_id: string，必填，请求唯一标识
+- session_id: string，必填，会话标识
+- user_id: string，选填，用户标识（禁止 openid 明文）
+- source: string，必填，固定 wechat
+- query: string，必填，长度 1~1000
+- context: object，选填，上下文快照
+- options: object，选填，响应控制参数
+- timestamp: string，必填，ISO8601
+
+3）context 字段建议
+- source_page: string，入口页面（ai/candidates/detail）
+- flow_stage: string，流程阶段（intake/import/search/compare/risk/action）
+- active_intake: object，最新 submitted 需求摘要
+- recent_messages: object[]，最近 5 条原文消息（role/content/created_at）
+- session_summary: string，当前会话的历史摘要，可空
+- memory_profile: object，历史稳定偏好快照，可空
+- active_requirement: object，当前需求记忆快照，可空
+- selected_listing_ids: string[]，当前已选房源 ID（最多 5）
+- selected_listings: object[]，房源摘要（不含敏感信息）
+- latest_comparison: object，最近比较摘要
+- latest_risk_check: object，最近风险摘要
+- recent_actions: object[]，最近动作摘要（最多 20）
+
+4）active_intake 建议字段
+- intake_id: string
+- city: string
+- budget_min: number|null（单位：万）
+- budget_max: number|null（单位：万）
+- usage_type: string
+- must_have: string[]
+- cannot_accept: string[]
+- max_concern: string
+
+四、智能体返回给小程序的数据（响应）
+
+1）统一响应结构
+{
+  "success": true,
+  "type": "recommendation",
+  "data": {},
+  "error": null,
+  "meta": {
+    "trace_id": "ai_recommend_1710900000000_k3m9",
+    "duration_ms": 820,
+    "model": "managed-agent",
+    "timestamp": "2026-03-20T10:00:00.900Z"
+  }
+}
+
+2）顶层字段规范
+- success: boolean，必填
+- type: string，必填，枚举 recommendation / clarification_needed / error
+- data: object|null，必填
+- error: object|null，必填
+- meta: object，必填
+
+补充说明：
+- 云函数会在标准化响应时补充 `session_summary`（如上游返回会话摘要或 compact_context.history_summary）。
+- 云函数会对白名单 `memory_patch` 做轻量校验，仅把合法字段回传给小程序；非法字段会进入 `memory_patch_rejected`。
+
+五、按 type 分型的数据格式
+
+1）recommendation
+{
+  "success": true,
+  "type": "recommendation",
+  "data": {
+    "understanding": "您在找上海500万内三室学区房",
+    "conditions_used": {
+      "city": "上海",
+      "price_total_max": 500,
+      "layout_desc": "三室",
+      "must_have": ["学区"]
+    },
+    "total_found": 3,
+    "summary": "找到3套较匹配房源",
+    "recommendations": [
+      {
+        "listing_id": "L001",
+        "match_score": 92,
+        "match_highlights": ["学区匹配", "户型匹配"],
+        "concerns": ["总价略高"],
+        "recommendation": "优先关注该房源",
+        "listing_detail": {
+          "listing_id": "L001",
+          "title": "静安区精装三室",
+          "city": "上海",
+          "district": "静安区",
+          "community_name": "静安花园",
+          "price_total": 520,
+          "area_sqm": 98,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "tags_json": ["学区房"]
+        }
+      }
+    ],
+    "advice": "建议先约看前2套并补充贷款方案",
+    "next_steps": ["go_compare", "go_risk", "consult_advisor"],
+    "session_summary": "用户主要在讨论预算、学区和电梯条件，已进入候选比较阶段",
+    "memory_patch": {
+      "budget_max": 500,
+      "school_priority": true,
+      "elevator_required": true
+    }
+  },
+  "error": null,
+  "meta": {}
+}
+
+2）clarification_needed
+{
+  "success": true,
+  "type": "clarification_needed",
+  "data": {
+    "understanding": "已识别到您有购房意向，但信息不足",
+    "questions": [
+      "目标城市是哪里？",
+      "预算区间大概多少？",
+      "户型偏好是几室？"
+    ],
+    "missing_slots": ["city", "budget", "layout_desc"],
+    "message": "请补充以上信息，我再给你精准推荐"
+  },
+  "error": null,
+  "meta": {}
+}
+
+3）error
+{
+  "success": false,
+  "type": "error",
+  "data": null,
+  "error": {
+    "code": "UPSTREAM_TIMEOUT",
+    "message": "智能体处理超时，请稍后重试",
+    "retryable": true,
+    "details": null
+  },
+  "meta": {}
+}
+
+六、错误码规范（最小集）
+- INVALID_QUERY：入参不合法，retryable=false
+- QUERY_TOO_LONG：query 超长，retryable=false
+- AGENT_ENDPOINT_MISSING：服务端未配置智能体地址，retryable=false
+- UPSTREAM_HTTP_ERROR：上游 HTTP 错误，retryable=true
+- UPSTREAM_INVALID_JSON：上游返回非 JSON，retryable=true
+- UPSTREAM_TIMEOUT：上游超时，retryable=true
+- UPSTREAM_ERROR：上游业务错误，retryable=视情况
+- REQUEST_FAILED：网络/请求失败，retryable=true
+
+七、数据格式约束（必须）
+- 编码：UTF-8
+- 命名：snake_case
+- 时间：ISO8601
+- 金额：price_total / budget_* 单位统一“万”
+- 面积：area_sqm 单位统一“平方米”
+- 空值：使用 null，不使用空字符串伪装数值
+- 推荐数量：recommendations 最多 10 条，MVP 建议 5 条
+- selected_listing_ids 最多 5 个
+
+八、安全与隐私要求（必须）
+- 禁止传输 openid/unionid/mobile/email 明文到智能体
+- 仅传最小必要上下文字段
+- 日志不落 query 全量明文（可记录长度、trace_id）
+- 每次请求必须具备 request_id 与 trace_id 以便追踪
+
+九、与现有数据表映射（首期）
+- active_intake <- buyer_intakes（status=submitted）
+- selected_listing_ids / selected_listings <- listings（status=active）
+- latest_comparison <- comparison_reports（最新 generated/sent）
+- latest_risk_check <- risk_checks（最新记录）
+- recent_actions <- next_actions（最近动作）
+
+十、验收要点（契约层）
+1）推荐场景：返回 recommendation 且 data.summary 可渲染
+2）补充信息场景：返回 clarification_needed 且 data.questions 非空
+3）失败场景：返回 error 且 error.code 可读
+4）meta 中必须含 trace_id 与 duration_ms
+5）如返回 `memory_patch`，仅允许白名单字段且字段类型合法
+6）字段类型与命名符合本规范，不得临时变更
+
+补充兼容策略（2026-03-24）
+1）云函数当前同时兼容旧字段 `previous_understanding`，并在转发上游时归一补齐为 `active_intake`。
+2）云函数当前同时兼容 `favorite_listing_ids`、`favorite_listings` 等旧页面字段，并在转发上游时补齐为 `selected_listing_ids`、`selected_listings`。
+3）云函数当前可从 `active_requirement.current_stage` 推导 `flow_stage`，用于减少前端同步改造幅度。
+4）云函数当前兼容上游返回别名：`reply`、`reply_text`、`reply_type`、`candidates`、`question`、`memoryPatch`、`preference_update`，并统一折叠回当前小程序可消费的 `summary/questions/recommendations/memory_patch` 结构。
+
+补充接入约束（2026-03-23）
+1）小程序前端统一通过 `utils/ai` 接入层调用 AI，不直接散落调用具体云函数包装。
+2）`utils/ai` 对页面暴露稳定场景名（当前为 `property_consult`）与统一调用方法。
+3）后续新增 AI 业务场景时，优先新增适配器文件并注册到接入层，不复制页面级请求逻辑。
+
+补充服务端适配约束（2026-03-24）
+1）`queryPropertyRecommend` 云函数内部统一通过 provider 适配层对接上游。
+2）当前默认 provider 已临时切换为 `openai_compatible`（百炼 OpenAI 兼容模式），后续新增 provider 时应保持云函数对外响应契约不变。
+3）provider 选择允许由服务端环境变量 `AI_PROVIDER_MODE` / `CLOUD_AI_PROVIDER_MODE` 控制，客户端不感知 provider 细节。
+
+十一、2026-03-24 补充：开发态 provider 与 decisionEngine 契约
+
+1）当前默认 provider：openai_compatible
+- 用途：当前聊天链路默认使用百炼 OpenAI 兼容模式；`managed_agent` 仅保留为可回退 provider。
+- 启用方式：未显式配置 provider 时默认走 `openai_compatible`；也可通过环境变量 `AI_PROVIDER_MODE=openai_compatible` 或 `CLOUD_AI_PROVIDER_MODE=openai_compatible` 显式指定
+- 必填环境变量：`OPENAI_COMPAT_API_KEY`；也兼容 `BAILIAN_API_KEY`、`DASHSCOPE_API_KEY`
+- 可选环境变量：`OPENAI_COMPAT_BASE_URL`、`OPENAI_COMPAT_MODEL`、`OPENAI_COMPAT_TIMEOUT_MS`、`OPENAI_COMPAT_PROXY_URL`
+- 百炼兼容别名：`BAILIAN_COMPAT_BASE_URL`、`BAILIAN_COMPAT_MODEL`、`DASHSCOPE_BASE_URL`、`DASHSCOPE_MODEL`
+- 开发态默认值：未显式配置时默认走百炼北京地域 OpenAI 兼容端点 `https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions` 与模型 `qwen-plus`
+- 当前默认超时：`OPENAI_COMPAT_TIMEOUT_MS` 未显式配置时取 `12000ms`，优先在小程序 `callFunction` 超时窗口内返回结构化错误，避免云函数长时间挂起。
+- 安全要求：apikey 不进入前端参数、不写入仓库、不记录到 activity_logs 明文。
+- 本地 smoke 脚本允许在未显式设置代理环境变量时，自动读取 Windows 当前用户代理配置并补齐 `HTTPS_PROXY/HTTP_PROXY`，仅用于开发态联调。
+- 若上游返回 401/403/4xx 错误体，日志与 smoke 输出只保留脱敏后的摘要，不原样输出凭证片段。
+
+2）decisionEngine 云函数
+- 用途：承接 AI 页的最小结构化决策闭环，不替代 queryPropertyRecommend 聊天主链路。
+- 调用入口：云函数 `decisionEngine`
+- 请求顶层：
+```json
+{
+  "action": "start|state|pairwise|critique|relax",
+  "user_id": "user_xxx",
+  "decision_session_id": "decision_session_xxx",
+  "chat_session_id": "session_xxx",
+  "selected_listing_ids": ["L001", "L002"],
+  "winner_listing_id": "L001",
+  "loser_listing_id": "L002",
+  "text": "不要楼梯房",
+  "context": {}
+}
+```
+
+3）decisionEngine 响应顶层
+```json
+{
+  "success": true,
+  "data": {
+    "decision_session_id": "decision_session_xxx",
+    "current_stage": "pairwise",
+    "selected_listing_ids": [],
+    "candidate_listing_ids": [],
+    "candidate_buckets": {
+      "stable": [],
+      "balanced": [],
+      "value": []
+    },
+    "top_listing_ids": [],
+    "next_pairwise_question": null,
+    "blockers": [],
+    "relaxation_options": []
+  },
+  "error": null,
+  "meta": {
+    "trace_id": "decision_xxx",
+    "action": "start"
+  }
+}
+```
+
+4）约束说明
+- 本期只支持 5 个 action：start/state/pairwise/critique/relax
+- 本期只新增 `decision_sessions` 集合，不新增 `preference_states`
+- queryPropertyRecommend 继续负责自然语言对话、摘要与 memory_patch；decisionEngine 只负责结构化决策状态

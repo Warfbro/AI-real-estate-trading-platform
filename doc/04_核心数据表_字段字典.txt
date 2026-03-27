@@ -15,16 +15,18 @@
 1）users 用户
 2）user_profiles 用户档案
 3）buyer_intakes 买房需求
-4）listing_import_jobs 房源导入任务
-5）listings 房源对象
-6）listing_versions 房源版本
-7）favorites 收藏
-8）comparison_reports 比较报告
-9）risk_checks 风险确认
-10）next_actions 下一步动作
-11）appointments 预约记录
-12）advisor_leads 顾问线索
-13）activity_logs 操作日志
+4）chat_sessions AI 会话
+5）chat_messages AI 消息归档
+6）listing_import_jobs 房源导入任务
+7）listings 房源对象
+8）listing_versions 房源版本
+9）favorites 收藏
+10）comparison_reports 比较报告
+11）risk_checks 风险确认
+12）next_actions 下一步动作
+13）appointments 预约记录
+14）advisor_leads 顾问线索
+15）activity_logs 操作日志
 
 3. 字段字典
 
@@ -49,6 +51,7 @@ nickname：昵称
 avatar_url：头像
 city_default：默认城市
 notes：备注
+ai_memory_profile_json：AI 结构化需求记忆 JSON，可空
 updated_at：更新时间
 
 3.3 buyer_intakes
@@ -73,7 +76,38 @@ status：draft/submitted/archived
 created_at：创建时间
 updated_at：更新时间
 
-3.4 listing_import_jobs
+补充说明：
+1）`structured_json` 可包含 `ai_memory_profile` 与 `ai_requirement_memory` 两个扩展节点，
+用于承接 AI 对话白名单字段沉淀，不额外引入复杂状态机。
+
+3.4 chat_sessions
+用途：记录 AI 会话元数据与会话摘要
+字段：
+session_id：主键
+user_id：所属用户
+source：来源页面（home/search/ai）
+title：会话标题
+summary：会话摘要，可空
+preview：最近消息摘要
+status：active/archived
+message_count：消息数
+recent_message_ids：最近消息 ID 数组
+last_message_at：最后消息时间
+created_at：创建时间
+updated_at：更新时间
+
+3.5 chat_messages
+用途：保存 AI 会话中的用户消息与 AI 回复原文
+字段：
+message_id：主键
+session_id：关联 chat_sessions
+user_id：所属用户
+role：user/ai/system
+content：消息内容原文
+raw_model_output：AI 原始结构化响应，可空
+created_at：创建时间
+
+3.6 listing_import_jobs
 用途：记录一次导入行为
 字段：
 job_id：主键
@@ -86,7 +120,7 @@ error_message：失败原因
 created_at：创建时间
 updated_at：更新时间
 
-3.5 listings
+3.7 listings
 用途：标准化房源对象
 字段：
 listing_id：主键
@@ -116,7 +150,7 @@ status：active/archived/deleted
 created_at：创建时间
 updated_at：更新时间
 
-3.6 listing_versions
+3.8 listing_versions
 用途：记录房源编辑历史
 字段：
 version_id：主键
@@ -127,7 +161,7 @@ before_json：修改前
 after_json：修改后
 created_at：创建时间
 
-3.7 favorites
+3.9 favorites
 用途：收藏关系
 字段：
 favorite_id：主键
@@ -135,7 +169,7 @@ user_id：用户
 listing_id：房源
 created_at：创建时间
 
-3.8 comparison_reports
+3.10 comparison_reports
 用途：比较结果与报告
 字段：
 comparison_id：主键
@@ -148,7 +182,7 @@ status：generated/sent/archived
 created_at：创建时间
 updated_at：更新时间
 
-3.9 risk_checks
+3.11 risk_checks
 用途：风险确认结果
 字段：
 risk_check_id：主键
@@ -163,7 +197,7 @@ manual_review_required：是否需要人工复核
 created_at：创建时间
 updated_at：更新时间
 
-3.10 next_actions
+3.12 next_actions
 用途：下一步动作记录
 字段：
 action_id：主键
@@ -178,7 +212,7 @@ result_json：处理结果
 created_at：创建时间
 updated_at：更新时间
 
-3.11 appointments
+3.13 appointments
 用途：预约带看
 字段：
 appointment_id：主键
@@ -191,7 +225,7 @@ notes：备注
 created_at：创建时间
 updated_at：更新时间
 
-3.12 advisor_leads
+3.14 advisor_leads
 用途：顾问承接线索
 字段：
 lead_id：主键
@@ -204,7 +238,7 @@ summary_json：摘要
 updated_at：更新时间
 created_at：创建时间
 
-3.13 activity_logs
+3.15 activity_logs
 用途：关键行为日志
 字段：
 log_id：主键
@@ -219,6 +253,8 @@ created_at：创建时间
 4. 关键关系
 
 users 1 - n buyer_intakes
+users 1 - n chat_sessions
+chat_sessions 1 - n chat_messages
 users 1 - n listing_import_jobs
 users 1 - n listings
 users 1 - n comparison_reports
@@ -250,3 +286,51 @@ listing_versions
 3）结构化结果优先放 JSON 字段，便于首期快速迭代
 4）展示字段与计算字段分离
 5）所有状态字段必须在状态流转文档中有定义
+
+=== 2026-03 视觉与交互设计方针统一说明 ===
+
+1. 整体基调：
+- 风格：温暖、专业、可信、家居化（木质/奶油色调）。
+- 交互主题：“缓”。买房是一个缓慢挑选、从容决策的过程，动效设计和交互反馈需保持平滑、柔和（如页面缓缓展开、面板平滑升起），避免急躁的视觉突变打断用户思考。
+- 目的：降低用户对高客单价房产交易的防备感，传达安心与温度。
+
+2. 核心色彩：
+- 主背景色：#FAF8F5（米白/奶油色），用于替代大面积冷白色。
+- 主要强调色/按钮：#5C4033（深胡桃木/咖啡色），用于主按钮、TabBar常态。
+- 次级点缀色/高亮：#E4D4C8（浅原木色/奶棕色），用于选中状态、标签背景。
+- 文本颜色：#333333（主文本），#666666（次文本）。
+
+3. 布局与组件约束：
+- 导航架构：采用全局底部自定义 TabBar，包含“首页（左）、AI主入口（中，悬浮凸起）、我的（右）”。
+- 卡片设计 (Card)：全站内容白底卡片结构，圆角统一 24rpx，阴影带棕色调（rgba(92, 64, 51, 0.08)）。
+- 安全区：所有信息流页底部保留 180rpx 以上 padding，配合 env(safe-area-inset-bottom) 防遮挡。
+
+4. 首页结构改版：
+- 取消旧版横幅广告与冗余进度卡。
+- 引入顶部搜索、横向滑动“热门房源”与垂直流式“猜你喜欢”列表，数据均依托现有房源数据库，不新增资讯模型。
+=============================================
+
+7. 2026-03-24 补充：decision_sessions（AI 最小决策闭环）
+
+对象：decision_sessions
+用途：承接 AI 页结构化决策闭环的最小状态，不替代 chat_sessions/chat_messages。
+
+字段：
+- decision_session_id：主键
+- user_id：所属用户
+- chat_session_id：关联 chat_sessions，可空
+- intake_id：关联 buyer_intakes，可空
+- status：active/completed/archived
+- current_stage：clarifying/ranking/pairwise/critique/relaxation
+- selected_listing_ids：用户当前带入决策的房源 ID 数组
+- candidate_listing_ids：当前候选池房源 ID 数组
+- state_json：结构化决策状态，当前仅保留 hard_constraints / soft_weights / pairwise_memory / critique_memory / blockers
+- result_json：当前结果快照，当前仅保留 buckets / top_listing_ids / relaxation_options
+- created_at：创建时间
+- updated_at：更新时间
+
+说明：
+1）本期只新增 decision_sessions 1 个集合，不新增 preference_states。
+2）pairwise、critique、relax 的中间状态统一存入 state_json，保证 Sprint 1 可运行、可回退。
+3）三档候选 bucket 固定为 stable / balanced / value。
+4）该集合由云函数 decisionEngine 读写，activity_logs 仅保留关键动作留痕，不承担主状态存储。

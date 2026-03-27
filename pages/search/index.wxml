@@ -1,0 +1,41 @@
+<view class="search-page">
+  <view class="search-head">
+    <view class="head-back" bindtap="handleCancel">‹</view>
+    <view class="head-input-wrap">
+      <icon type="search" size="14" color="#8B8B8B" />
+      <input
+        class="head-input"
+        placeholder="搜索房源、小区或标签"
+        value="{{search_input_value}}"
+        bindinput="handleInput"
+        bindconfirm="handleSubmitSearch"
+        confirm-type="search"
+        focus
+      />
+    </view>
+    <view class="head-submit" bindtap="handleSubmitSearch">搜索</view>
+  </view>
+
+  <view class="history-section">
+    <view class="history-header">
+      <view class="history-title">搜索历史</view>
+      <view class="history-clear" wx:if="{{has_history}}" bindtap="handleClearHistory">清空</view>
+    </view>
+
+    <view class="history-wrap" wx:if="{{has_history}}">
+      <view
+        wx:for="{{history_list}}"
+        wx:key="*this"
+        class="history-tag"
+        data-keyword="{{item}}"
+        bindtap="handleUseHistory"
+      >
+        {{item}}
+      </view>
+    </view>
+
+    <view class="history-empty" wx:else>
+      暂无搜索历史
+    </view>
+  </view>
+</view>

@@ -1,0 +1,65 @@
+<view class="page">
+  <view class="title">下一步动作中心</view>
+  <view class="subtitle">把“看完比较/风险”转成“继续推进”。</view>
+
+  <view class="card">
+    <view class="label">当前上下文</view>
+    <view class="hint">来源：{{source}}</view>
+    <view class="hint">需求ID：{{intake_id_text}}</view>
+    <view class="hint">比较ID：{{comparison_id_text}}</view>
+    <view class="hint">风险ID：{{risk_check_id_text}}</view>
+    <view class="hint">房源数量：{{selected_count_text}}</view>
+  </view>
+
+  <view class="card">
+    <view class="label">动作类型</view>
+    <view class="action-grid">
+      <button class="{{btn_class_consult}}" data-action-type="consult" bindtap="handleSelectAction">咨询顾问</button>
+      <button class="{{btn_class_appointment}}" data-action-type="appointment" bindtap="handleSelectAction">预约带看</button>
+      <button class="{{btn_class_send_report}}" data-action-type="send_report" bindtap="handleSelectAction">发送报告</button>
+      <button class="{{btn_class_manual_review}}" data-action-type="manual_review" bindtap="handleSelectAction">人工复核</button>
+      <button class="{{btn_class_save_for_later}}" data-action-type="save_for_later" bindtap="handleSelectAction">稍后继续</button>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="label">动作参数</view>
+
+    <view wx:if="{{is_action_appointment}}">
+      <view class="label">预约时间</view>
+      <input class="input" placeholder="例如：周六上午10:00" value="{{preferred_time}}" data-field="preferred_time" bindinput="handleInput" />
+    </view>
+
+    <view wx:if="{{is_action_send_report}}">
+      <view class="label">报告邮箱（可选）</view>
+      <input class="input" placeholder="example@email.com" value="{{report_email}}" data-field="report_email" bindinput="handleInput" />
+      <view class="hint warn" wx:if="{{has_report_retry_target}}">{{report_retry_hint_text}}</view>
+      <button
+        class="btn-secondary btn-inline"
+        wx:if="{{has_report_retry_target}}"
+        bindtap="handleRetryLastReport"
+      >
+        复用上次失败参数重试
+      </button>
+    </view>
+
+    <view class="label">备注</view>
+    <textarea class="textarea" placeholder="补充你的说明（可选）" value="{{note_text}}" data-field="note_text" bindinput="handleInput" />
+    <button class="btn-primary" bindtap="handleSubmitAction">提交动作</button>
+  </view>
+
+  <view class="card">
+    <view class="label">最近动作记录</view>
+    <view class="hint" wx:if="{{show_empty_history}}">暂无动作记录</view>
+    <block wx:for="{{actions_history}}" wx:key="action_id">
+      <view class="history-item">
+        <view class="history-title">{{item.display_title}}</view>
+        <view class="hint">action_id：{{item.action_id}}</view>
+        <view class="hint">结果：{{item.display_result}}</view>
+        <view class="hint">尝试次数：{{item.display_attempt_no}}</view>
+        <view class="hint" wx:if="{{item.show_retry_from}}">重试来源：{{item.display_retry_from}}</view>
+        <view class="hint">时间：{{item.created_at}}</view>
+      </view>
+    </block>
+  </view>
+</view>

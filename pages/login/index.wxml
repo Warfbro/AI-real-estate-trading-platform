@@ -1,0 +1,21 @@
+<view class="page">
+  <view class="title">身份验证</view>
+  <view class="subtitle">为了保障您的选房数据安全和多端同步，请先登录。</view>
+
+  <view class="card">
+    <text class="label">继续您的操作流程：</text>
+    <text class="hint">{{redirect}}</text>
+  </view>
+
+  <view class="card">
+    <view class="label">当前身份（环境模拟）</view>
+    <picker mode="selector" range="{{role_labels}}" value="{{role_index}}" bindchange="handleRoleChange">
+      <view class="picker">{{role_label}}</view>
+    </picker>
+    <view class="hint">日常使用请直接使用下方的一键快捷授权。</view>
+  </view>
+
+  <button class="btn-primary" bindtap="handleLogin" loading="{{loading}}">
+    微信一键安全登录
+  </button>
+</view>

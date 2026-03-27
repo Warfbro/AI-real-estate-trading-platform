@@ -1,0 +1,22 @@
+<view class="page my-page">
+  <view class="top-clean-mask"></view>
+  <view class="title">我的空间</view>
+
+  <view class="entry-list">
+    <view
+      class="entry-row"
+      wx:for="{{entries}}"
+      wx:key="key"
+      data-key="{{item.key}}"
+      bindtap="handleEntryTap"
+      hover-class="row-hover"
+    >
+      <view class="entry-main">
+        <view class="entry-title">{{item.title}}</view>
+        <view class="entry-desc">{{item.desc}}</view>
+      </view>
+      <view class="entry-arrow">›</view>
+    </view>
+  </view>
+</view>
+

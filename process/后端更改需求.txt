@@ -1,0 +1,192 @@
+﻿文档名称：后端更改需求（前端结构调整后的同步清单）
+版本：V1.1
+日期：2026-03-14
+适用范围：微信小程序首页“热门房源 + 猜你喜欢”与“AI咨询 / 传统搜索”双线结构
+
+一、目标与边界
+1）目标
+前端已完成“双主入口（AI咨询/传统搜索）”结构调整，后端需提供首页推荐流所需的数据查询能力，保证：
+- 首页可展示“热门房源”（横向）
+- 首页可展示“猜你喜欢”（纵向）
+- 传统搜索与 AI 承接分离后，数据契约不破坏现有候选/详情/比较链路
+
+2）边界（本期必须遵守）
+- 不新增核心集合，沿用《04_核心数据表_字段字典.txt》已有实体。
+- 不改状态机，不改既有 comparison/risk/action 的核心流程。
+- 本期只新增“查询能力 + 兼容字段映射 + 最小日志追踪”。
+
+二、需要后端同步的能力（必须）
+
+1. 获取热门房源（首页横向）
+能力名（建议）：getHomeHotListings
+调用方式（建议）：云函数 / API
+
+入参：
+- limit：number，默认 8，范围 5~20
+- city：string，可空（可用于同城优先）
+
+出参：
+- list: List<ListingCard>
+- trace_id: string
+
+排序策略：
+- 主策略：基于 activity_logs 中 listing 的浏览热度排序（object_type='listing' 且 action_type='view'）
+- 兜底策略：按 listings.updated_at 倒序 + 随机扰动（冷启动可用）
+
+数据源约束：
+- 仅返回 listings.status='active'
+
+2. 获取猜你喜欢（首页纵向）
+能力名（建议）：getHomeGuessListings
+调用方式（建议）：云函数 / API
+
+入参：
+- page：number，默认 1
+- page_size：number，默认 10，范围 10~30
+- user_id：string，可空（也可从 wxContext 解包）
+- city：string，可空（未登录/无需求时兜底）
+
+出参：
+- list: List<ListingCard>
+- pagination: { page, page_size, total, has_more }
+- strategy: "personalized" | "city_fallback" | "global_fallback"
+- trace_id: string
+
+策略规则：
+- personalized：有 user_id 且有最新 buyer_intakes(submitted) 时，按需求过滤/排序
+- city_fallback：无有效 intake 时，按 users.city_default 或入参 city 兜底
+- global_fallback：无 city 信息时，返回全局最新 active listings
+
+三、列表对象契约（必须与前端兼容）
+
+1）统一返回对象：ListingCard
+必须字段：
+- listing_id
+- title
+- city
+- district
+- community（由 community_name 映射）
+- community_name（保留原字段，兼容已有候选/详情页）
+- price_total
+- area（由 area_sqm 映射）
+- area_sqm（保留原字段，兼容已有候选/详情页）
+- tags（由 tags_json 映射）
+- status
+- updated_at
+
+2）字段映射规则
+- community = community_name || ""
+- area = area_sqm || null
+- tags = tags_json || []
+
+说明：
+前端首页文案使用 community/area，候选/详情链路仍使用 community_name/area_sqm；后端需双字段回传避免改动扩散。
+
+四、需求匹配规则（猜你喜欢 personalized）
+
+从 buyer_intakes 最新 submitted 记录读取：
+- city
+- budget_min, budget_max
+- usage_type
+- region_pref（如有）
+- must_have / cannot_accept（如有）
+
+最小过滤规则（本期）：
+1）city 匹配优先
+2）price_total 在 budget_min~budget_max 优先
+3）status 必须 active
+
+排序建议（本期可解释优先）：
+- score = 城市匹配分 + 预算匹配分 + 字段完整度分 + 新鲜度分
+- 按 score desc, updated_at desc
+
+五、与“AI咨询 / 传统搜索”拆分的协同要求
+
+1）传统搜索只负责选房
+- 候选与详情只读 listings，不承接 compare/risk/action 计算。
+- 搜索回流 AI 通过前端路由处理（/pages/ai/index?source=search），后端无需新增状态机。
+
+2）AI线继续承接分析
+- compare/risk/action 相关写入流程保持现状，不在本次后端同步范围内变更。
+
+六、索引与性能（必须）
+
+建议索引：
+1）listings
+- (status, updated_at)
+- (status, city, updated_at)
+- (status, city, price_total)
+
+2）buyer_intakes
+- (user_id, status, updated_at)
+
+3）activity_logs
+- (object_type, action_type, object_id, created_at)
+
+4）users
+- (user_id)
+- (openid)
+
+性能基线（建议）：
+- 热门房源接口 P95 < 300ms（limit<=10）
+- 猜你喜欢接口 P95 < 500ms（page_size<=20）
+
+七、权限与安全（必须）
+
+1）热门房源：允许未登录访问（只读 active）
+2）猜你喜欢：
+- 登录态优先走 personalized
+- 未登录仅可走 city/global fallback，不返回用户私有衍生信息
+3）所有查询接口禁止返回敏感字段：openid、unionid、mobile、email、raw_text 原文等
+
+八、日志与可观测性（必须）
+
+1）后端查询日志（建议写 activity_logs 或服务日志）
+- home_hot_query
+- home_guess_query
+- listing_view（若前端详情曝光上报）
+
+2）日志最小字段
+- trace_id
+- user_id（可空）
+- strategy
+- result_count
+- duration_ms
+- created_at
+
+九、验收用例（后端联调用）
+
+1）热门房源
+- 输入 limit=8
+- 返回 8 条以内 active listings
+- 必含 ListingCard 必填字段
+
+2）猜你喜欢-个性化
+- 有 user + 有 submitted intake
+- strategy=personalized
+- 返回结果与 city/budget 有明显匹配
+
+3）猜你喜欢-城市兜底
+- 有 user 但无 intake
+- strategy=city_fallback
+- 返回 city_default 或请求 city 下的列表
+
+4）猜你喜欢-全局兜底
+- 无 user 且无 city
+- strategy=global_fallback
+- 返回全局 active 最新列表
+
+5）兼容性
+- 同一返回对象中同时存在 community/community_name、area/area_sqm
+- 候选页/详情页不因字段名变化报错
+
+十、实施顺序（建议）
+1）先完成 getHomeHotListings
+2）再完成 getHomeGuessListings（含三层策略）
+3）补索引与日志
+4）跑联调用例与压测
+
+十一、不在本次范围
+- 不新增 compare/risk/action 计算接口
+- 不改 advisor_leads/appointments 状态流转
+- 不接入托管 AI 工作流（后续单独接入）

@@ -1,0 +1,5 @@
+<view class="favorite-chip {{favorited ? 'on' : ''}}">
+  <text class="favorite-chip-text">{{favorited ? "已收藏" : "收藏"}}</text>
+  <text class="favorite-chip-star">{{favorited ? "★" : "☆"}}</text>
+</view>
+

@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "首页",
+  "usingComponents": {
+    "favorite-chip": "/components/favorite-chip/index"
+  }
+}

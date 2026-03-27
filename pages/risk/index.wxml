@@ -1,0 +1,48 @@
+<view class="page">
+  <view class="title">风险确认</view>
+  <view class="subtitle">规则先打标，AI风格解释后给出推进建议。</view>
+
+  <view class="card">
+    <view class="label">风险对象</view>
+    <view class="hint">来源：{{source_text}}</view>
+    <view class="hint">房源数量：{{selected_count_text}}</view>
+    <view class="hint">需求ID：{{intake_id_text}}</view>
+    <view class="hint" wx:if="{{has_comparison_id}}">比较ID：{{comparison_id}}</view>
+    <button class="btn-primary" bindtap="handleGenerateRisk">生成风险确认</button>
+  </view>
+
+  <view class="card" wx:if="{{has_selected_listings}}">
+    <view class="label">参与风险确认的房源</view>
+    <block wx:for="{{selected_listings}}" wx:key="listing_id">
+      <view class="hint">{{item.display_line}}</view>
+    </block>
+  </view>
+
+  <view class="card" wx:if="{{generated}}">
+    <view class="label">总体风险等级：{{risk_level_text}}</view>
+    <view class="hint">{{risk_summary_text}}</view>
+    <view class="hint">risk_check_id：{{risk_check_id}}</view>
+    <view class="hint warn" wx:if="{{manual_review_required}}">已命中高风险，建议立即人工复核。</view>
+  </view>
+
+  <view class="card" wx:if="{{generated}}">
+    <view class="label">风险标签清单</view>
+    <block wx:if="{{has_risk_tags}}">
+      <block wx:for="{{risk_tags}}" wx:key="code">
+        <view class="risk-item">
+          <view class="risk-title">{{item.title}}（{{item.level}}）</view>
+          <view class="hint">编码：{{item.code}}</view>
+          <view class="hint">依据：{{item.evidence}}</view>
+          <view class="hint">解释：{{item.explanation}}</view>
+          <view class="hint">建议：{{item.action_suggestion}}</view>
+        </view>
+      </block>
+    </block>
+    <view class="hint" wx:else>暂无明显风险标签。</view>
+  </view>
+
+  <view class="row" wx:if="{{generated}}">
+    <button class="btn-secondary" bindtap="handleManualReviewHint">请求人工复核</button>
+    <button class="btn-primary" bindtap="handleNextActionHint">进入下一步动作</button>
+  </view>
+</view>

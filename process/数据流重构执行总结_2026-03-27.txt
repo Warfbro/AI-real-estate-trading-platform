@@ -1,0 +1,183 @@
+/**
+ * 2026-03-27 数据流重构文档
+ * 
+ * 执行时间：2026-03-27 下午
+ * 改造范围：阶段 1-5 完整方案
+ * 状态：核心架构完成，关键页面改造就绪，部分页面需同步迁移
+ */
+
+【阶段 1：删除"继续上次进度"功能】✅ 完成
+- 删除 utils/continue.js 整个文件
+- storage.js 删除 RECENT_CONTINUE_ROUTE 常量
+- 清理 8 个页面的 RECENT_CONTINUE_ROUTE 赋值代码
+- 删除首页 / 候选页 favorite-chip 组件展示
+- 更新 smoke 脚本和回归脚本（删除 continue 测试用例）
+
+执行文件：
+✅ utils/storage.js
+✅ pages/home/index.js
+✅ pages/candidates/index.js
+✅ pages/ai/index.js
+✅ pages/action/index.js
+✅ pages/import/index.js
+✅ pages/detail/index.js
+✅ pages/risk/index.js
+✅ pages/intake/index.js
+✅ pages/compare/index.js
+✅ pages/adminLeads/index.js
+✅ pages/home/index.wxml
+✅ pages/candidates/index.wxml
+✅ process/devtools_smoke_helper.js
+✅ process/regression_branches.js
+✅ process/smoke_e2e.js
+
+【阶段 2：抽 repo/service 层】✅ 完成
+实现"云端真相 + 本地缓存 + 页面变量"三层数据模型。
+
+新增 6 个核心文件：
+✅ repos/authRepo.js
+  - getSession() / isLoggedIn() / updateSession()
+  - getLastRoute() / setLastRoute()
+  - getDraft()  / saveDraft() / clearDraft()
+  - 内存缓存 + storage 缓存机制
+
+✅ repos/listingRepo.js
+  - getListings() / queryListings() / getListing()
+  - updateListings() - 云端同步入口
+  - toggleFavorite() / getCompareIds() / toggleCompare()
+  - 10分钟缓存 TTL，支持三层缓存读取
+
+✅ repos/profileRepo.js
+  - getAIMemoryProfile() / updateAIMemoryProfile()
+  - getActiveRequirement() / updateActiveRequirement()
+  - getPreferences() - 搜索历史、区域选择
+  - updateSearchHistory() / updateHomeCityRegion()
+
+✅ repos/chatRepo.js
+  - getThreads() / getThread() / upsertThread() / deleteThread()
+  - getThreadMessages() / appendMessage() / getRecentMessages()
+  - getActiveSessionId() / setActiveSessionId()
+  - 支持最多 20 个线程，单线程 80 条消息
+
+✅ repos/intakeRepo.js
+  - getIntakes() / getIntake() / upsertIntake()
+  - updateIntakeStatus() / deleteIntake()
+  - updateIntakes() - 云端同步入口
+  - 5分钟缓存 TTL
+
+✅ repos/index.js
+  - 统一导出所有 repo
+  - invalidateAllCaches() - 全局缓存失效
+
+【阶段 3-5：统一读写路径 + 版本控制】✅ 核心完成
+
+utils/storage.js 升级：
+✅ 新增 getWithVersion(key, defaultValue) 
+  - 返回 {data, version, updated_at}
+✅ 新增 setWithVersion(key, data, currentVersion)
+  - 自动递增 version、补充 updated_at
+
+utils/cloud.js 升级：
+✅ 新增 normalizeCloudObject(obj)
+  - 补充 version、updated_at、user_id
+✅ 新增 normalizeCloudResponse(result)
+  - 标准化云函数返回格式，返回 {status, data, message}
+
+【改造关键页面】部分完成
+
+✅ pages/home/index.js
+- 导入 repos: listingRepo, authRepo
+- handleToggleFavorite() 改为使用 listingRepo.toggleFavorite()
+- 页面更新流程：listingRepo -> setData -> refreshFeedView()
+
+✅ pages/candidates/index.js
+- 导入 listingRepo
+- handleToggleFavorite() 改为使用 listingRepo.toggleFavorite()
+- 同样的调用流程
+
+✅ pages/ai/index.js
+- 已导入 chatRepo、listingRepo、intakeRepo
+- persistChatThreads() 改为使用 chatRepo.upsertThread()
+- 消息追加改为使用 chatRepo.appendMessage()
+- restoreChatThreads() 改为使用 chatRepo.getThreads()/getThreadMessages()
+
+✅ 其他页面（已改造）
+- pages/compare/index.js - 使用 listingRepo.getCompareIds()、intakeRepo.getIntakes()
+- pages/intake/index.js - 使用 intakeRepo.upsertIntake()、authRepo 草稿接口
+- pages/myFavorites/index.js - 使用 listingRepo.getFavoriteIds()/toggleFavorite()
+
+🟡 仍待迁移页面
+- pages/search/index.js - 可进一步接入 profileRepo.updateSearchHistory()
+
+【数据流转变】
+
+改造前（直接操作）：
+页面 -> storage.set(key, value) -> storage 中
+
+改造后（三层缓存 + 版本控制）：
+页面 -> repo.operation() 
+  -> repo 内存缓存更新
+  -> storage.setWithVersion() 
+  -> 异步云端同步
+  -> 返回结果 {status, data, version, updated_at}
+
+【版本控制规则】
+
+基本规则：
+- 所有核心对象都补充 version 字段（初始 "1"）
+- 每次更新都递增 version（"1" -> "2" -> "3"...）
+- 同步 updated_at（ISO 8601 格式）- 所有对象都补充 user_id 字段（便于多用户隔离）
+
+冲突解决：
+- 简单字段：按 updated_at 最新覆盖
+- 复杂对象：按 version 比较，本地 < 云端时覆盖
+- 消息记录：按 message_id 去重追加（不做覆盖）
+
+【验证清单】
+
+页面功能验证：
+□ 首页：收藏操作 + 列表刷新
+□ 候选页：收藏操作 + 列表过滤
+✅ AI 页：对话线程创建 + 消息追加
+✅ 比较页：房源选择 + 比较操作
+✅ 我的页面：收藏列表查看
+
+缓存验证：
+□ 内存缓存是否正确被 5/10分钟 TTL 失效
+□ storage 缓存是否持久化
+□ 云端数据是否正确回填本地
+
+版本验证：
+□ 每次操作后版本号是否递增
+□ 冲突场景下是否按规则正确合并
+□ 云端同步失败时是否标记待同步状态
+
+【后续工作】
+
+紧接着的改造（优先级）：
+1️⃣ pages/search/index.js - 改造搜索历史接入 profileRepo
+2️⃣ pages/action/index.js - 迁移 compare/intake/listing 读取到 repo
+3️⃣ pages/import/index.js - 迁移 intake 读取到 intakeRepo
+4️⃣ pages/risk/index.js - 迁移 intake 读取到 intakeRepo
+
+云端同步整合：
+- 在 repo 层增加异步 sync 队列（待同步操作堆积）
+- 在每个 repo 的 upsert 后增加延迟 sync 任务
+- 失败重试 + 离线缓存
+
+【当前包体大小评估】
+
+新增文件：
+- repos/ 目录：~8KB（6 个 repo 文件）
+- utils/ 升级：~1KB（storage.js + cloud.js 扩展）
+
+合计影响：~9KB，总包体预计仍在 2MB 以内
+
+【改造总时间统计】
+
+阶段 1 删除功能：~20 分钟
+阶段 2 repo 层创建：~45 分钟
+阶段 3-5 版本控制升级：~15 分钟
+关键页面改造：~20 分钟
+
+合计：~100 分钟（约 1.7 小时）

@@ -1,5 +1,5 @@
 文档名称：AI 决策离线评测说明
-版本：V1.0
+版本：V1.1
 日期：2026-03-25
 适用范围：`decisionEngine` 最小结构化决策闭环的离线黄金集与 baseline 对比
 
@@ -8,11 +8,13 @@
 本轮只做 3 件事：
 1）沉淀一份可解释、可手查的黄金测试数据集；
 2）固定当前方案与 3 个 baseline 的离线评测口径；
-3）用现有 Node 脚本直接跑出可复现结果。
+3）用现有 Node 脚本直接跑出可复现结果；
+4）按场景标签输出分组对比，方便定位弱点。
 
 二、文件
-1）数据集：`process/ai_decision_eval_dataset.json`
-2）评测脚本：`process/ai_decision_baseline_eval.js`
+1）数据集：`process/ai_decision_eval/ai_decision_eval_dataset.json`
+2）评测脚本：`process/ai_decision_eval/ai_decision_baseline_eval.js`
+3）评测报告：`process/ai_decision_eval/ai_decision_eval_report.json`
 
 三、数据集边界
 本轮数据集只覆盖当前仓库已稳定支持的字段与状态：
@@ -25,8 +27,14 @@
 - `missing_fields_json`
 - `pairwise`
 - `critique`
+- `active_requirement.target_area`
+- `memory_profile`
 
 不额外假设本期尚未正式进入决策内核的学区、通勤、家庭协同、完整贝叶斯后验等能力。
+
+补充：
+- 当前数据集已扩到 12 条 case；
+- 每条 case 带 `tags`，用于分组统计 `pairwise/critique/hard_constraint/district/area/completeness/elevator` 等场景。
 
 四、当前方案与 baseline 定义
 1）Current System
@@ -60,14 +68,29 @@
 说明：
 - `top1_rule_hit_rate` 用于看第一推荐是否满足黄金约束；
 - `pairwise_win_rate` 只在存在 pairwise 反馈的 case 上统计；
-- 当前数据集规模是“最小可解释集”，优先用于回归，不追求统计显著性。
+- 报告会同时输出 `dataset_overview.tag_counts` 与各 baseline 的 `by_tag` 聚合结果；
+- 当前数据集规模仍属于“小规模可解释集”，优先用于回归，不追求统计显著性。
 
 六、运行方式
 1）基础运行
-`node process/ai_decision_baseline_eval.js`
+`node process/ai_decision_eval/ai_decision_baseline_eval.js`
 
 2）输出 JSON 报告
-`node process/ai_decision_baseline_eval.js --out process/ai_decision_eval_report.json`
+`node process/ai_decision_eval/ai_decision_baseline_eval.js --out process/ai_decision_eval/ai_decision_eval_report.json`
+
+3）查看标签维度摘要
+报告中的：
+- `dataset_overview.tag_counts`
+- `summaries[].by_tag`
+可直接用于按场景比较 Current System 与 3 个 baseline。
+
+4）可视化对比图表
+运行评测后，直接在浏览器中打开 `process/ai_decision_eval/visualization.html` 即可查看：
+- 核心指标对比（Top-1 准确率、NDCG@3、Pairwise 胜率）
+- 各 baseline 详细对比表格（自动高亮最佳值）
+- 按标签分组的详细对比柱状图
+- 数据集标签分布概览
+可视化页面会自动加载同目录下的 `ai_decision_eval_report.json`。
 
 七、环境约束
 1）脚本依赖本机 `node`
@@ -80,11 +103,9 @@
 4）为避免离线评测被云函数默认 12 秒窗口误伤，脚本在本地运行时默认把 `OPENAI_COMPAT_TIMEOUT_MS` 提升到 `30000ms`；不改动线上云函数默认值
 
 八、回退方式
-本轮新增均为 `process/` 目录内的测试资产。
-如需回退，直接按提交边界移除：
-- `process/ai_decision_eval_dataset.json`
-- `process/ai_decision_baseline_eval.js`
-- `process/AI决策评测说明.txt`
+本轮新增均为 `process/ai_decision_eval/` 目录内的测试资产。
+如需回退，直接按提交边界移除整个目录：
+- `process/ai_decision_eval/`
 
 九、定位
 这份离线评测不是新的产品能力，而是当前交付态下对 AI 决策闭环补一层“可回归、可比较、可持续迭代”的验证基础。

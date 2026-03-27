@@ -68,13 +68,6 @@
                 <view class="h-info">
                   <view class="h-top">
                     <view class="h-title">{{item.title_text}}</view>
-                    <view
-                      class="favorite-chip-wrap"
-                      catchtap="handleToggleFavorite"
-                      data-listing-id="{{item.listing_id}}"
-                    >
-                      <favorite-chip favorited="{{item.favorited}}" />
-                    </view>
                   </view>
                   <view class="h-desc">{{item.hot_desc_text}}</view>
                   <view wx:if="{{item.distance_text}}" class="h-distance">
@@ -123,13 +116,6 @@
             <view wx:if="{{item.distance_text}}" class="item-distance">
               距离 {{item.distance_text}}
             </view>
-          </view>
-          <view
-            class="favorite-chip-wrap property-fav-wrap"
-            catchtap="handleToggleFavorite"
-            data-listing-id="{{item.listing_id}}"
-          >
-            <favorite-chip favorited="{{item.favorited}}" />
           </view>
         </view>
       </block>

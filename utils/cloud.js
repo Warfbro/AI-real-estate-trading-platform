@@ -277,6 +277,51 @@ function callDecisionEngine({
   });
 }
 
+/**
+ * 标准化云数据对象（补充版本和时间戳）
+ */
+function normalizeCloudObject(obj) {
+  if (!obj) {
+    return null;
+  }
+
+  return {
+    ...obj,
+    version: obj.version || "1",
+    updated_at: obj.updated_at || new Date().toISOString(),
+    user_id: obj.user_id || ""
+  };
+}
+
+/**
+ * 标准化云函数响应
+ */
+function normalizeCloudResponse(result) {
+  if (!result) {
+    return {
+      status: "error",
+      message: "no response",
+      data: null
+    };
+  }
+
+  const { result: data, errMsg } = result;
+
+  if (errMsg && errMsg.indexOf("success") < 0) {
+    return {
+      status: "error",
+      message: errMsg,
+      data: null
+    };
+  }
+
+  return {
+    status: "success",
+    data: normalizeCloudObject(data),
+    message: "ok"
+  };
+}
+
 module.exports = {
   CLOUD_ENV_ID,
   CLOUD_COLLECTIONS,
@@ -293,5 +338,7 @@ module.exports = {
   getHomeHotListings,
   getHomeGuessListings,
   queryPropertyRecommend,
-  callDecisionEngine
+  callDecisionEngine,
+  normalizeCloudObject,
+  normalizeCloudResponse
 };

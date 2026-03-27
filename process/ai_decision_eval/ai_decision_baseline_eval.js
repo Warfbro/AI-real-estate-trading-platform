@@ -13,12 +13,12 @@ if (!process.env.OPENAI_COMPAT_TIMEOUT_MS) {
   process.env.OPENAI_COMPAT_TIMEOUT_MS = "30000";
 }
 
-const decisionEngine = require("../cloudfunctions/decisionEngine/index");
-const { createInitialDecisionState } = require("../cloudfunctions/decisionEngine/lib/preferenceUpdater");
-const { filterFeasibleListings } = require("../cloudfunctions/decisionEngine/lib/feasibilityEngine");
-const { rankListings } = require("../cloudfunctions/decisionEngine/lib/decisionRanker");
-const { sanitizeListing } = require("../cloudfunctions/decisionEngine/lib/featureExtractor");
-const openaiCompatibleProvider = require("../cloudfunctions/queryPropertyRecommend/providers/openaiCompatible");
+const decisionEngine = require("../../cloudfunctions/decisionEngine/index");
+const { createInitialDecisionState } = require("../../cloudfunctions/decisionEngine/lib/preferenceUpdater");
+const { filterFeasibleListings } = require("../../cloudfunctions/decisionEngine/lib/feasibilityEngine");
+const { rankListings } = require("../../cloudfunctions/decisionEngine/lib/decisionRanker");
+const { sanitizeListing } = require("../../cloudfunctions/decisionEngine/lib/featureExtractor");
+const openaiCompatibleProvider = require("../../cloudfunctions/queryPropertyRecommend/providers/openaiCompatible");
 
 const DEFAULT_BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions";
 const DEFAULT_MODEL = "qwen-plus";
@@ -33,7 +33,7 @@ function readJson(filePath) {
 }
 
 function readApiKeyFallback() {
-  const filePath = path.resolve(__dirname, "..", "新需求", "apikey");
+  const filePath = path.resolve(__dirname, "../..", "新需求", "apikey");
   if (!fs.existsSync(filePath)) {
     return "";
   }
@@ -442,7 +442,20 @@ function satisfiesTop1Rules(listing, rules = {}) {
   if (!safe) {
     return false;
   }
+  if (rules.city_equals) {
+    if (normalizeText(safe.city) !== normalizeText(rules.city_equals)) {
+      return false;
+    }
+  }
+  if (rules.district_equals) {
+    if (normalizeText(safe.district) !== normalizeText(rules.district_equals)) {
+      return false;
+    }
+  }
   if (rules.budget_max != null && safe.price_total != null && Number(safe.price_total) > Number(rules.budget_max)) {
+    return false;
+  }
+  if (rules.area_min != null && safe.area_sqm != null && Number(safe.area_sqm) < Number(rules.area_min)) {
     return false;
   }
   if (rules.elevator_flag === true && safe.elevator_flag !== true) {
@@ -488,6 +501,7 @@ function evaluateCase(caseItem, runResult) {
   return {
     case_id: caseItem.case_id,
     title: caseItem.title,
+    tags: Array.isArray(caseItem.tags) ? caseItem.tags.slice() : [],
     gold_top_listing_id: normalizeText(caseItem.gold && caseItem.gold.top_listing_id),
     predicted_top_listing_id: topListingId,
     top1_hit:
@@ -510,22 +524,76 @@ function average(values) {
   return Number((sum / values.length).toFixed(4));
 }
 
-function summarizeBaseline(name, caseResults) {
+function summarizeMetricGroup(caseResults) {
   const validCaseResults = caseResults.filter((item) => !item.error);
   const pairwiseValues = caseResults
     .map((item) => item.pairwise_win_rate)
     .filter((value) => typeof value === "number");
 
   return {
-    baseline: name,
     total_cases: caseResults.length,
     successful_cases: validCaseResults.length,
     top1_accuracy: average(caseResults.map((item) => item.top1_hit)),
     hit_at_3: average(caseResults.map((item) => item.hit_at_3)),
     ndcg_at_3: average(caseResults.map((item) => item.ndcg_at_3)),
     top1_rule_hit_rate: average(caseResults.map((item) => item.top1_rule_hit)),
-    pairwise_win_rate: average(pairwiseValues),
+    pairwise_win_rate: average(pairwiseValues)
+  };
+}
+
+function summarizeByTag(caseResults) {
+  const groups = {};
+  caseResults.forEach((item) => {
+    const tags = Array.isArray(item.tags) ? item.tags : [];
+    tags.forEach((tag) => {
+      const key = normalizeText(tag);
+      if (!key) {
+        return;
+      }
+      if (!groups[key]) {
+        groups[key] = [];
+      }
+      groups[key].push(item);
+    });
+  });
+
+  return Object.keys(groups)
+    .sort()
+    .reduce((acc, key) => {
+      acc[key] = summarizeMetricGroup(groups[key]);
+      return acc;
+    }, {});
+}
+
+function summarizeBaseline(name, caseResults) {
+  return {
+    baseline: name,
+    ...summarizeMetricGroup(caseResults),
+    by_tag: summarizeByTag(caseResults),
     case_results: caseResults
+  };
+}
+
+function buildDatasetOverview(cases) {
+  const tagCounts = {};
+  (cases || []).forEach((item) => {
+    const tags = Array.isArray(item.tags) ? item.tags : [];
+    tags.forEach((tag) => {
+      const key = normalizeText(tag);
+      if (key) {
+        tagCounts[key] = (tagCounts[key] || 0) + 1;
+      }
+    });
+  });
+
+  return {
+    total_cases: Array.isArray(cases) ? cases.length : 0,
+    tag_counts: Object.keys(tagCounts)
+      .sort()
+      .reduce((acc, key) => {
+        acc[key] = tagCounts[key];
+        return acc;
+      }, {})
   };
 }
 
@@ -566,6 +634,7 @@ async function main() {
   const report = {
     dataset_version: dataset.dataset_version,
     generated_at: new Date().toISOString(),
+    dataset_overview: buildDatasetOverview(cases),
     provider: {
       base_url: getEnvValue(
         ["OPENAI_COMPAT_BASE_URL", "BAILIAN_COMPAT_BASE_URL", "DASHSCOPE_BASE_URL"],

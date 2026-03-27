@@ -92,7 +92,6 @@ Page({
     if (!requireRole(["advisor", "admin"], "/pages/adminLeads/index")) {
       return;
     }
-    set(STORAGE_KEYS.RECENT_CONTINUE_ROUTE, "/pages/adminLeads/index");
     this.bootstrap();
   },
 

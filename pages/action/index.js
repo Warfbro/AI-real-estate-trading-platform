@@ -1,6 +1,7 @@
 const { isLoggedIn, requireLogin, getSession } = require("../../utils/auth");
 const { EVENTS, trackEvent, writeActivityLog } = require("../../utils/track");
 const { STORAGE_KEYS, get, set, append, uid } = require("../../utils/storage");
+const { intakeRepo } = require("../../repos");
 
 const ACTION_TYPES = ["consult", "appointment", "send_report", "manual_review", "save_for_later"];
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -88,7 +89,6 @@ Page({
       return;
     }
 
-    set(STORAGE_KEYS.RECENT_CONTINUE_ROUTE, `/pages/action/index?${query}`);
     trackEvent(EVENTS.PAGE_ACTION_VIEW, {
       source: this.data.source
     });
@@ -99,9 +99,9 @@ Page({
     const session = getSession();
     const userId = session.login_code;
 
-    const intakes = get(STORAGE_KEYS.BUYER_INTAKES, [])
-      .filter((item) => item.user_id === userId && item.status === "submitted")
-      .sort(byUpdatedDesc);
+    const intakeResult = intakeRepo.getIntakes({ userId, status: "submitted" });
+    const intakesRaw = intakeResult && intakeResult.status === "success" ? intakeResult.data : [];
+    const intakes = intakesRaw.slice().sort(byUpdatedDesc);
     const intake =
       intakes.find((item) => this.data.intake_id && item.intake_id === this.data.intake_id) ||
       (intakes.length ? intakes[0] : null);
@@ -696,8 +696,7 @@ Page({
   },
 
   saveForLater() {
-    const route = this.buildCurrentRoute();
-    set(STORAGE_KEYS.RECENT_CONTINUE_ROUTE, route);
+    // Removed: save route to storage
   },
 
   buildCurrentRoute() {

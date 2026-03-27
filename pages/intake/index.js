@@ -1,7 +1,8 @@
 const { requireLogin, getSession } = require("../../utils/auth");
 const { EVENTS, trackEvent, writeActivityLog } = require("../../utils/track");
-const { STORAGE_KEYS, get, set, append, uid } = require("../../utils/storage");
+const { uid } = require("../../utils/storage");
 const { syncBuyerIntake } = require("../../utils/cloud");
+const { intakeRepo, authRepo } = require("../../repos");
 
 const USAGE_OPTIONS = ["自住", "父母住", "婚房", "改善", "投资"];
 
@@ -18,7 +19,7 @@ Page({
   },
 
   onLoad() {
-    const draft = get(STORAGE_KEYS.DRAFT_INTAKE, null);
+    const draft = authRepo.getDraft("intake");
     if (draft) {
       this.setData(draft, () => this.syncUsageIndex());
       return;
@@ -28,7 +29,6 @@ Page({
 
   onShow() {
     trackEvent(EVENTS.PAGE_INTAKE_VIEW);
-    set(STORAGE_KEYS.RECENT_CONTINUE_ROUTE, "/pages/intake/index");
   },
 
   handleInput(e) {
@@ -59,7 +59,9 @@ Page({
 
   async handleSaveContinue() {
     const draft = { ...this.data };
-    set(STORAGE_KEYS.DRAFT_INTAKE, draft);
+    
+    // 通过 authRepo 保存 draft
+    authRepo.saveDraft("intake", draft);
 
     if (!requireLogin("/pages/intake/index")) {
       return;
@@ -89,8 +91,11 @@ Page({
       updated_at: now
     };
 
-    append(STORAGE_KEYS.BUYER_INTAKES, intake);
-    set(STORAGE_KEYS.DRAFT_INTAKE, null);
+    // 通过 intakeRepo 保存 intake
+    intakeRepo.upsertIntake(intake);
+    
+    // 清除 draft
+    authRepo.clearDraft("intake");
 
     try {
       await syncBuyerIntake(intake);
@@ -129,7 +134,6 @@ Page({
       icon: "success"
     });
 
-    set(STORAGE_KEYS.RECENT_CONTINUE_ROUTE, "/pages/ai/index");
     setTimeout(() => {
       wx.navigateTo({
         url: "/pages/ai/index"

@@ -1,6 +1,7 @@
 const { isLoggedIn, requireLogin, getSession } = require("../../utils/auth");
 const { EVENTS, trackEvent, writeActivityLog } = require("../../utils/track");
 const { STORAGE_KEYS, get, set } = require("../../utils/storage");
+const { listingRepo } = require("../../repos");
 
 const HISTORY_LIMIT = 12;
 
@@ -162,11 +163,6 @@ Page({
       queryParts.push(`district=${encodeURIComponent(this.data.search_district_filter)}`);
     }
 
-    const route = queryParts.length
-      ? `/pages/candidates/index?${queryParts.join("&")}`
-      : "/pages/candidates/index";
-    set(STORAGE_KEYS.RECENT_CONTINUE_ROUTE, route);
-
     trackEvent(EVENTS.PAGE_CANDIDATE_VIEW, {
       source: this.data.source || "search"
     });
@@ -197,7 +193,6 @@ Page({
         intake,
         has_intake: Boolean(intake),
         all_listings: allListings,
-        favorite_ids: favoriteIds,
         has_source_listings: allListings.length > 0
       },
       () => {
@@ -257,8 +252,7 @@ Page({
     }
 
     const favoriteSet = new Set((favoriteIds || []).map((item) => normalizeText(item)).filter(Boolean));
-
-    const listings = filtered.map((item) => {
+listings = filtered.map((item) => {
       const displayTags = normalizeTags(item.tags_json || item.tags).slice(0, 4);
       const badge = displayTags[0] || "精选房源";
 
@@ -271,9 +265,7 @@ Page({
         display_tags: displayTags,
         display_badge: badge,
         cover_image_url: normalizeText(item.cover_image_url || item.image_url || item.raw_file_url, "/img/image.png"),
-        recommendation_reason: this.getRecommendation(item, intake),
-        favorited: favoriteSet.has(normalizeText(item.listing_id))
-      };
+        recommendation_reason: this.getRecommendation(item, intake
     });
 
     let emptyTitle = "当前筛选无结果";
@@ -411,30 +403,26 @@ Page({
       return;
     }
 
-    const favoriteIds = get(STORAGE_KEYS.FAVORITE_LISTING_IDS, []);
-    const next = Array.isArray(favoriteIds)
-      ? Array.from(new Set(favoriteIds.map((item) => normalizeText(item)).filter(Boolean)))
-      : [];
-
-    const existingIndex = next.indexOf(listingId);
-    let favorited = false;
-    if (existingIndex >= 0) {
-      next.splice(existingIndex, 1);
-      favorited = false;
-    } else {
-      next.push(listingId);
-      favorited = true;
+    // 通过 repo 层切换收藏
+    const result = listingRepo.toggleFavorite(listingId);
+    if (result.status !== "success") {
+      wx.showToast({
+        title: "操作失败",
+        icon: "none"
+      });
+      return;
     }
 
-    set(STORAGE_KEYS.FAVORITE_LISTING_IDS, next);
+    // 更新页面数据
+    const favoriteIds = listingRepo.getFavoriteIds();
     this.setData(
       {
-        favorite_ids: next
+        favorite_ids: favoriteIds
       },
       () => this.applyFilters()
     );
 
-    if (favorited) {
+    if (result.favorited) {
       wx.showToast({
         title: "收藏成功",
         icon: "none"
@@ -444,7 +432,7 @@ Page({
     trackEvent(EVENTS.LISTING_FAVORITE, {
       source: "candidates",
       listing_id: listingId,
-      favorited
+      favorited: result.favorited
     });
     writeActivityLog({
       action_type: "listing_favorite_toggle",
@@ -452,7 +440,7 @@ Page({
       object_id: listingId,
       detail_json: {
         source: "candidates",
-        favorited
+        favorited: result.favorited
       }
     });
   },

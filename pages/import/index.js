@@ -6,6 +6,7 @@ const {
   syncListing,
   uploadImportImage
 } = require("../../utils/cloud");
+const { intakeRepo } = require("../../repos");
 
 function nowIso() {
   return new Date().toISOString();
@@ -132,7 +133,6 @@ Page({
 
   onShow() {
     trackEvent(EVENTS.PAGE_IMPORT_VIEW);
-    set(STORAGE_KEYS.RECENT_CONTINUE_ROUTE, "/pages/import/index");
   },
 
   handleTypeChange(e) {
@@ -283,9 +283,9 @@ Page({
       return;
     }
 
-    const intakes = get(STORAGE_KEYS.BUYER_INTAKES, [])
-      .filter((item) => item.user_id === session.login_code && item.status === "submitted")
-      .sort((a, b) => (a.updated_at > b.updated_at ? -1 : 1));
+    const intakeResult = intakeRepo.getIntakes({ userId: session.login_code, status: "submitted" });
+    const intakesRaw = intakeResult && intakeResult.status === "success" ? intakeResult.data : [];
+    const intakes = intakesRaw.slice().sort((a, b) => (a.updated_at > b.updated_at ? -1 : 1));
     const latestIntake = intakes.length ? intakes[0] : null;
 
     const importJob = {
@@ -368,7 +368,6 @@ Page({
       icon: "success"
     });
 
-    set(STORAGE_KEYS.RECENT_CONTINUE_ROUTE, "/pages/ai/index");
     setTimeout(() => {
       wx.navigateTo({
         url: "/pages/ai/index"

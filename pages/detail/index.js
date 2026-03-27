@@ -135,7 +135,6 @@ Page({
       return;
     }
 
-    set(STORAGE_KEYS.RECENT_CONTINUE_ROUTE, `/pages/detail/index?listing_id=${listingId}&source=${encodeURIComponent(this.data.source || "search")}`);
     trackEvent(EVENTS.PAGE_DETAIL_VIEW, { listing_id: listingId, source: this.data.source || "search" });
     writeActivityLog({
       action_type: "detail_view",

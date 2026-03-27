@@ -1,6 +1,7 @@
 const { isLoggedIn, requireLogin, getSession } = require("../../utils/auth");
 const { EVENTS, trackEvent, writeActivityLog } = require("../../utils/track");
 const { STORAGE_KEYS, get, set, append, uid } = require("../../utils/storage");
+const { listingRepo, intakeRepo } = require("../../repos");
 
 function byUpdatedDesc(a, b) {
   return a.updated_at > b.updated_at ? -1 : 1;
@@ -42,17 +43,19 @@ Page({
       return;
     }
 
-    set(STORAGE_KEYS.RECENT_CONTINUE_ROUTE, "/pages/compare/index");
     trackEvent(EVENTS.PAGE_COMPARE_VIEW);
     this.bootstrap();
   },
 
   bootstrap() {
     const session = getSession();
-    const selectedIds = get(STORAGE_KEYS.COMPARE_LISTING_IDS, []);
-    const allListings = get(STORAGE_KEYS.LISTINGS, []).filter(
-      (item) => item.user_id === session.login_code && item.status === "active"
-    );
+    
+    // 通过 listingRepo 获取比较列表和所有房源
+    const selectedIds = listingRepo.getCompareIds();
+    const listingResult = listingRepo.getListings({ userId: session.login_code, includeInactive: false });
+    const allListings =
+      listingResult && listingResult.status === "success" ? listingResult.data : [];
+    
     const selectedListingsRaw = selectedIds
       .map((id) => allListings.find((item) => item.listing_id === id))
       .filter(Boolean);
@@ -61,9 +64,9 @@ Page({
       display_line: this.buildSelectedListingLine(item, idx + 1)
     }));
 
-    const intakes = get(STORAGE_KEYS.BUYER_INTAKES, [])
-      .filter((item) => item.user_id === session.login_code && item.status === "submitted")
-      .sort(byUpdatedDesc);
+    const intakeResult = intakeRepo.getIntakes({ userId: session.login_code, status: "submitted" });
+    const intakesRaw = intakeResult && intakeResult.status === "success" ? intakeResult.data : [];
+    const intakes = intakesRaw.slice().sort(byUpdatedDesc);
     const intake = intakes.length ? intakes[0] : null;
 
     this.setData({

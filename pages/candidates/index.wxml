@@ -52,13 +52,6 @@
       <view class="listing-main">
         <view class="listing-topline">
           <text class="listing-badge">{{item.display_badge}}</text>
-          <view
-            class="favorite-chip-wrap"
-            data-listing-id="{{item.listing_id}}"
-            catchtap="handleToggleFavorite"
-          >
-            <favorite-chip favorited="{{item.favorited}}" />
-          </view>
         </view>
 
         <view class="listing-title">{{item.display_title}}</view>

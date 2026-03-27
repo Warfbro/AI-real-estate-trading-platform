@@ -1,6 +1,6 @@
 const { isLoggedIn, requireLogin, getSession } = require("../../utils/auth");
 const { EVENTS, trackEvent, writeActivityLog } = require("../../utils/track");
-const { STORAGE_KEYS, get, set } = require("../../utils/storage");
+const { listingRepo } = require("../../repos");
 
 function normalizeText(value, fallback = "") {
   const text = String(value || "").trim();
@@ -42,12 +42,15 @@ Page({
     const session = getSession();
     const userId = normalizeText(session && (session.login_code || session.user_id));
 
-    const favoriteIdsRaw = get(STORAGE_KEYS.FAVORITE_LISTING_IDS, []);
+    const favoriteIdsRaw = listingRepo.getFavoriteIds();
     const favoriteIds = Array.isArray(favoriteIdsRaw)
       ? Array.from(new Set(favoriteIdsRaw.map((item) => normalizeText(item)).filter(Boolean)))
       : [];
 
-    const allListings = get(STORAGE_KEYS.LISTINGS, []).filter((item) => {
+    const listingResult = listingRepo.getListings({ userId, includeInactive: false });
+    const allListingsRaw =
+      listingResult && listingResult.status === "success" ? listingResult.data : [];
+    const allListings = allListingsRaw.filter((item) => {
       if (!item || item.status !== "active") return false;
       return normalizeText(item.user_id) === userId;
     });
@@ -95,13 +98,15 @@ Page({
       return;
     }
 
-    const favoriteIdsRaw = get(STORAGE_KEYS.FAVORITE_LISTING_IDS, []);
-    const favoriteIds = Array.isArray(favoriteIdsRaw)
-      ? Array.from(new Set(favoriteIdsRaw.map((item) => normalizeText(item)).filter(Boolean)))
-      : [];
-    const next = favoriteIds.filter((item) => item !== listingId);
+    const result = listingRepo.toggleFavorite(listingId);
+    if (!result || result.status === "error") {
+      wx.showToast({
+        title: "取消收藏失败",
+        icon: "none"
+      });
+      return;
+    }
 
-    set(STORAGE_KEYS.FAVORITE_LISTING_IDS, next);
     this.loadFavoriteList();
 
     trackEvent(EVENTS.LISTING_FAVORITE, {

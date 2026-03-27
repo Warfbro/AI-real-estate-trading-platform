@@ -1,6 +1,7 @@
 const { isLoggedIn, requireLogin, getSession } = require("../../utils/auth");
 const { EVENTS, trackEvent, writeActivityLog } = require("../../utils/track");
 const { STORAGE_KEYS, get, set, append, uid } = require("../../utils/storage");
+const { intakeRepo } = require("../../repos");
 const { evaluateRisk, toLevelText } = require("../../utils/risk");
 
 function byUpdatedDesc(a, b) {
@@ -57,7 +58,6 @@ Page({
       return;
     }
 
-    set(STORAGE_KEYS.RECENT_CONTINUE_ROUTE, `/pages/risk/index?${query}`);
     trackEvent(EVENTS.PAGE_RISK_VIEW, {
       source: this.data.source,
       comparison_id: this.data.comparison_id || "",
@@ -90,9 +90,9 @@ Page({
       .map((id) => allListings.find((item) => item.listing_id === id))
       .filter(Boolean);
 
-    const intakes = get(STORAGE_KEYS.BUYER_INTAKES, [])
-      .filter((item) => item.user_id === session.login_code && item.status === "submitted")
-      .sort(byUpdatedDesc);
+    const intakeResult = intakeRepo.getIntakes({ userId: session.login_code, status: "submitted" });
+    const intakesRaw = intakeResult && intakeResult.status === "success" ? intakeResult.data : [];
+    const intakes = intakesRaw.slice().sort(byUpdatedDesc);
     const intake =
       intakes.find((item) => intakeId && item.intake_id === intakeId) ||
       (intakes.length ? intakes[0] : null);

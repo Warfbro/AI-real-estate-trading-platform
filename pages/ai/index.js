@@ -15,6 +15,7 @@ const {
   syncChatSession,
   syncChatMessage
 } = require("../../utils/cloud");
+const { chatRepo, listingRepo, intakeRepo } = require("../../repos");
 
 const NAV_REVEAL_DELAY_MS = 160;
 const MAX_QUERY_LENGTH = 1000;
@@ -46,6 +47,12 @@ function normalizeText(value, fallback = "") {
 }
 
 function toNumber(value) {
+  if (value == null) {
+    return null;
+  }
+  if (typeof value === "string" && !value.trim()) {
+    return null;
+  }
   const num = Number(value);
   return Number.isFinite(num) ? num : null;
 }
@@ -251,7 +258,9 @@ function getLatestSubmittedIntake(userId) {
     return null;
   }
 
-  const list = get(STORAGE_KEYS.BUYER_INTAKES, [])
+  const intakeResult = intakeRepo.getIntakes({ status: null });
+  const allIntakes = intakeResult && intakeResult.status === "success" ? intakeResult.data : [];
+  const list = allIntakes
     .filter(
       (item) =>
         item &&
@@ -269,7 +278,10 @@ function getActiveListings(userId) {
     return [];
   }
 
-  return get(STORAGE_KEYS.LISTINGS, [])
+  const listingResult = listingRepo.getListings({ includeInactive: false });
+  const allListings = listingResult && listingResult.status === "success" ? listingResult.data : [];
+
+  return allListings
     .filter(
       (item) =>
         item &&
@@ -691,11 +703,6 @@ Page({
       this._navRevealTimer = null;
     }, NAV_REVEAL_DELAY_MS);
 
-    const route = this.data.source && this.data.source !== "home"
-      ? `/pages/ai/index?source=${encodeURIComponent(this.data.source)}`
-      : "/pages/ai/index";
-    set(STORAGE_KEYS.RECENT_CONTINUE_ROUTE, route);
-
     trackEvent(EVENTS.PAGE_AI_VIEW, {
       source: this.data.source || "home"
     });
@@ -744,8 +751,17 @@ Page({
 
     this._chatThreads = normalized;
 
-    set(STORAGE_KEYS.AI_CHAT_THREADS, normalized);
-    set(STORAGE_KEYS.AI_CHAT_ACTIVE_SESSION_ID, normalizeText(this._aiSessionId));
+    // 通过 chatRepo 持久化所有线程
+    normalized.forEach((thread) => {
+      if (thread && thread.session_id) {
+        chatRepo.upsertThread(thread.session_id, thread);
+      }
+    });
+
+    // 设置活跃会话 ID
+    if (this._aiSessionId) {
+      chatRepo.setActiveSessionId(this._aiSessionId);
+    }
 
     const threadItems = this.buildThreadItems();
     this.setData({
@@ -791,19 +807,22 @@ Page({
         : null;
     const relaxationOptions = Array.isArray(data.relaxation_options) ? data.relaxation_options : [];
     const blockerText = summarizeDecisionBlockers(data.blockers);
+    const showPairwise = currentStage === "pairwise" && Boolean(pairwiseQuestion && pairwiseQuestion.left && pairwiseQuestion.right);
+    const showRelaxation = currentStage === "relaxation" && relaxationOptions.length > 0;
+    const showBlockerText = currentStage === "relaxation" || currentStage === "clarifying";
 
     this.setData({
       decision_session_id: sessionId,
       decision_stage_text: normalizeText(DECISION_STAGE_TEXT_MAP[currentStage], currentStage || "结构化决策"),
-      decision_blocker_text: blockerText,
+      decision_blocker_text: showBlockerText ? blockerText : "",
       decision_bucket_cards: bucketCards,
       has_decision_buckets: bucketCards.length > 0,
-      pairwise_question: pairwiseQuestion,
-      has_pairwise_question: Boolean(pairwiseQuestion && pairwiseQuestion.left && pairwiseQuestion.right),
+      pairwise_question: showPairwise ? pairwiseQuestion : null,
+      has_pairwise_question: showPairwise,
       decision_show_critique_editor: false,
       decision_show_relaxation: false,
       relaxation_options: relaxationOptions,
-      has_relaxation_options: relaxationOptions.length > 0
+      has_relaxation_options: showRelaxation
     });
   },
 
@@ -817,7 +836,7 @@ Page({
   },
 
   getDecisionSeed(userId) {
-    const compareIds = sanitizeStringArray(get(STORAGE_KEYS.COMPARE_LISTING_IDS, []), 5);
+    const compareIds = sanitizeStringArray(listingRepo.getCompareIds(), 5);
     if (compareIds.length >= 2) {
       return {
         ids: compareIds,
@@ -825,7 +844,7 @@ Page({
       };
     }
 
-    const favoriteIds = sanitizeStringArray(get(STORAGE_KEYS.FAVORITE_LISTING_IDS, []), 5);
+    const favoriteIds = sanitizeStringArray(listingRepo.getFavoriteIds(), 5);
     if (favoriteIds.length >= 2) {
       return {
         ids: favoriteIds,
@@ -856,7 +875,8 @@ Page({
     const memoryProfile = get(STORAGE_KEYS.AI_MEMORY_PROFILE, {});
     const activeRequirement = get(STORAGE_KEYS.AI_ACTIVE_REQUIREMENT, {});
     const context = {
-      selected_listing_ids: sanitizeStringArray(selectedListingIds, 5)
+      selected_listing_ids: sanitizeStringArray(selectedListingIds, 5),
+      use_historical_constraints: false
     };
 
     if (intake) {
@@ -1163,14 +1183,20 @@ Page({
   },
 
   restoreChatThreads() {
-    const storedThreads = get(STORAGE_KEYS.AI_CHAT_THREADS, []);
+    // 通过 chatRepo 获取所有线程
+    const storedThreadsResult = chatRepo.getThreads();
+    const storedThreads =
+      storedThreadsResult && storedThreadsResult.status === "success"
+        ? storedThreadsResult.data
+        : [];
     const normalizedThreads = (Array.isArray(storedThreads) ? storedThreads : [])
       .map((item) => sanitizeThread(item))
       .filter(Boolean)
       .sort(byUpdatedDesc)
       .slice(0, MAX_CHAT_THREADS);
 
-    const activeSessionId = normalizeText(get(STORAGE_KEYS.AI_CHAT_ACTIVE_SESSION_ID, ""));
+    // 获取活跃会话 ID
+    const activeSessionId = normalizeText(chatRepo.getActiveSessionId() || "");
     const currentSource = this.data.source || "home";
 
     let activeThread = normalizedThreads.find((item) => item.session_id === activeSessionId);
@@ -1194,9 +1220,17 @@ Page({
     this._compactContext = sanitizeCompactContext(activeThread.compact_context);
     this._sessionSummary = normalizeText(activeThread.summary);
 
+    // 通过 chatRepo 获取当前线程的消息
+    const threadMessagesResult = chatRepo.getThreadMessages(this._aiSessionId);
+    const threadMessages =
+      threadMessagesResult && threadMessagesResult.status === "success"
+        ? threadMessagesResult.data
+        : [];
+    const messages = threadMessages.length > 0 ? threadMessages : createDefaultMessages();
+
     this.setData(
       {
-        messages: Array.isArray(activeThread.messages) ? activeThread.messages : createDefaultMessages(),
+        messages: messages,
         decision_session_id: normalizeText(activeThread.decision_session_id)
       },
       () => {
@@ -1262,6 +1296,12 @@ Page({
   appendMessage(role, text, options = {}) {
     const message = createMessage(role, text);
     const messages = (this.data.messages || []).concat(message);
+    
+    // 通过 chatRepo 保存消息
+    if (this._aiSessionId) {
+      chatRepo.appendMessage(this._aiSessionId, message);
+    }
+    
     this.setData({ messages }, () => {
       this.scrollToBottom();
       this.upsertCurrentThread();
@@ -1272,7 +1312,7 @@ Page({
 
   buildAIContext(userId, contextPatch = {}) {
     const intake = getLatestSubmittedIntake(userId);
-    const selectedIds = get(STORAGE_KEYS.COMPARE_LISTING_IDS, []);
+    const selectedIds = listingRepo.getCompareIds();
     const selectedCount = Array.isArray(selectedIds) ? selectedIds.length : 0;
     const listingCount = getActiveListingCount(userId);
     const currentThread = this.getCurrentThread();
@@ -1738,7 +1778,7 @@ Page({
   loadFavoriteOptions(userId) {
     const listings = getActiveListings(userId);
 
-    const favoriteIdsRaw = get(STORAGE_KEYS.FAVORITE_LISTING_IDS, []);
+    const favoriteIdsRaw = listingRepo.getFavoriteIds();
     const favoriteIds = Array.isArray(favoriteIdsRaw)
       ? Array.from(new Set(favoriteIdsRaw.map((item) => normalizeText(item)).filter(Boolean)))
       : [];

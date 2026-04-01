@@ -1,21 +1,22 @@
-<view class="page">
-  <view class="title">身份验证</view>
-  <view class="subtitle">为了保障您的选房数据安全和多端同步，请先登录。</view>
+<view class="page login-page">
+  <view class="login-shell">
+    <view class="brand-area">
+      <view class="brand-mark">AI</view>
+      <view class="brand-title">AI 买房助手</view>
+    </view>
 
-  <view class="card">
-    <text class="label">继续您的操作流程：</text>
-    <text class="hint">{{redirect}}</text>
+    <view class="action-panel">
+      <button
+        class="btn-primary login-btn"
+        open-type="getPhoneNumber"
+        bindgetphonenumber="handleQuickLogin"
+        loading="{{loading}}"
+        disabled="{{loading}}"
+      >
+        {{loading ? '登录中...' : primary_login_text}}
+      </button>
+      <view class="status-text" wx:if="{{status_text}}">{{status_text}}</view>
+      <view class="error-text" wx:if="{{error_text}}">{{error_text}}</view>
+    </view>
   </view>
-
-  <view class="card">
-    <view class="label">当前身份（环境模拟）</view>
-    <picker mode="selector" range="{{role_labels}}" value="{{role_index}}" bindchange="handleRoleChange">
-      <view class="picker">{{role_label}}</view>
-    </picker>
-    <view class="hint">日常使用请直接使用下方的一键快捷授权。</view>
-  </view>
-
-  <button class="btn-primary" bindtap="handleLogin" loading="{{loading}}">
-    微信一键安全登录
-  </button>
 </view>

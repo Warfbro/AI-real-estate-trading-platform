@@ -3,12 +3,16 @@ const { writeActivityLog } = require("./track");
 const { getLoginIdentity } = require("./cloud");
 
 const ROLES = ["user", "advisor", "admin"];
+const FORCE_ADMIN_ROLE_IN_TEST = true;
 
 function getSession() {
   return get(STORAGE_KEYS.AUTH_SESSION, null);
 }
 
 function normalizeRole(role) {
+  if (FORCE_ADMIN_ROLE_IN_TEST) {
+    return "admin";
+  }
   return ROLES.includes(role) ? role : "user";
 }
 
@@ -28,7 +32,9 @@ function requireLogin(redirectPath) {
   return false;
 }
 
-function loginWithWeChat(role = "user") {
+function loginWithWeChat(role = "user", options = {}) {
+  const phoneCode = String(options.phoneCode || "").trim();
+  const loginScene = String(options.loginScene || "wechat_login").trim() || "wechat_login";
   return new Promise((resolve, reject) => {
     wx.login({
       async success(res) {
@@ -42,16 +48,21 @@ function loginWithWeChat(role = "user") {
         let openid = "";
         let cloudSynced = false;
         let cloudSyncError = "";
+        let phoneBound = false;
+        let phoneSyncError = "";
 
         try {
           const identity = await getLoginIdentity({
             role: nextRole,
-            provider: "wechat"
+            provider: "wechat",
+            phoneCode
           });
           openid = identity.openid;
           userId = identity.userId || identity.openid || res.code;
           cloudSynced = Boolean(identity.userSynced);
           cloudSyncError = identity.userSyncError || "";
+          phoneBound = Boolean(identity.phoneBound);
+          phoneSyncError = identity.phoneSyncError || "";
           if (!cloudSynced && cloudSyncError) {
             console.warn("[auth] users sync incomplete", identity);
           }
@@ -67,8 +78,11 @@ function loginWithWeChat(role = "user") {
           openid,
           role: nextRole,
           logged_in_at: new Date().toISOString(),
+          login_scene: loginScene,
           cloud_synced: cloudSynced,
-          cloud_sync_error: cloudSyncError
+          cloud_sync_error: cloudSyncError,
+          phone_bound: phoneBound,
+          phone_sync_error: phoneSyncError
         };
         set(STORAGE_KEYS.AUTH_SESSION, session);
 
@@ -78,8 +92,10 @@ function loginWithWeChat(role = "user") {
           detail_json: {
             provider: "wechat",
             role: session.role,
+            login_scene: loginScene,
             cloud_synced: cloudSynced,
-            cloud_sync_error: cloudSyncError
+            cloud_sync_error: cloudSyncError,
+            phone_bound: phoneBound
           }
         });
 

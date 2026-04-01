@@ -1,15 +1,77 @@
-.hint {
-  display: block;
-  margin-top: 8rpx;
-  color: #8C7A6B;
+.login-page {
+  min-height: 100vh;
+  padding-top: 112rpx;
+  background:
+    radial-gradient(
+      132% 76% at 12% -12%,
+      rgba(199, 212, 230, 0.44) 0%,
+      rgba(214, 224, 238, 0.3) 36%,
+      rgba(247, 244, 237, 0.08) 76%,
+      rgba(247, 244, 237, 0) 100%
+    ),
+    linear-gradient(180deg, #dce5f1 0%, #e6edf5 30%, #eef2f5 58%, #f7f4ed 100%);
 }
 
-.picker {
+.login-shell {
   width: 100%;
-  border: 2rpx solid #E4D4C8;
-  border-radius: 16rpx;
-  background: #ffffff;
-  padding: 20rpx;
+  max-width: 620rpx;
+  margin: 0 auto;
+  padding: 0 40rpx 72rpx;
   box-sizing: border-box;
-  color: #333333;
+}
+
+.brand-area {
+  padding: 56rpx 0 72rpx;
+  text-align: center;
+}
+
+.brand-mark {
+  width: 112rpx;
+  height: 112rpx;
+  margin: 0 auto 28rpx;
+  border-radius: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f06a23 0%, #ff7d35 100%);
+  color: #ffffff;
+  font-size: 42rpx;
+  font-weight: 700;
+  box-shadow: 0 18rpx 36rpx rgba(240, 106, 35, 0.22);
+}
+
+.brand-title {
+  font-size: 52rpx;
+  line-height: 1.2;
+  color: #243247;
+  font-weight: 700;
+}
+
+.action-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-btn {
+  margin-bottom: 0;
+  height: 96rpx;
+  border-radius: 22rpx;
+  font-size: 30rpx;
+  box-shadow: 0 16rpx 32rpx rgba(240, 106, 35, 0.18);
+}
+
+.status-text,
+.error-text {
+  margin-top: 20rpx;
+  text-align: center;
+  font-size: 24rpx;
+  line-height: 1.7;
+}
+
+.status-text {
+  color: #31507b;
+}
+
+.error-text {
+  color: #a24c3d;
 }

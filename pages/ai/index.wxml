@@ -96,6 +96,8 @@
                   placeholder="输入你的修正意见"
                   value="{{critique_input}}"
                   maxlength="120"
+                  adjust-position="{{false}}"
+                  cursor-spacing="0"
                   bindinput="onDecisionCritiqueInput"
                 />
                 <view class="decision-critique-btn {{decision_loading ? 'disabled' : ''}}" catchtap="handleSubmitCritique">提交</view>
@@ -123,6 +125,8 @@
           class="chat-input"
           placeholder="输入你的买房需求，例如：上海500万内三室学区房"
           maxlength="1000"
+          adjust-position="{{false}}"
+          cursor-spacing="0"
           confirm-type="send"
           value="{{chatInput}}"
           bindinput="onInput"
@@ -219,4 +223,3 @@
     </view>
   </view>
 </view>
-

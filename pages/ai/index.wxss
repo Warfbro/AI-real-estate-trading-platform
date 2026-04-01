@@ -79,7 +79,7 @@ page {
 .back-icon {
   font-size: 56rpx;
   font-weight: 300;
-  color: #5c4033;
+  color: #31507b;
 }
 
 .chat-core {
@@ -101,7 +101,7 @@ page {
 }
 
 .chat-list {
-  padding: 108rpx 30rpx 40rpx;
+  padding: 24rpx 30rpx 28rpx;
 }
 
 .chat-msg {
@@ -126,7 +126,7 @@ page {
   width: 72rpx;
   height: 72rpx;
   border-radius: 50%;
-  background-color: #5c4033;
+  background-color: #6d86ac;
   color: #f7f8fa;
   display: flex;
   align-items: center;
@@ -222,8 +222,8 @@ page {
   width: 100%;
   height: 88rpx;
   flex-shrink: 0;
-  background-color: #e4d4c8;
-  color: #5c4033;
+  background-color: rgba(214, 224, 239, 0.92);
+  color: #31507b;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -356,7 +356,7 @@ page {
 
 .input-area {
   background-color: #ffffff;
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: calc(env(safe-area-inset-bottom) + 4rpx);
   box-shadow: 0 -4rpx 24rpx rgba(92, 64, 51, 0.05);
   transition: border-radius 0.4s ease;
   border-radius: 40rpx 40rpx 0 0;
@@ -366,7 +366,7 @@ page {
 
 .input-row {
   display: flex;
-  padding: 24rpx 30rpx;
+  padding: 20rpx 30rpx 16rpx;
   align-items: center;
 }
 
@@ -403,8 +403,8 @@ page {
   width: 68rpx;
   height: 68rpx;
   border-radius: 50%;
-  background-color: #e4d4c8;
-  color: #5c4033;
+  background-color: rgba(214, 224, 239, 0.92);
+  color: #31507b;
   font-size: 48rpx;
   font-weight: 300;
   display: flex;
@@ -465,8 +465,8 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #5c4033;
-  box-shadow: inset 0 2rpx 8rpx rgba(92, 64, 51, 0.02);
+  color: #31507b;
+  box-shadow: inset 0 2rpx 8rpx rgba(102, 123, 156, 0.06);
   font-size: 42rpx;
 }
 
@@ -520,7 +520,7 @@ page {
   min-width: 72rpx;
   font-size: 30rpx;
   text-align: right;
-  color: #5c4033;
+  color: #31507b;
   font-weight: 600;
 }
 
@@ -647,7 +647,7 @@ page {
 .decision-stage-text {
   margin-top: 12rpx;
   font-size: 34rpx;
-  color: #5c4033;
+  color: #31507b;
   font-weight: 600;
 }
 
@@ -665,7 +665,7 @@ page {
   margin-top: 20rpx;
   height: 84rpx;
   border-radius: 42rpx;
-  background: #5c4033;
+  background: linear-gradient(180deg, #ff9a57 0%, #ff651c 100%);
   color: #ffffff;
   font-size: 28rpx;
   font-weight: 600;
@@ -677,8 +677,8 @@ page {
   max-width: 100%;
   height: 72rpx;
   border-radius: 36rpx;
-  background: #f1e3d5;
-  color: #5c4033;
+  background: rgba(230, 237, 246, 0.92);
+  color: #31507b;
   font-size: 26rpx;
   font-weight: 600;
 }
@@ -690,7 +690,7 @@ page {
 .decision-bucket {
   margin-top: 20rpx;
   padding: 20rpx;
-  background: #fbf7f2;
+  background: rgba(241, 245, 250, 0.94);
   border-radius: 22rpx;
 }
 
@@ -700,7 +700,7 @@ page {
 
 .decision-bucket-title {
   font-size: 27rpx;
-  color: #5c4033;
+  color: #31507b;
   font-weight: 600;
 }
 
@@ -794,7 +794,7 @@ page {
   width: 128rpx;
   min-height: 82rpx;
   border-radius: 24rpx;
-  background: #5c4033;
+  background: linear-gradient(180deg, #ff9a57 0%, #ff651c 100%);
   color: #ffffff;
   font-size: 26rpx;
   font-weight: 600;
@@ -805,13 +805,13 @@ page {
   margin-top: 18rpx;
   padding: 18rpx 20rpx;
   border-radius: 20rpx;
-  background: #fbf7f2;
+  background: rgba(241, 245, 250, 0.94);
 }
 
 .decision-relax-label {
   font-size: 26rpx;
   line-height: 1.45;
-  color: #5c4033;
+  color: #31507b;
   font-weight: 600;
 }
 

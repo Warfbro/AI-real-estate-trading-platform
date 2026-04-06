@@ -73,7 +73,7 @@ Page({
     ].join("&");
 
     wx.navigateTo({
-      url: `/pages/candidates/index?${query}`
+      url: `/pages/searchResult/index?${query}`
     });
   },
 

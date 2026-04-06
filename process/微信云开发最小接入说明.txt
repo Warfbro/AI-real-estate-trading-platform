@@ -34,7 +34,7 @@
 - 图片上传到云存储
 
 3）utils/auth.js
-作用：登录时获取 openid，并同步 users 集合
+作用：登录时获取 openid，并同步 users 集合；买房用户快捷登录时透传官方手机号授权返回的 `phone_code`
 
 4）pages/intake/index.js
 作用：提交需求后同步 buyer_intakes
@@ -43,7 +43,7 @@
 作用：导入房源后同步 listing_import_jobs / listings；图片导入时上传截图到云存储
 
 6）cloudfunctions/getOpenId
-作用：返回当前用户 openid，并在服务端同步 users 集合
+作用：返回当前用户 openid，并在服务端同步 users 集合；若传入 `phone_code`，则通过 `cloud.openapi.phonenumber.getPhoneNumber` 解密手机号并 best-effort 回写 `users.mobile`
 
 7）cloudfunctions/getHomeHotListings
 作用：首页热门房源查询（active 房源 + 热度优先 + 冷启动兜底）
@@ -89,14 +89,16 @@
 1）现在代码里的 `wx.login code` 不能作为正式稳定用户 ID。
 2）如果没有 openid，用户数据写到云端后无法可靠归属到同一个微信用户。
 3）`users` 在真机环境中可能被客户端权限规则拦截，登录建档需要服务端兜底。
-4）这会直接影响上线后正常运行，因此 `getOpenId` 属于必须保留的最小云函数。
+4）买房用户快捷登录需要服务端结合 `phone_code` 解密手机号，前端不能把该逻辑当作本地假弹窗处理。
+5）这会直接影响上线后正常运行，因此 `getOpenId` 属于必须保留的最小云函数。
 
 七、验证方式
 1）打开开发者工具并确保云开发环境可用。
-2）重新部署 `getOpenId` 云函数后，登录一次，检查 users 集合是否生成当前用户记录。
-3）提交一次需求，检查 buyer_intakes 是否新增记录。
-4）导入一次房源，检查 listing_import_jobs 和 listings 是否新增记录。
-5）用截图导入一次，检查云存储是否生成文件，listing_import_jobs.raw_file_url 是否有 fileID。
+2）重新部署 `getOpenId` 云函数后，以买房用户身份进入登录页，点击微信快捷登录，确认出现微信官方授权弹窗。
+3）快捷登录成功后，检查 `users` 集合是否生成当前用户记录；若授权手机号，确认 `users.mobile` 已同步。
+4）提交一次需求，检查 buyer_intakes 是否新增记录。
+5）导入一次房源，检查 listing_import_jobs 和 listings 是否新增记录。
+6）用截图导入一次，检查云存储是否生成文件，listing_import_jobs.raw_file_url 是否有 fileID。
 
 八、当前限制
 1）当前页面读取仍以本地数据为主，不是完整云真源模式。

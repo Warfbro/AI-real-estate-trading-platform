@@ -1,11 +1,8 @@
 const { isLoggedIn, getSession, getUserRole } = require("../../utils/auth");
 const { EVENTS, trackEvent, writeActivityLog } = require("../../utils/track");
 const { STORAGE_KEYS, get, set } = require("../../utils/storage");
-const {
-  DEFAULT_CONTINUE_ROUTE,
-  resolveContinueContextFromStorage
-} = require("../../utils/continue");
 const { getHomeHotListings, getHomeGuessListings } = require("../../utils/cloud");
+const { listingRepo, authRepo } = require("../../repos/index");
 
 const HOME_FEED_REFRESH_INTERVAL_MS = 30000;
 const SEARCH_PLACEHOLDER_TEXT = "搜索感兴趣的房源或区域";
@@ -199,10 +196,6 @@ function normalizeListingCard(item) {
 Page({
   data: {
     loggedIn: false,
-    recent_continue_route: DEFAULT_CONTINUE_ROUTE,
-    recent_continue_label: "需求录入页",
-    continue_hint_text: "已定位到最近可继续节点。",
-
     hot_listings: [],
     guess_listings: [],
     favorite_ids: [],
@@ -228,22 +221,11 @@ Page({
 
     if (!loggedIn) {
       this.setData({
-        loggedIn: false,
-        recent_continue_route: DEFAULT_CONTINUE_ROUTE,
-        recent_continue_label: "需求录入页",
-        continue_hint_text: "登录后将自动恢复最近进度。"
+        loggedIn: false
       });
     } else {
-      const role = getUserRole();
-      const continueContext = resolveContinueContextFromStorage({
-        userId,
-        role
-      });
       this.setData({
-        loggedIn: true,
-        recent_continue_route: continueContext.route,
-        recent_continue_label: continueContext.label,
-        continue_hint_text: continueContext.hintText
+        loggedIn: true
       });
     }
 
@@ -415,26 +397,15 @@ Page({
     const baseGuess = (this._rawGuessListings || []).slice();
 
     const sorted = this.applyLocationSort(baseHot, baseGuess);
-    const favoriteIds = this.data.favorite_ids || [];
-    const hotList = this.decorateWithFavoriteState(sorted.hotList, favoriteIds);
-    const guessList = this.decorateWithFavoriteState(sorted.guessList, favoriteIds);
 
     this.setData({
-      hot_listings: hotList,
-      guess_listings: guessList,
-      has_hot_listings: hotList.length > 0,
-      has_guess_listings: guessList.length > 0,
+      hot_listings: sorted.hotList,
+      guess_listings: sorted.guessList,
+      has_hot_listings: sorted.hotList.length > 0,
+      has_guess_listings: sorted.guessList.length > 0,
       guess_strategy_text: this.buildGuessStrategyText(sorted.sortHint),
       location_sort_hint_text: sorted.sortHint
     });
-  },
-
-  decorateWithFavoriteState(list, favoriteIds) {
-    const favoriteSet = new Set((favoriteIds || []).map((item) => normalizeText(item)).filter(Boolean));
-    return (list || []).map((item) => ({
-      ...item,
-      favorited: favoriteSet.has(normalizeText(item.listing_id))
-    }));
   },
 
   applyLocationSort(hotList, guessList) {
@@ -604,31 +575,29 @@ Page({
       return;
     }
 
-    const favoriteIds = get(STORAGE_KEYS.FAVORITE_LISTING_IDS, []);
-    const next = Array.isArray(favoriteIds)
-      ? Array.from(new Set(favoriteIds.map((item) => normalizeText(item)).filter(Boolean)))
-      : [];
-    const index = next.indexOf(listingId);
-    let favorited = false;
-    if (index >= 0) {
-      next.splice(index, 1);
-      favorited = false;
-    } else {
-      next.push(listingId);
-      favorited = true;
+    // 通过 repo 层切换收藏
+    const result = listingRepo.toggleFavorite(listingId);
+    if (result.status !== "success") {
+      wx.showToast({
+        title: "操作失败",
+        icon: "none"
+      });
+      return;
     }
-    set(STORAGE_KEYS.FAVORITE_LISTING_IDS, next);
 
+    // 更新页面数据
+    const favoriteIds = listingRepo.getFavoriteIds();
     this.setData(
       {
-        favorite_ids: next
+        favorite_ids: favoriteIds
       },
       () => {
         this.refreshFeedView();
       }
     );
 
-    if (favorited) {
+    // 收藏成功时提示
+    if (result.favorited) {
       wx.showToast({
         title: "收藏成功",
         icon: "none"
@@ -638,7 +607,7 @@ Page({
     trackEvent(EVENTS.LISTING_FAVORITE, {
       source: "home",
       listing_id: listingId,
-      favorited
+      favorited: result.favorited
     });
     writeActivityLog({
       action_type: "listing_favorite_toggle",
@@ -646,27 +615,14 @@ Page({
       object_id: listingId,
       detail_json: {
         source: "home",
-        favorited
+        favorited: result.favorited
       }
     });
   },
 
   handleContinue() {
-    const recentRoute =
-      this.data.recent_continue_route ||
-      get(STORAGE_KEYS.RECENT_CONTINUE_ROUTE, DEFAULT_CONTINUE_ROUTE);
-
-    wx.navigateTo({
-      url: recentRoute,
-      fail: () => {
-        wx.showToast({
-          title: "继续路由不可用，已回到需求录入",
-          icon: "none"
-        });
-        wx.navigateTo({ url: DEFAULT_CONTINUE_ROUTE });
-      }
-    });
-  }
+    // Removed: continue functionality
+  },
 });
 
 

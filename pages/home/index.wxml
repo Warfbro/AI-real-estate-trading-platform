@@ -11,7 +11,7 @@
         hover-start-time="0"
         hover-stay-time="100"
       >
-        <icon class="address-icon" type="location" size="14" color="#5C4033" />
+        <icon class="address-icon" type="location" size="14" color="#31507B" />
         <view class="address-text">{{selected_location_text}}</view>
       </view>
     </picker>
@@ -23,7 +23,7 @@
       hover-start-time="0"
       hover-stay-time="100"
     >
-      <icon class="search-icon" type="search" size="14" color="#7B6A5F" />
+      <icon class="search-icon" type="search" size="14" color="#6B7A8F" />
       <view class="search-text">
         {{search_placeholder_text}}
       </view>
@@ -68,13 +68,6 @@
                 <view class="h-info">
                   <view class="h-top">
                     <view class="h-title">{{item.title_text}}</view>
-                    <view
-                      class="favorite-chip-wrap"
-                      catchtap="handleToggleFavorite"
-                      data-listing-id="{{item.listing_id}}"
-                    >
-                      <favorite-chip favorited="{{item.favorited}}" />
-                    </view>
                   </view>
                   <view class="h-desc">{{item.hot_desc_text}}</view>
                   <view wx:if="{{item.distance_text}}" class="h-distance">
@@ -124,13 +117,6 @@
               距离 {{item.distance_text}}
             </view>
           </view>
-          <view
-            class="favorite-chip-wrap property-fav-wrap"
-            catchtap="handleToggleFavorite"
-            data-listing-id="{{item.listing_id}}"
-          >
-            <favorite-chip favorited="{{item.favorited}}" />
-          </view>
         </view>
       </block>
     </block>
@@ -140,4 +126,3 @@
     </view>
   </view>
 </view>
-

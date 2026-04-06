@@ -4,17 +4,11 @@
     "pages/search/index",
     "pages/ai/index",
     "pages/login/index",
-    "pages/intake/index",
     "pages/import/index",
-    "pages/candidates/index",
+    "pages/searchResult/index",
     "pages/detail/index",
-    "pages/compare/index",
-    "pages/risk/index",
-    "pages/action/index",
     "pages/my/index",
-    "pages/myFavorites/index",
-    "pages/adminLeads/index",
-    "pages/adminLeadDetail/index"
+    "pages/myFavorites/index"
   ],
   "window": {
     "navigationBarTitleText": "房产决策助手",

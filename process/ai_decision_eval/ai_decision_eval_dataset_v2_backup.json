@@ -1,0 +1,1053 @@
+{
+  "dataset_version": "2026-03-25.v2",
+  "description": "AI 买房决策离线评测集 v2。覆盖当前 decisionEngine 已支持的 city/district/price_total/area_sqm/layout_desc/elevator_flag/missing_fields_json，以及 pairwise/critique/active_requirement/memory_profile 对显式偏好状态的影响。",
+  "cases": [
+    {
+      "case_id": "balanced_three_room_easy",
+      "title": "电梯三房基础排序",
+      "tags": ["easy", "ranking", "layout", "elevator", "hard_constraint"],
+      "query": "预算100万以内，想在上饶买电梯三房，自住为主。",
+      "context": {
+        "active_intake": {
+          "intake_id": "intake_eval_001",
+          "city": "上饶",
+          "budget_max": 100,
+          "layout_pref": "3室"
+        },
+        "memory_profile": {
+          "elevator_required": true
+        }
+      },
+      "listings": [
+        {
+          "listing_id": "c1_a",
+          "title": "信州区紧凑三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "信江家园",
+          "price_total": 92,
+          "area_sqm": 89,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c1_b",
+          "title": "信州区舒适三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "书香雅苑",
+          "price_total": 98,
+          "area_sqm": 96,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c1_c",
+          "title": "广丰区三房",
+          "city": "上饶",
+          "district": "广丰区",
+          "community_name": "澜庭府",
+          "price_total": 94,
+          "area_sqm": 91,
+          "layout_desc": "3室1厅",
+          "elevator_flag": true,
+          "missing_fields_json": ["orientation"]
+        },
+        {
+          "listing_id": "c1_d",
+          "title": "信州区两房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "东都花园",
+          "price_total": 86,
+          "area_sqm": 90,
+          "layout_desc": "2室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [],
+      "gold": {
+        "top_listing_id": "c1_b",
+        "relevance": {
+          "c1_a": 2,
+          "c1_b": 3,
+          "c1_c": 1,
+          "c1_d": 0
+        },
+        "top1_rules": {
+          "budget_max": 100,
+          "elevator_flag": true,
+          "layout_includes": "3室"
+        }
+      }
+    },
+    {
+      "case_id": "elevator_critique_override",
+      "title": "通过 critique 把电梯升为硬约束",
+      "tags": ["pairwise", "critique", "elevator", "soft_to_hard", "tradeoff"],
+      "query": "预算95万以内，三房就行，先帮我看看。",
+      "context": {
+        "active_intake": {
+          "intake_id": "intake_eval_002",
+          "city": "上饶",
+          "budget_max": 95,
+          "layout_pref": "3室"
+        },
+        "memory_profile": {}
+      },
+      "listings": [
+        {
+          "listing_id": "c2_a",
+          "title": "广丰区步梯三房",
+          "city": "上饶",
+          "district": "广丰区",
+          "community_name": "阳光花园",
+          "price_total": 84,
+          "area_sqm": 95,
+          "layout_desc": "3室2厅",
+          "elevator_flag": false,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c2_b",
+          "title": "信州区电梯三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "书香里",
+          "price_total": 92,
+          "area_sqm": 90,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c2_c",
+          "title": "信州区电梯信息待补三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "江南府",
+          "price_total": 94,
+          "area_sqm": 92,
+          "layout_desc": "3室2厅",
+          "elevator_flag": null,
+          "missing_fields_json": ["elevator_flag"]
+        },
+        {
+          "listing_id": "c2_d",
+          "title": "信州区高总价电梯三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "锦绣天城",
+          "price_total": 96,
+          "area_sqm": 98,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [
+        {
+          "type": "pairwise",
+          "winner_listing_id": "c2_b",
+          "loser_listing_id": "c2_a",
+          "spoken_preference": "如果只能二选一，我更倾向 c2_b，不想要楼梯房。"
+        },
+        {
+          "type": "critique",
+          "text": "不要楼梯房，而且太贵的不考虑"
+        }
+      ],
+      "gold": {
+        "top_listing_id": "c2_b",
+        "relevance": {
+          "c2_a": 0,
+          "c2_b": 3,
+          "c2_c": 1,
+          "c2_d": 0
+        },
+        "top1_rules": {
+          "budget_max": 95,
+          "elevator_flag": true,
+          "layout_includes": "3室"
+        }
+      }
+    },
+    {
+      "case_id": "price_over_area_pairwise",
+      "title": "通过显式偏好把预算压力抬升",
+      "tags": ["pairwise", "critique", "price", "tradeoff"],
+      "query": "想买三房，预算别太紧，能住得舒服就行。",
+      "context": {
+        "active_intake": {
+          "intake_id": "intake_eval_003",
+          "city": "上饶",
+          "budget_max": 105,
+          "layout_pref": "3室"
+        },
+        "memory_profile": {}
+      },
+      "listings": [
+        {
+          "listing_id": "c3_a",
+          "title": "信州区实用三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "雅居乐",
+          "price_total": 86,
+          "area_sqm": 89,
+          "layout_desc": "3室1厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c3_b",
+          "title": "信州区大三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "观澜府",
+          "price_total": 103,
+          "area_sqm": 105,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c3_c",
+          "title": "信州区中大三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "中航城",
+          "price_total": 99,
+          "area_sqm": 100,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c3_d",
+          "title": "信州区两房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "中富花园",
+          "price_total": 91,
+          "area_sqm": 94,
+          "layout_desc": "2室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [
+        {
+          "type": "pairwise",
+          "winner_listing_id": "c3_a",
+          "loser_listing_id": "c3_b",
+          "spoken_preference": "如果只能二选一，我更倾向 c3_a，月供压力别太大。"
+        },
+        {
+          "type": "critique",
+          "text": "太贵的不考虑，面积小一点可以接受"
+        }
+      ],
+      "gold": {
+        "top_listing_id": "c3_a",
+        "relevance": {
+          "c3_a": 3,
+          "c3_b": 0,
+          "c3_c": 2,
+          "c3_d": 0
+        },
+        "top1_rules": {
+          "budget_max": 105,
+          "layout_includes": "3室"
+        }
+      }
+    },
+    {
+      "case_id": "completeness_pairwise",
+      "title": "通过 pairwise 放大信息完整度偏好",
+      "tags": ["pairwise", "completeness", "tradeoff", "missing_fields"],
+      "query": "预算92万以内，三房优先，先给我靠谱、信息完整一点的。",
+      "context": {
+        "active_intake": {
+          "intake_id": "intake_eval_004",
+          "city": "上饶",
+          "budget_max": 92,
+          "layout_pref": "3室"
+        },
+        "memory_profile": {}
+      },
+      "listings": [
+        {
+          "listing_id": "c4_a",
+          "title": "低总价但信息缺失三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "华府春天",
+          "price_total": 80,
+          "area_sqm": 93,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": ["orientation", "year_built", "floor_info", "community_name", "source_url"]
+        },
+        {
+          "listing_id": "c4_b",
+          "title": "信息完整三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "天樾府",
+          "price_total": 88,
+          "area_sqm": 91,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c4_c",
+          "title": "超预算三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "铂悦城",
+          "price_total": 94,
+          "area_sqm": 95,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c4_d",
+          "title": "电梯信息待补三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "江湾壹号",
+          "price_total": 86,
+          "area_sqm": 92,
+          "layout_desc": "3室2厅",
+          "elevator_flag": null,
+          "missing_fields_json": ["elevator_flag"]
+        }
+      ],
+      "interactions": [
+        {
+          "type": "pairwise",
+          "winner_listing_id": "c4_b",
+          "loser_listing_id": "c4_a",
+          "spoken_preference": "如果只能二选一，我选 c4_b，信息残缺太多我不放心。"
+        }
+      ],
+      "gold": {
+        "top_listing_id": "c4_b",
+        "relevance": {
+          "c4_a": 0,
+          "c4_b": 3,
+          "c4_c": 0,
+          "c4_d": 1
+        },
+        "top1_rules": {
+          "budget_max": 92,
+          "layout_includes": "3室",
+          "max_missing_fields": 1
+        }
+      }
+    },
+    {
+      "case_id": "layout_over_price_pairwise",
+      "title": "通过 pairwise + critique 强化户型偏好",
+      "tags": ["pairwise", "critique", "layout", "tradeoff"],
+      "query": "预算100万以内，想要三房，自住改善。",
+      "context": {
+        "active_intake": {
+          "intake_id": "intake_eval_005",
+          "city": "上饶",
+          "budget_max": 100,
+          "layout_pref": "3室"
+        },
+        "memory_profile": {}
+      },
+      "listings": [
+        {
+          "listing_id": "c5_a",
+          "title": "大两房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "西城时代",
+          "price_total": 79,
+          "area_sqm": 96,
+          "layout_desc": "2室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c5_b",
+          "title": "标准电梯三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "中央公园",
+          "price_total": 95,
+          "area_sqm": 92,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c5_c",
+          "title": "步梯三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "丰和家园",
+          "price_total": 93,
+          "area_sqm": 94,
+          "layout_desc": "3室2厅",
+          "elevator_flag": false,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c5_d",
+          "title": "超预算三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "天玺华庭",
+          "price_total": 101,
+          "area_sqm": 98,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [
+        {
+          "type": "pairwise",
+          "winner_listing_id": "c5_b",
+          "loser_listing_id": "c5_a",
+          "spoken_preference": "如果二选一，我还是要 c5_b，面积小一点没关系，但一定要三房。"
+        },
+        {
+          "type": "critique",
+          "text": "户型不喜欢，还是想要三房"
+        }
+      ],
+      "gold": {
+        "top_listing_id": "c5_b",
+        "relevance": {
+          "c5_a": 0,
+          "c5_b": 3,
+          "c5_c": 1,
+          "c5_d": 0
+        },
+        "top1_rules": {
+          "budget_max": 100,
+          "elevator_flag": true,
+          "layout_includes": "3室"
+        }
+      }
+    },
+    {
+      "case_id": "memory_elevator_constraint_easy",
+      "title": "历史偏好中的电梯约束",
+      "tags": ["easy", "memory_profile", "elevator", "hard_constraint"],
+      "query": "给父母住，最好电梯三房，预算110万以内。",
+      "context": {
+        "active_intake": {
+          "intake_id": "intake_eval_006",
+          "city": "上饶",
+          "budget_max": 110,
+          "layout_pref": "3室"
+        },
+        "memory_profile": {
+          "elevator_required": true
+        }
+      },
+      "listings": [
+        {
+          "listing_id": "c6_a",
+          "title": "步梯三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "锦华苑",
+          "price_total": 88,
+          "area_sqm": 95,
+          "layout_desc": "3室2厅",
+          "elevator_flag": false,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c6_b",
+          "title": "电梯舒适三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "江景名邸",
+          "price_total": 98,
+          "area_sqm": 100,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c6_c",
+          "title": "电梯紧凑三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "和润华府",
+          "price_total": 104,
+          "area_sqm": 94,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c6_d",
+          "title": "电梯两房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "东方御苑",
+          "price_total": 92,
+          "area_sqm": 96,
+          "layout_desc": "2室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [],
+      "gold": {
+        "top_listing_id": "c6_b",
+        "relevance": {
+          "c6_a": 0,
+          "c6_b": 3,
+          "c6_c": 1,
+          "c6_d": 0
+        },
+        "top1_rules": {
+          "budget_max": 110,
+          "elevator_flag": true,
+          "layout_includes": "3室"
+        }
+      }
+    },
+    {
+      "case_id": "district_target_area_hard",
+      "title": "active_requirement 中的目标区域硬过滤",
+      "tags": ["easy", "district", "hard_constraint", "active_requirement"],
+      "query": "预算100万以内，先看信州区三房。",
+      "context": {
+        "active_intake": {
+          "intake_id": "intake_eval_007",
+          "city": "上饶",
+          "budget_max": 100,
+          "layout_pref": "3室"
+        },
+        "active_requirement": {
+          "target_area": ["信州区"]
+        },
+        "memory_profile": {}
+      },
+      "listings": [
+        {
+          "listing_id": "c7_a",
+          "title": "信州区标准三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "滨江首府",
+          "price_total": 96,
+          "area_sqm": 95,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c7_b",
+          "title": "广丰区大三房",
+          "city": "上饶",
+          "district": "广丰区",
+          "community_name": "时代天街",
+          "price_total": 88,
+          "area_sqm": 103,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c7_c",
+          "title": "信州区紧凑三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "学府新城",
+          "price_total": 90,
+          "area_sqm": 90,
+          "layout_desc": "3室1厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c7_d",
+          "title": "广丰区两房",
+          "city": "上饶",
+          "district": "广丰区",
+          "community_name": "金色港湾",
+          "price_total": 84,
+          "area_sqm": 92,
+          "layout_desc": "2室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [],
+      "gold": {
+        "top_listing_id": "c7_a",
+        "relevance": {
+          "c7_a": 3,
+          "c7_b": 0,
+          "c7_c": 2,
+          "c7_d": 0
+        },
+        "top1_rules": {
+          "budget_max": 100,
+          "district_equals": "信州区",
+          "layout_includes": "3室"
+        }
+      }
+    },
+    {
+      "case_id": "district_soft_preference_pairwise",
+      "title": "通过 pairwise + critique 表达区域偏好",
+      "tags": ["pairwise", "critique", "district", "soft_preference", "gap_revealing"],
+      "query": "预算100万以内，三房就行。",
+      "context": {
+        "active_intake": {
+          "intake_id": "intake_eval_008",
+          "city": "上饶",
+          "budget_max": 100,
+          "layout_pref": "3室"
+        },
+        "memory_profile": {}
+      },
+      "listings": [
+        {
+          "listing_id": "c8_a",
+          "title": "信州区通勤方便三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "翡翠城",
+          "price_total": 98,
+          "area_sqm": 92,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c8_b",
+          "title": "广丰区更大三房",
+          "city": "上饶",
+          "district": "广丰区",
+          "community_name": "御景湾",
+          "price_total": 88,
+          "area_sqm": 101,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c8_c",
+          "title": "信州区紧凑三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "珑庭",
+          "price_total": 94,
+          "area_sqm": 89,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c8_d",
+          "title": "广丰区标准三房",
+          "city": "上饶",
+          "district": "广丰区",
+          "community_name": "铂金湾",
+          "price_total": 90,
+          "area_sqm": 95,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [
+        {
+          "type": "pairwise",
+          "winner_listing_id": "c8_a",
+          "loser_listing_id": "c8_b",
+          "spoken_preference": "如果只能二选一，我还是更想在信州区。"
+        },
+        {
+          "type": "critique",
+          "text": "区域不合适，还是想在信州区"
+        }
+      ],
+      "gold": {
+        "top_listing_id": "c8_a",
+        "relevance": {
+          "c8_a": 3,
+          "c8_b": 1,
+          "c8_c": 2,
+          "c8_d": 0
+        },
+        "top1_rules": {
+          "budget_max": 100,
+          "district_equals": "信州区",
+          "layout_includes": "3室"
+        }
+      }
+    },
+    {
+      "case_id": "area_min_hard_constraint",
+      "title": "面积下限硬约束",
+      "tags": ["easy", "hard_constraint", "area", "ranking"],
+      "query": "预算105万以内，想要三房，面积至少95平。",
+      "context": {
+        "active_intake": {
+          "intake_id": "intake_eval_009",
+          "city": "上饶",
+          "budget_max": 105,
+          "area_min": 95,
+          "layout_pref": "3室"
+        },
+        "memory_profile": {}
+      },
+      "listings": [
+        {
+          "listing_id": "c9_a",
+          "title": "小面积三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "东投城央",
+          "price_total": 90,
+          "area_sqm": 90,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c9_b",
+          "title": "达标标准三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "云栖台",
+          "price_total": 98,
+          "area_sqm": 96,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c9_c",
+          "title": "更大面积三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "江南壹号",
+          "price_total": 108,
+          "area_sqm": 103,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c9_d",
+          "title": "两房次优解",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "锦悦府",
+          "price_total": 96,
+          "area_sqm": 99,
+          "layout_desc": "2室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [],
+      "gold": {
+        "top_listing_id": "c9_b",
+        "relevance": {
+          "c9_a": 0,
+          "c9_b": 3,
+          "c9_c": 0,
+          "c9_d": 0
+        },
+        "top1_rules": {
+          "budget_max": 105,
+          "area_min": 95,
+          "layout_includes": "3室"
+        }
+      }
+    },
+    {
+      "case_id": "area_soft_preference_pairwise",
+      "title": "通过 pairwise + critique 强化面积偏好",
+      "tags": ["pairwise", "critique", "area", "soft_preference"],
+      "query": "预算100万以内，三房就行。",
+      "context": {
+        "active_intake": {
+          "intake_id": "intake_eval_010",
+          "city": "上饶",
+          "budget_max": 100,
+          "layout_pref": "3室"
+        },
+        "memory_profile": {}
+      },
+      "listings": [
+        {
+          "listing_id": "c10_a",
+          "title": "便宜但偏小三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "新都汇",
+          "price_total": 84,
+          "area_sqm": 86,
+          "layout_desc": "3室1厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c10_b",
+          "title": "宽敞大三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "星河国际",
+          "price_total": 98,
+          "area_sqm": 103,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c10_c",
+          "title": "中等面积三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "上河城",
+          "price_total": 95,
+          "area_sqm": 96,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c10_d",
+          "title": "两房电梯房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "鸿园",
+          "price_total": 89,
+          "area_sqm": 90,
+          "layout_desc": "2室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [
+        {
+          "type": "pairwise",
+          "winner_listing_id": "c10_b",
+          "loser_listing_id": "c10_a",
+          "spoken_preference": "如果只能二选一，我还是想要更宽敞一点。"
+        },
+        {
+          "type": "critique",
+          "text": "面积太小，还是想宽敞点"
+        }
+      ],
+      "gold": {
+        "top_listing_id": "c10_b",
+        "relevance": {
+          "c10_a": 0,
+          "c10_b": 3,
+          "c10_c": 2,
+          "c10_d": 0
+        },
+        "top1_rules": {
+          "budget_max": 100,
+          "area_min": 100,
+          "layout_includes": "3室"
+        }
+      }
+    },
+    {
+      "case_id": "completeness_pairwise_mild",
+      "title": "轻度价格差下的信息完整度偏好",
+      "tags": ["pairwise", "completeness", "soft_preference", "missing_fields"],
+      "query": "预算95万以内，三房优先。",
+      "context": {
+        "active_intake": {
+          "intake_id": "intake_eval_011",
+          "city": "上饶",
+          "budget_max": 95,
+          "layout_pref": "3室"
+        },
+        "memory_profile": {}
+      },
+      "listings": [
+        {
+          "listing_id": "c11_a",
+          "title": "便宜但信息缺很多的三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "锦江城",
+          "price_total": 82,
+          "area_sqm": 94,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": ["orientation", "year_built", "floor_info", "source_url"]
+        },
+        {
+          "listing_id": "c11_b",
+          "title": "信息完整三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "四季花城",
+          "price_total": 89,
+          "area_sqm": 93,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c11_c",
+          "title": "轻微缺失三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "天筑",
+          "price_total": 91,
+          "area_sqm": 95,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": ["orientation"]
+        },
+        {
+          "listing_id": "c11_d",
+          "title": "两房电梯房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "绿城兰园",
+          "price_total": 88,
+          "area_sqm": 92,
+          "layout_desc": "2室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [
+        {
+          "type": "pairwise",
+          "winner_listing_id": "c11_b",
+          "loser_listing_id": "c11_a",
+          "spoken_preference": "信息太残缺的不想看，我更想看靠谱点的。"
+        }
+      ],
+      "gold": {
+        "top_listing_id": "c11_b",
+        "relevance": {
+          "c11_a": 0,
+          "c11_b": 3,
+          "c11_c": 2,
+          "c11_d": 0
+        },
+        "top1_rules": {
+          "budget_max": 95,
+          "layout_includes": "3室",
+          "max_missing_fields": 0
+        }
+      }
+    },
+    {
+      "case_id": "elevator_certainty_pairwise",
+      "title": "明确电梯信息优于待确认",
+      "tags": ["pairwise", "critique", "elevator", "missing_fields", "soft_to_hard"],
+      "query": "预算95万以内，三房就行。",
+      "context": {
+        "active_intake": {
+          "intake_id": "intake_eval_012",
+          "city": "上饶",
+          "budget_max": 95,
+          "layout_pref": "3室"
+        },
+        "memory_profile": {}
+      },
+      "listings": [
+        {
+          "listing_id": "c12_a",
+          "title": "电梯信息待确认三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "国际公馆",
+          "price_total": 86,
+          "area_sqm": 96,
+          "layout_desc": "3室2厅",
+          "elevator_flag": null,
+          "missing_fields_json": ["elevator_flag"]
+        },
+        {
+          "listing_id": "c12_b",
+          "title": "明确电梯三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "滨河首座",
+          "price_total": 92,
+          "area_sqm": 93,
+          "layout_desc": "3室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c12_c",
+          "title": "明确步梯三房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "金港湾",
+          "price_total": 84,
+          "area_sqm": 95,
+          "layout_desc": "3室2厅",
+          "elevator_flag": false,
+          "missing_fields_json": []
+        },
+        {
+          "listing_id": "c12_d",
+          "title": "两房电梯房",
+          "city": "上饶",
+          "district": "信州区",
+          "community_name": "华润里",
+          "price_total": 88,
+          "area_sqm": 90,
+          "layout_desc": "2室2厅",
+          "elevator_flag": true,
+          "missing_fields_json": []
+        }
+      ],
+      "interactions": [
+        {
+          "type": "pairwise",
+          "winner_listing_id": "c12_b",
+          "loser_listing_id": "c12_a",
+          "spoken_preference": "如果二选一，我更放心 c12_b，至少电梯是明确的。"
+        },
+        {
+          "type": "critique",
+          "text": "需要电梯"
+        }
+      ],
+      "gold": {
+        "top_listing_id": "c12_b",
+        "relevance": {
+          "c12_a": 1,
+          "c12_b": 3,
+          "c12_c": 0,
+          "c12_d": 0
+        },
+        "top1_rules": {
+          "budget_max": 95,
+          "elevator_flag": true,
+          "layout_includes": "3室"
+        }
+      }
+    }
+  ]
+}

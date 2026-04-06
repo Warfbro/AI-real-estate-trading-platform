@@ -1,4 +1,4 @@
-const { requireLogin, getSession } = require("../../utils/auth");
+const { requireLogin, getSession, getUserRole } = require("../../utils/auth");
 const { EVENTS, trackEvent, writeActivityLog } = require("../../utils/track");
 const { STORAGE_KEYS, get, set, append, uid } = require("../../utils/storage");
 const {
@@ -6,6 +6,7 @@ const {
   syncListing,
   uploadImportImage
 } = require("../../utils/cloud");
+const { intakeRepo } = require("../../repos/index");
 
 function nowIso() {
   return new Date().toISOString();
@@ -113,6 +114,8 @@ function buildListing({
 
 Page({
   data: {
+    page_title: "添加意向房源",
+    page_subtitle: "将您看中的房源导入系统，稍后即可进行全方位比较与风险评估。",
     source_type: "url",
     source_url: "",
     source_text: "",
@@ -126,13 +129,19 @@ Page({
     has_image_path: false
   },
 
-  onLoad() {
+  onLoad(options = {}) {
+    const isBrokerMode = options.source === "broker" || getUserRole() === "advisor";
+    this.setData({
+      page_title: isBrokerMode ? "上传房源" : "添加意向房源",
+      page_subtitle: isBrokerMode
+        ? "将房源链接、文字或截图上传到平台，后续可供买房用户浏览、收藏与比较。"
+        : "将您看中的房源导入系统，稍后即可进行全方位比较与风险评估。"
+    });
     this.syncTypeViewState();
   },
 
   onShow() {
     trackEvent(EVENTS.PAGE_IMPORT_VIEW);
-    set(STORAGE_KEYS.RECENT_CONTINUE_ROUTE, "/pages/import/index");
   },
 
   handleTypeChange(e) {
@@ -283,9 +292,9 @@ Page({
       return;
     }
 
-    const intakes = get(STORAGE_KEYS.BUYER_INTAKES, [])
-      .filter((item) => item.user_id === session.login_code && item.status === "submitted")
-      .sort((a, b) => (a.updated_at > b.updated_at ? -1 : 1));
+    const intakeResult = intakeRepo.getIntakes({ userId: session.login_code, status: "submitted" });
+    const intakesRaw = intakeResult && intakeResult.status === "success" ? intakeResult.data : [];
+    const intakes = intakesRaw.slice().sort((a, b) => (a.updated_at > b.updated_at ? -1 : 1));
     const latestIntake = intakes.length ? intakes[0] : null;
 
     const importJob = {
@@ -368,7 +377,6 @@ Page({
       icon: "success"
     });
 
-    set(STORAGE_KEYS.RECENT_CONTINUE_ROUTE, "/pages/ai/index");
     setTimeout(() => {
       wx.navigateTo({
         url: "/pages/ai/index"

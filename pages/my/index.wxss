@@ -1,11 +1,27 @@
 page {
-  background: #faf8f5;
+  background:
+    radial-gradient(
+      130% 72% at 12% -10%,
+      rgba(199, 212, 230, 0.82) 0%,
+      rgba(213, 224, 238, 0.66) 34%,
+      rgba(242, 236, 225, 0.18) 72%,
+      rgba(248, 243, 234, 0) 100%
+    ),
+    linear-gradient(180deg, #d9e3f0 0%, #e2e9f2 30%, #eef1f4 58%, #f7f4ed 100%);
 }
 
 .my-page {
   display: flex;
   flex-direction: column;
-  background: #faf8f5;
+  background:
+    radial-gradient(
+      130% 72% at 12% -10%,
+      rgba(199, 212, 230, 0.82) 0%,
+      rgba(213, 224, 238, 0.66) 34%,
+      rgba(242, 236, 225, 0.18) 72%,
+      rgba(248, 243, 234, 0) 100%
+    ),
+    linear-gradient(180deg, #d9e3f0 0%, #e2e9f2 30%, #eef1f4 58%, #f7f4ed 100%);
   position: relative;
   overflow: hidden;
 }
@@ -16,7 +32,7 @@ page {
   left: 0;
   right: 0;
   height: 96rpx;
-  background: #faf8f5;
+  background: linear-gradient(180deg, #d9e3f0 0%, #e2e9f2 80%, rgba(226, 233, 242, 0) 100%);
   pointer-events: none;
   z-index: 1;
 }
@@ -37,9 +53,9 @@ page {
 
 .entry-row {
   border-radius: 24rpx;
-  background: #ffffff;
-  border: 2rpx solid rgba(92, 64, 51, 0.16);
-  box-shadow: 0 12rpx 28rpx rgba(92, 64, 51, 0.08);
+  background: rgba(255, 255, 255, 0.97);
+  border: 2rpx solid rgba(205, 217, 235, 0.96);
+  box-shadow: 0 12rpx 28rpx rgba(102, 123, 156, 0.12);
   padding: 24rpx 22rpx;
   box-sizing: border-box;
   display: flex;
@@ -56,7 +72,7 @@ page {
 .entry-title {
   font-size: 34rpx;
   font-weight: 700;
-  color: #4a3328;
+  color: #243247;
   line-height: 1.2;
 }
 
@@ -64,7 +80,7 @@ page {
   margin-top: 8rpx;
   font-size: 23rpx;
   line-height: 1.45;
-  color: #7a6c61;
+  color: #6f7f93;
 }
 
 .entry-arrow {
@@ -73,10 +89,9 @@ page {
   text-align: center;
   font-size: 40rpx;
   line-height: 1;
-  color: #9a8f86;
+  color: #9daec6;
 }
 
 .row-hover {
-  opacity: 0.9;
+  opacity: 0.92;
 }
-

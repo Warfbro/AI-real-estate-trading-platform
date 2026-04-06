@@ -1,0 +1,2253 @@
+{
+  "dataset_version": "2026-03-26.v3",
+  "generated_at": "2026-03-26T12:13:00.908Z",
+  "dataset_overview": {
+    "total_cases": 20,
+    "tag_counts": {
+      "budget_constraint": 20,
+      "demand": 20,
+      "layout_specified": 20,
+      "school_priority": 10,
+      "低总价上车": 10,
+      "学区刚需": 10
+    }
+  },
+  "provider": {
+    "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
+    "model": "qwen-plus",
+    "proxy_enabled": true
+  },
+  "summaries": [
+    {
+      "baseline": "Current System",
+      "total_cases": 20,
+      "successful_cases": 18,
+      "top1_accuracy": 0.75,
+      "hit_at_3": 0.9,
+      "ndcg_at_3": 0.7996,
+      "top1_rule_hit_rate": 0.9,
+      "pairwise_win_rate": null,
+      "by_tag": {
+        "budget_constraint": {
+          "total_cases": 20,
+          "successful_cases": 18,
+          "top1_accuracy": 0.75,
+          "hit_at_3": 0.9,
+          "ndcg_at_3": 0.7996,
+          "top1_rule_hit_rate": 0.9,
+          "pairwise_win_rate": null
+        },
+        "demand": {
+          "total_cases": 20,
+          "successful_cases": 18,
+          "top1_accuracy": 0.75,
+          "hit_at_3": 0.9,
+          "ndcg_at_3": 0.7996,
+          "top1_rule_hit_rate": 0.9,
+          "pairwise_win_rate": null
+        },
+        "layout_specified": {
+          "total_cases": 20,
+          "successful_cases": 18,
+          "top1_accuracy": 0.75,
+          "hit_at_3": 0.9,
+          "ndcg_at_3": 0.7996,
+          "top1_rule_hit_rate": 0.9,
+          "pairwise_win_rate": null
+        },
+        "school_priority": {
+          "total_cases": 10,
+          "successful_cases": 8,
+          "top1_accuracy": 0.5,
+          "hit_at_3": 0.8,
+          "ndcg_at_3": 0.6607,
+          "top1_rule_hit_rate": 0.8,
+          "pairwise_win_rate": null
+        },
+        "低总价上车": {
+          "total_cases": 10,
+          "successful_cases": 10,
+          "top1_accuracy": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9385,
+          "top1_rule_hit_rate": 1,
+          "pairwise_win_rate": null
+        },
+        "学区刚需": {
+          "total_cases": 10,
+          "successful_cases": 8,
+          "top1_accuracy": 0.5,
+          "hit_at_3": 0.8,
+          "ndcg_at_3": 0.6607,
+          "top1_rule_hit_rate": 0.8,
+          "pairwise_win_rate": null
+        }
+      },
+      "case_results": [
+        {
+          "case_id": "d001",
+          "title": "学区刚需 - 预算90",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L002",
+          "predicted_top_listing_id": "L002",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9721,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L002",
+            "L013",
+            "L039"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d002",
+          "title": "学区刚需 - 预算95",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L018",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9049,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L018",
+            "L035",
+            "L025",
+            "L001"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d003",
+          "title": "学区刚需 - 预算100",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L028",
+          "top1_hit": 0,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.6299,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L028",
+            "L018",
+            "L025",
+            "L035",
+            "L001"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d004",
+          "title": "学区刚需 - 预算105",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L018",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9468,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L018",
+            "L025",
+            "L035",
+            "L028",
+            "L001"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d005",
+          "title": "学区刚需 - 预算110",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L028",
+          "top1_hit": 0,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.6299,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L028",
+            "L018",
+            "L025",
+            "L035",
+            "L001"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d006",
+          "title": "学区刚需 - 预算115",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L018",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9468,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L018",
+            "L025",
+            "L035",
+            "L028",
+            "L001"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d007",
+          "title": "学区刚需 - 预算120",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "待补充",
+          "predicted_top_listing_id": "",
+          "top1_hit": 0,
+          "hit_at_3": 0,
+          "ndcg_at_3": 0,
+          "top1_rule_hit": 0,
+          "pairwise_win_rate": null,
+          "ranking": [],
+          "error": "DECISION_NO_LISTINGS"
+        },
+        {
+          "case_id": "d008",
+          "title": "学区刚需 - 预算125",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L028",
+          "top1_hit": 0,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.6299,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L028",
+            "L018",
+            "L025",
+            "L035",
+            "L001"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d009",
+          "title": "学区刚需 - 预算130",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L018",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9468,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L018",
+            "L025",
+            "L035",
+            "L028",
+            "L001"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d010",
+          "title": "学区刚需 - 预算135",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "待补充",
+          "predicted_top_listing_id": "",
+          "top1_hit": 0,
+          "hit_at_3": 0,
+          "ndcg_at_3": 0,
+          "top1_rule_hit": 0,
+          "pairwise_win_rate": null,
+          "ranking": [],
+          "error": "DECISION_NO_LISTINGS"
+        },
+        {
+          "case_id": "d011",
+          "title": "低总价上车 - 预算70",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L095",
+          "predicted_top_listing_id": "L095",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9721,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L095",
+            "L120",
+            "L119",
+            "L098"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d012",
+          "title": "低总价上车 - 预算75",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L095",
+          "predicted_top_listing_id": "L095",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9721,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L095",
+            "L120",
+            "L119",
+            "L098",
+            "L082"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d013",
+          "title": "低总价上车 - 预算80",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L095",
+          "predicted_top_listing_id": "L095",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9721,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L095",
+            "L120",
+            "L119",
+            "L098",
+            "L082"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d014",
+          "title": "低总价上车 - 预算82",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L095",
+          "predicted_top_listing_id": "L095",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9721,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L095",
+            "L120",
+            "L119",
+            "L098",
+            "L082"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d015",
+          "title": "低总价上车 - 预算85",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L095",
+          "predicted_top_listing_id": "L095",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9721,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L095",
+            "L120",
+            "L119",
+            "L098",
+            "L082"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d016",
+          "title": "低总价上车 - 预算88",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L116",
+          "predicted_top_listing_id": "L116",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9049,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L116",
+            "L114",
+            "L103",
+            "L111",
+            "L099"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d017",
+          "title": "低总价上车 - 预算90",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L116",
+          "predicted_top_listing_id": "L116",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9049,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L116",
+            "L114",
+            "L103",
+            "L111",
+            "L099"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d018",
+          "title": "低总价上车 - 预算92",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L116",
+          "predicted_top_listing_id": "L116",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9049,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L116",
+            "L114",
+            "L103",
+            "L111",
+            "L099"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d019",
+          "title": "低总价上车 - 预算95",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L116",
+          "predicted_top_listing_id": "L116",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9049,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L116",
+            "L114",
+            "L103",
+            "L111",
+            "L099"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d020",
+          "title": "低总价上车 - 预算98",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L116",
+          "predicted_top_listing_id": "L116",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9049,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L116",
+            "L114",
+            "L103",
+            "L111",
+            "L099"
+          ],
+          "error": ""
+        }
+      ]
+    },
+    {
+      "baseline": "Baseline 1 - Pure Rules",
+      "total_cases": 20,
+      "successful_cases": 20,
+      "top1_accuracy": 0.75,
+      "hit_at_3": 0.9,
+      "ndcg_at_3": 0.8205,
+      "top1_rule_hit_rate": 0.9,
+      "pairwise_win_rate": null,
+      "by_tag": {
+        "budget_constraint": {
+          "total_cases": 20,
+          "successful_cases": 20,
+          "top1_accuracy": 0.75,
+          "hit_at_3": 0.9,
+          "ndcg_at_3": 0.8205,
+          "top1_rule_hit_rate": 0.9,
+          "pairwise_win_rate": null
+        },
+        "demand": {
+          "total_cases": 20,
+          "successful_cases": 20,
+          "top1_accuracy": 0.75,
+          "hit_at_3": 0.9,
+          "ndcg_at_3": 0.8205,
+          "top1_rule_hit_rate": 0.9,
+          "pairwise_win_rate": null
+        },
+        "layout_specified": {
+          "total_cases": 20,
+          "successful_cases": 20,
+          "top1_accuracy": 0.75,
+          "hit_at_3": 0.9,
+          "ndcg_at_3": 0.8205,
+          "top1_rule_hit_rate": 0.9,
+          "pairwise_win_rate": null
+        },
+        "school_priority": {
+          "total_cases": 10,
+          "successful_cases": 10,
+          "top1_accuracy": 0.5,
+          "hit_at_3": 0.8,
+          "ndcg_at_3": 0.6677,
+          "top1_rule_hit_rate": 0.8,
+          "pairwise_win_rate": null
+        },
+        "低总价上车": {
+          "total_cases": 10,
+          "successful_cases": 10,
+          "top1_accuracy": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9734,
+          "top1_rule_hit_rate": 1,
+          "pairwise_win_rate": null
+        },
+        "学区刚需": {
+          "total_cases": 10,
+          "successful_cases": 10,
+          "top1_accuracy": 0.5,
+          "hit_at_3": 0.8,
+          "ndcg_at_3": 0.6677,
+          "top1_rule_hit_rate": 0.8,
+          "pairwise_win_rate": null
+        }
+      },
+      "case_results": [
+        {
+          "case_id": "d001",
+          "title": "学区刚需 - 预算90",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L002",
+          "predicted_top_listing_id": "L002",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 1,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L002",
+            "L039",
+            "L013"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d002",
+          "title": "学区刚需 - 预算95",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L018",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9468,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L018",
+            "L025",
+            "L035",
+            "L001"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d003",
+          "title": "学区刚需 - 预算100",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L028",
+          "top1_hit": 0,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.6299,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L028",
+            "L018",
+            "L025",
+            "L035",
+            "L001",
+            "L015"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d004",
+          "title": "学区刚需 - 预算105",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L018",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9468,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L018",
+            "L025",
+            "L035",
+            "L001",
+            "L015",
+            "L028"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d005",
+          "title": "学区刚需 - 预算110",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L028",
+          "top1_hit": 0,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.6299,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L028",
+            "L018",
+            "L025",
+            "L035",
+            "L001",
+            "L015"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d006",
+          "title": "学区刚需 - 预算115",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L018",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9468,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L018",
+            "L025",
+            "L035",
+            "L001",
+            "L015",
+            "L028"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d007",
+          "title": "学区刚需 - 预算120",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "待补充",
+          "predicted_top_listing_id": "",
+          "top1_hit": 0,
+          "hit_at_3": 0,
+          "ndcg_at_3": 0,
+          "top1_rule_hit": 0,
+          "pairwise_win_rate": null,
+          "ranking": [],
+          "error": ""
+        },
+        {
+          "case_id": "d008",
+          "title": "学区刚需 - 预算125",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L028",
+          "top1_hit": 0,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.6299,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L028",
+            "L018",
+            "L025",
+            "L035",
+            "L001",
+            "L015"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d009",
+          "title": "学区刚需 - 预算130",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L018",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9468,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L018",
+            "L025",
+            "L035",
+            "L001",
+            "L015",
+            "L028"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d010",
+          "title": "学区刚需 - 预算135",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "待补充",
+          "predicted_top_listing_id": "",
+          "top1_hit": 0,
+          "hit_at_3": 0,
+          "ndcg_at_3": 0,
+          "top1_rule_hit": 0,
+          "pairwise_win_rate": null,
+          "ranking": [],
+          "error": ""
+        },
+        {
+          "case_id": "d011",
+          "title": "低总价上车 - 预算70",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L095",
+          "predicted_top_listing_id": "L095",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 1,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L095",
+            "L119",
+            "L120",
+            "L098"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d012",
+          "title": "低总价上车 - 预算75",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L095",
+          "predicted_top_listing_id": "L095",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 1,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L095",
+            "L119",
+            "L120",
+            "L098",
+            "L082",
+            "L126"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d013",
+          "title": "低总价上车 - 预算80",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L095",
+          "predicted_top_listing_id": "L095",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 1,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L095",
+            "L119",
+            "L120",
+            "L098",
+            "L082",
+            "L126"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d014",
+          "title": "低总价上车 - 预算82",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L095",
+          "predicted_top_listing_id": "L095",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 1,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L095",
+            "L119",
+            "L120",
+            "L098",
+            "L082",
+            "L126"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d015",
+          "title": "低总价上车 - 预算85",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L095",
+          "predicted_top_listing_id": "L095",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 1,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L095",
+            "L119",
+            "L120",
+            "L098",
+            "L082",
+            "L126"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d016",
+          "title": "低总价上车 - 预算88",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L116",
+          "predicted_top_listing_id": "L116",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9468,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L116",
+            "L103",
+            "L114",
+            "L099",
+            "L094",
+            "L111"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d017",
+          "title": "低总价上车 - 预算90",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L116",
+          "predicted_top_listing_id": "L116",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9468,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L116",
+            "L103",
+            "L114",
+            "L099",
+            "L094",
+            "L111"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d018",
+          "title": "低总价上车 - 预算92",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L116",
+          "predicted_top_listing_id": "L116",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9468,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L116",
+            "L103",
+            "L114",
+            "L099",
+            "L094",
+            "L111"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d019",
+          "title": "低总价上车 - 预算95",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L116",
+          "predicted_top_listing_id": "L116",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9468,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L116",
+            "L103",
+            "L114",
+            "L099",
+            "L094",
+            "L111"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d020",
+          "title": "低总价上车 - 预算98",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L116",
+          "predicted_top_listing_id": "L116",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9468,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L116",
+            "L103",
+            "L114",
+            "L099",
+            "L094",
+            "L111"
+          ],
+          "error": ""
+        }
+      ]
+    },
+    {
+      "baseline": "Baseline 2 - LLM Direct",
+      "total_cases": 20,
+      "successful_cases": 20,
+      "top1_accuracy": 0.55,
+      "hit_at_3": 0.65,
+      "ndcg_at_3": 0.656,
+      "top1_rule_hit_rate": 0.7,
+      "pairwise_win_rate": null,
+      "by_tag": {
+        "budget_constraint": {
+          "total_cases": 20,
+          "successful_cases": 20,
+          "top1_accuracy": 0.55,
+          "hit_at_3": 0.65,
+          "ndcg_at_3": 0.656,
+          "top1_rule_hit_rate": 0.7,
+          "pairwise_win_rate": null
+        },
+        "demand": {
+          "total_cases": 20,
+          "successful_cases": 20,
+          "top1_accuracy": 0.55,
+          "hit_at_3": 0.65,
+          "ndcg_at_3": 0.656,
+          "top1_rule_hit_rate": 0.7,
+          "pairwise_win_rate": null
+        },
+        "layout_specified": {
+          "total_cases": 20,
+          "successful_cases": 20,
+          "top1_accuracy": 0.55,
+          "hit_at_3": 0.65,
+          "ndcg_at_3": 0.656,
+          "top1_rule_hit_rate": 0.7,
+          "pairwise_win_rate": null
+        },
+        "school_priority": {
+          "total_cases": 10,
+          "successful_cases": 10,
+          "top1_accuracy": 0.2,
+          "hit_at_3": 0.4,
+          "ndcg_at_3": 0.4227,
+          "top1_rule_hit_rate": 0.5,
+          "pairwise_win_rate": null
+        },
+        "低总价上车": {
+          "total_cases": 10,
+          "successful_cases": 10,
+          "top1_accuracy": 0.9,
+          "hit_at_3": 0.9,
+          "ndcg_at_3": 0.8894,
+          "top1_rule_hit_rate": 0.9,
+          "pairwise_win_rate": null
+        },
+        "学区刚需": {
+          "total_cases": 10,
+          "successful_cases": 10,
+          "top1_accuracy": 0.2,
+          "hit_at_3": 0.4,
+          "ndcg_at_3": 0.4227,
+          "top1_rule_hit_rate": 0.5,
+          "pairwise_win_rate": null
+        }
+      },
+      "case_results": [
+        {
+          "case_id": "d001",
+          "title": "学区刚需 - 预算90",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L002",
+          "predicted_top_listing_id": "L013",
+          "top1_hit": 0,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.6806,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L013",
+            "L039",
+            "L002"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d002",
+          "title": "学区刚需 - 预算95",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L018",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9468,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L018",
+            "L025",
+            "L035"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d003",
+          "title": "学区刚需 - 预算100",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L025",
+          "top1_hit": 0,
+          "hit_at_3": 0,
+          "ndcg_at_3": 0.3194,
+          "top1_rule_hit": 0,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L025",
+            "L035",
+            "L028"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d004",
+          "title": "学区刚需 - 预算105",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L018",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 1,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L018",
+            "L025",
+            "L001"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d005",
+          "title": "学区刚需 - 预算110",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L035",
+          "top1_hit": 0,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.5741,
+          "top1_rule_hit": 0,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L035",
+            "L025",
+            "L018"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d006",
+          "title": "学区刚需 - 预算115",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L035",
+          "top1_hit": 0,
+          "hit_at_3": 0,
+          "ndcg_at_3": 0.0672,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L035",
+            "L001",
+            "L015"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d007",
+          "title": "学区刚需 - 预算120",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "待补充",
+          "predicted_top_listing_id": "",
+          "top1_hit": 0,
+          "hit_at_3": 0,
+          "ndcg_at_3": 0,
+          "top1_rule_hit": 0,
+          "pairwise_win_rate": null,
+          "ranking": [],
+          "error": ""
+        },
+        {
+          "case_id": "d008",
+          "title": "学区刚需 - 预算125",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L025",
+          "top1_hit": 0,
+          "hit_at_3": 0,
+          "ndcg_at_3": 0.3194,
+          "top1_rule_hit": 0,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L025",
+            "L035",
+            "L015"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d009",
+          "title": "学区刚需 - 预算130",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L025",
+          "top1_hit": 0,
+          "hit_at_3": 0,
+          "ndcg_at_3": 0.3194,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L025",
+            "L035",
+            "L015"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d010",
+          "title": "学区刚需 - 预算135",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "待补充",
+          "predicted_top_listing_id": "",
+          "top1_hit": 0,
+          "hit_at_3": 0,
+          "ndcg_at_3": 0,
+          "top1_rule_hit": 0,
+          "pairwise_win_rate": null,
+          "ranking": [],
+          "error": ""
+        },
+        {
+          "case_id": "d011",
+          "title": "低总价上车 - 预算70",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L095",
+          "predicted_top_listing_id": "L095",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9468,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L095",
+            "L119",
+            "L098"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d012",
+          "title": "低总价上车 - 预算75",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L095",
+          "predicted_top_listing_id": "L095",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 1,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L095",
+            "L119",
+            "L120"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d013",
+          "title": "低总价上车 - 预算80",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L095",
+          "predicted_top_listing_id": "L095",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 1,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L095",
+            "L119",
+            "L120"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d014",
+          "title": "低总价上车 - 预算82",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L095",
+          "predicted_top_listing_id": "L095",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 1,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L095",
+            "L119",
+            "L120"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d015",
+          "title": "低总价上车 - 预算85",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L095",
+          "predicted_top_listing_id": "L095",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 1,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L095",
+            "L119",
+            "L120"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d016",
+          "title": "低总价上车 - 预算88",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L116",
+          "predicted_top_listing_id": "L116",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 1,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L116",
+            "L103",
+            "L099"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d017",
+          "title": "低总价上车 - 预算90",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L116",
+          "predicted_top_listing_id": "L111",
+          "top1_hit": 0,
+          "hit_at_3": 0,
+          "ndcg_at_3": 0,
+          "top1_rule_hit": 0,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L111",
+            "L094",
+            "L114"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d018",
+          "title": "低总价上车 - 预算92",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L116",
+          "predicted_top_listing_id": "L116",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 1,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L116",
+            "L103",
+            "L099"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d019",
+          "title": "低总价上车 - 预算95",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L116",
+          "predicted_top_listing_id": "L116",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9468,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L116",
+            "L103",
+            "L114"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d020",
+          "title": "低总价上车 - 预算98",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L116",
+          "predicted_top_listing_id": "L116",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 1,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L116",
+            "L103",
+            "L099"
+          ],
+          "error": ""
+        }
+      ]
+    },
+    {
+      "baseline": "Baseline 3 - No Explicit State",
+      "total_cases": 20,
+      "successful_cases": 20,
+      "top1_accuracy": 0.75,
+      "hit_at_3": 0.9,
+      "ndcg_at_3": 0.7996,
+      "top1_rule_hit_rate": 0.9,
+      "pairwise_win_rate": null,
+      "by_tag": {
+        "budget_constraint": {
+          "total_cases": 20,
+          "successful_cases": 20,
+          "top1_accuracy": 0.75,
+          "hit_at_3": 0.9,
+          "ndcg_at_3": 0.7996,
+          "top1_rule_hit_rate": 0.9,
+          "pairwise_win_rate": null
+        },
+        "demand": {
+          "total_cases": 20,
+          "successful_cases": 20,
+          "top1_accuracy": 0.75,
+          "hit_at_3": 0.9,
+          "ndcg_at_3": 0.7996,
+          "top1_rule_hit_rate": 0.9,
+          "pairwise_win_rate": null
+        },
+        "layout_specified": {
+          "total_cases": 20,
+          "successful_cases": 20,
+          "top1_accuracy": 0.75,
+          "hit_at_3": 0.9,
+          "ndcg_at_3": 0.7996,
+          "top1_rule_hit_rate": 0.9,
+          "pairwise_win_rate": null
+        },
+        "school_priority": {
+          "total_cases": 10,
+          "successful_cases": 10,
+          "top1_accuracy": 0.5,
+          "hit_at_3": 0.8,
+          "ndcg_at_3": 0.6607,
+          "top1_rule_hit_rate": 0.8,
+          "pairwise_win_rate": null
+        },
+        "低总价上车": {
+          "total_cases": 10,
+          "successful_cases": 10,
+          "top1_accuracy": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9385,
+          "top1_rule_hit_rate": 1,
+          "pairwise_win_rate": null
+        },
+        "学区刚需": {
+          "total_cases": 10,
+          "successful_cases": 10,
+          "top1_accuracy": 0.5,
+          "hit_at_3": 0.8,
+          "ndcg_at_3": 0.6607,
+          "top1_rule_hit_rate": 0.8,
+          "pairwise_win_rate": null
+        }
+      },
+      "case_results": [
+        {
+          "case_id": "d001",
+          "title": "学区刚需 - 预算90",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L002",
+          "predicted_top_listing_id": "L002",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9721,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L002",
+            "L013",
+            "L039"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d002",
+          "title": "学区刚需 - 预算95",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L018",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9049,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L018",
+            "L035",
+            "L025",
+            "L001"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d003",
+          "title": "学区刚需 - 预算100",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L028",
+          "top1_hit": 0,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.6299,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L028",
+            "L018",
+            "L025",
+            "L035",
+            "L001"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d004",
+          "title": "学区刚需 - 预算105",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L018",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9468,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L018",
+            "L025",
+            "L035",
+            "L028",
+            "L001"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d005",
+          "title": "学区刚需 - 预算110",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L028",
+          "top1_hit": 0,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.6299,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L028",
+            "L018",
+            "L025",
+            "L035",
+            "L001"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d006",
+          "title": "学区刚需 - 预算115",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L018",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9468,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L018",
+            "L025",
+            "L035",
+            "L028",
+            "L001"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d007",
+          "title": "学区刚需 - 预算120",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "待补充",
+          "predicted_top_listing_id": "",
+          "top1_hit": 0,
+          "hit_at_3": 0,
+          "ndcg_at_3": 0,
+          "top1_rule_hit": 0,
+          "pairwise_win_rate": null,
+          "ranking": [],
+          "error": ""
+        },
+        {
+          "case_id": "d008",
+          "title": "学区刚需 - 预算125",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L028",
+          "top1_hit": 0,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.6299,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L028",
+            "L018",
+            "L025",
+            "L035",
+            "L001"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d009",
+          "title": "学区刚需 - 预算130",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L018",
+          "predicted_top_listing_id": "L018",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9468,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L018",
+            "L025",
+            "L035",
+            "L028",
+            "L001"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d010",
+          "title": "学区刚需 - 预算135",
+          "tags": [
+            "demand",
+            "学区刚需",
+            "budget_constraint",
+            "school_priority",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "待补充",
+          "predicted_top_listing_id": "",
+          "top1_hit": 0,
+          "hit_at_3": 0,
+          "ndcg_at_3": 0,
+          "top1_rule_hit": 0,
+          "pairwise_win_rate": null,
+          "ranking": [],
+          "error": ""
+        },
+        {
+          "case_id": "d011",
+          "title": "低总价上车 - 预算70",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L095",
+          "predicted_top_listing_id": "L095",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9721,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L095",
+            "L120",
+            "L119",
+            "L098"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d012",
+          "title": "低总价上车 - 预算75",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L095",
+          "predicted_top_listing_id": "L095",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9721,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L095",
+            "L120",
+            "L119",
+            "L098",
+            "L082"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d013",
+          "title": "低总价上车 - 预算80",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L095",
+          "predicted_top_listing_id": "L095",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9721,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L095",
+            "L120",
+            "L119",
+            "L098",
+            "L082"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d014",
+          "title": "低总价上车 - 预算82",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L095",
+          "predicted_top_listing_id": "L095",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9721,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L095",
+            "L120",
+            "L119",
+            "L098",
+            "L082"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d015",
+          "title": "低总价上车 - 预算85",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L095",
+          "predicted_top_listing_id": "L095",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9721,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L095",
+            "L120",
+            "L119",
+            "L098",
+            "L082"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d016",
+          "title": "低总价上车 - 预算88",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L116",
+          "predicted_top_listing_id": "L116",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9049,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L116",
+            "L114",
+            "L103",
+            "L111",
+            "L099"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d017",
+          "title": "低总价上车 - 预算90",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L116",
+          "predicted_top_listing_id": "L116",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9049,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L116",
+            "L114",
+            "L103",
+            "L111",
+            "L099"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d018",
+          "title": "低总价上车 - 预算92",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L116",
+          "predicted_top_listing_id": "L116",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9049,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L116",
+            "L114",
+            "L103",
+            "L111",
+            "L099"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d019",
+          "title": "低总价上车 - 预算95",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L116",
+          "predicted_top_listing_id": "L116",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9049,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L116",
+            "L114",
+            "L103",
+            "L111",
+            "L099"
+          ],
+          "error": ""
+        },
+        {
+          "case_id": "d020",
+          "title": "低总价上车 - 预算98",
+          "tags": [
+            "demand",
+            "低总价上车",
+            "budget_constraint",
+            "layout_specified"
+          ],
+          "gold_top_listing_id": "L116",
+          "predicted_top_listing_id": "L116",
+          "top1_hit": 1,
+          "hit_at_3": 1,
+          "ndcg_at_3": 0.9049,
+          "top1_rule_hit": 1,
+          "pairwise_win_rate": null,
+          "ranking": [
+            "L116",
+            "L114",
+            "L103",
+            "L111",
+            "L099"
+          ],
+          "error": ""
+        }
+      ]
+    }
+  ]
+}

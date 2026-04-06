@@ -1,5 +1,13 @@
 page {
-  background: #faf8f5;
+  background:
+    radial-gradient(
+      130% 72% at 12% -10%,
+      rgba(199, 212, 230, 0.82) 0%,
+      rgba(213, 224, 238, 0.66) 34%,
+      rgba(242, 236, 225, 0.18) 72%,
+      rgba(248, 243, 234, 0) 100%
+    ),
+    linear-gradient(180deg, #d9e3f0 0%, #e2e9f2 30%, #eef1f4 58%, #f7f4ed 100%);
 }
 
 .favorites-page {
@@ -12,8 +20,8 @@ page {
   margin-top: 10rpx;
   border-radius: 24rpx;
   background: #ffffff;
-  border: 2rpx solid rgba(92, 64, 51, 0.16);
-  box-shadow: 0 12rpx 28rpx rgba(92, 64, 51, 0.08);
+  border: 2rpx solid rgba(205, 217, 235, 0.96);
+  box-shadow: 0 12rpx 28rpx rgba(102, 123, 156, 0.12);
   padding: 22rpx;
   box-sizing: border-box;
 }
@@ -29,7 +37,7 @@ page {
   font-size: 34rpx;
   line-height: 1.2;
   font-weight: 700;
-  color: #4a3328;
+  color: #243247;
 }
 
 .favorites-edit {
@@ -37,8 +45,8 @@ page {
   height: 46rpx;
   padding: 0 16rpx;
   border-radius: 999rpx;
-  background: #efe1d4;
-  color: #4a3328;
+  background: rgba(214, 224, 239, 0.92);
+  color: #31507b;
   font-size: 24rpx;
   font-weight: 600;
   display: flex;
@@ -50,7 +58,7 @@ page {
 .favorites-empty {
   margin-top: 8rpx;
   font-size: 24rpx;
-  color: #7d6f64;
+  color: #6f7f93;
   line-height: 1.5;
 }
 
@@ -58,8 +66,8 @@ page {
   margin-top: 14rpx;
   padding: 16rpx;
   border-radius: 18rpx;
-  background: #fffdf9;
-  border: 1rpx solid rgba(92, 64, 51, 0.14);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1rpx solid rgba(205, 217, 235, 0.96);
   display: flex;
   align-items: center;
   gap: 12rpx;
@@ -74,7 +82,7 @@ page {
   font-size: 28rpx;
   line-height: 1.28;
   font-weight: 600;
-  color: #2f261f;
+  color: #243247;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -83,7 +91,7 @@ page {
 .favorite-meta {
   margin-top: 6rpx;
   font-size: 22rpx;
-  color: #7a6c61;
+  color: #6f7f93;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -113,4 +121,3 @@ page {
   justify-content: center;
   box-sizing: border-box;
 }
-

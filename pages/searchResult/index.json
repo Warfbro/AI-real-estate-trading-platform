@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "传统搜索",
+  "navigationBarTitleText": "搜索结果",
   "usingComponents": {
     "favorite-chip": "/components/favorite-chip/index"
   }

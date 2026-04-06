@@ -1,7 +1,7 @@
 ﻿<view class="page-container">
   <view class="circle-anim-bg" wx:if="{{showAnim}}"></view>
 
-  <view class="chat-core" style="top: {{totalNavHeight}}px;">
+  <view class="chat-core" style="top: {{chatTopOffset}}px;">
     <scroll-view class="chat-scroll" scroll-y scroll-into-view="{{scrollTo}}">
       <view class="chat-list">
         <view
@@ -175,13 +175,13 @@
   <view
     class="chat-mask"
     wx:if="{{offset > -drawerHeight}}"
-    style="top: {{totalNavHeight}}px; opacity: {{(offset + drawerHeight) / drawerHeight * 0.45}}; transition: {{isDragging ? 'none' : 'opacity 0.6s cubic-bezier(0.25, 1.05, 0.4, 1)'}}"
+    style="top: {{drawerTopOffset}}px; opacity: {{(offset + drawerHeight) / drawerHeight * 0.45}}; transition: {{isDragging ? 'none' : 'opacity 0.6s cubic-bezier(0.25, 1.05, 0.4, 1)'}}"
   >
   </view>
 
   <view
     class="blind-drawer"
-    style="top: {{totalNavHeight}}px; transform: translateY({{offset}}px); transition: {{isDragging ? 'none' : 'transform 0.6s cubic-bezier(0.25, 1.05, 0.4, 1)'}}"
+    style="top: {{drawerTopOffset}}px; transform: translateY({{offset}}px); transition: {{isDragging ? 'none' : 'transform 0.6s cubic-bezier(0.25, 1.05, 0.4, 1)'}}"
   >
     <view class="history-content" style="height: {{drawerHeight}}px;">
       <view class="drawer-content-inner">

@@ -1,0 +1,707 @@
+可落实的分阶段改进方案（终局目标不删减，通过增加阶段来落地）
+
+一、方案定位
+
+这份方案不是削减最终目标，而是把最终目标拆成可以连续执行的阶段方案。
+
+最终目标保持不变：
+1. 前端收束为事件驱动的 AI 工作台。
+2. 后端稳定为三层边界：检索层、生成层、工作流层。
+3. 数据层最终具备：业务真相数据、检索增强数据、工作流状态数据三部分。
+4. 后续可平滑升级到真正的 RAG 与更强的状态图/工作流编排方案。
+5. 前端不感知内部到底是普通检索、混合检索、向量检索还是 RAG，也不感知内部到底是手写状态机还是更强的工作流框架。
+
+因此，本方案的核心原则是：
+- 不删减终局结构。
+- 不在当前阶段一次性把所有终局能力全部压上去。
+- 通过增加实施阶段，逐步启用终局能力。
+- 每个阶段都必须能运行、能演示、能验收、能回退。
+
+二、终局架构不变
+
+终局仍然是以下结构：
+
+1. 前端交互层
+前端最终只负责：
+- 用户输入与消息展示
+- 卡片渲染
+- 页面跳转
+- 线程切换
+- loading / toast / drawer 等界面状态
+- 调用云端统一入口
+
+前端最终只感知：
+- event
+- current_stage
+- current_node
+- ui_blocks
+- wait_for_input
+
+前端最终不感知：
+- 是否使用向量数据库
+- 是否已经切到 RAG
+- 是否已经切到更复杂的工作流框架
+- 检索内部的召回、合并、重排细节
+
+2. 云端业务编排层
+最终稳定为三层：
+
+（1）检索层 retrieval
+只负责：
+- 解析检索条件
+- 召回候选
+- 返回证据
+- 混合检索与重排
+
+（2）生成层 llm
+只负责：
+- 需求理解
+- 澄清问题
+- 解释候选
+- 总结输出
+
+（3）工作流层 workflow
+只负责：
+- 状态推进
+- 中断恢复
+- 节点切换
+- 输出前端 ui_blocks
+
+3. 数据层
+最终分三类：
+
+（1）业务真相数据
+- 房源
+- 用户
+- 收藏
+- 预约
+- 咨询
+- 线程等基础业务数据
+
+（2）检索增强数据
+- 搜索文档表
+- 向量/embedding
+- chunk 数据
+- 检索缓存
+
+（3）工作流状态数据
+- workflow_sessions
+- workflow_events
+- workflow_checkpoints
+
+三、技术边界原则
+
+1. 微信小程序官方能力是底座
+本项目的基础运行能力优先建立在微信小程序官方能力上：
+- 页面与路由
+- 登录态
+- 本地缓存
+- 页面生命周期
+- 云函数调用
+- 云数据库基础承载
+- 管理端基础数据操作
+
+2. 第三方服务是增强层
+第三方服务只接在这些增强位点：
+- LLM 能力
+- embedding 能力
+- 向量检索
+- rerank
+- 后续真正的 RAG
+- 后续更复杂的工作流编排
+
+3. 第三方能力统一走后端网关
+小程序前端不直连第三方检索、向量库、模型服务。
+统一由：
+- utils/cloud.js 封装的前端调用层
+- 云函数 / 后端接口网关
+负责向第三方发请求。
+
+这样可以保证：
+- 安全性
+- 可替换性
+- 可灰度发布
+- 可回退
+
+四、总体实施思路
+
+实施不是删减终局，而是按阶段启用终局能力。
+
+本方案分为九个阶段：
+- 阶段0：现状冻结与边界梳理
+- 阶段1：页面层瘦身与 AI 页职责拆分
+- 阶段2：统一调用协议与网关层建立
+- 阶段3：工作流入口统一与状态机内核收口
+- 阶段4：状态持久化分阶段接入
+- 阶段5：检索层独立化与混合检索接入
+- 阶段6：生成层收窄为理解/澄清/解释/总结
+- 阶段7：比较/风险/行动/咨询统一节点化
+- 阶段8：可靠性、观测、降级与回退体系补齐
+- 阶段9：终局增强：真正 RAG / 更强工作流编排
+
+下面逐阶段展开。
+
+====================
+阶段0：现状冻结与边界梳理
+====================
+
+一、阶段目标
+在不破坏当前可运行状态的前提下，把现有真实数据流、调用链、状态字段、页面职责梳理清楚，为后续重构提供准确边界。
+
+二、必须完成的事情
+1. 梳理当前真实调用链：
+- 用户输入
+- pages/ai/index.js
+- queryPropertyRecommend
+- callDecisionEngine
+- cloudfunctions/decisionEngine
+- 返回前端展示
+
+2. 梳理当前页面职责：
+- 首页
+- AI 工作台
+- 详情页
+- 我的
+- 管理端
+- candidates / compare / risk / action 独立页目前承担了哪些事情
+
+3. 梳理当前状态字段：
+把 AI 页里的状态分成三类：
+- UI 展示临时态
+- 对话上下文态
+- 业务工作流态
+
+4. 梳理当前接口：
+至少列出：
+- queryPropertyRecommend 输入输出
+- callDecisionEngine 输入输出
+- 线程相关接口
+- 详情相关接口
+- 收藏相关接口（仅记录，不纳入本轮同步改造）
+
+三、涉及文件
+- pages/ai/index.js
+- utils/cloud.js
+- queryPropertyRecommend 相关实现
+- callDecisionEngine 相关实现
+- cloudfunctions/decisionEngine/**
+- app.json
+
+四、阶段产物
+- 一份真实调用链说明
+- 一份页面职责清单
+- 一份状态字段分类清单
+- 一份接口输入输出清单
+
+五、验收标准
+必须能回答清楚以下问题：
+- 用户发一句话以后，当前代码真实经过哪些函数和接口？
+- 比较、风险、行动当前分别由谁触发？
+- 哪些状态只是页面展示临时态，哪些状态才是真正的业务状态？
+
+====================
+阶段1：页面层瘦身与 AI 页职责拆分
+====================
+
+一、阶段目标
+把 pages/ai/index.js 从“大总管”改成“页面控制器”，只保留界面和交互职责。
+
+二、终局目标保持不变的体现
+终局依然要求前端只感知 event / stage / ui_blocks。
+本阶段不是削弱终局，而是先把 AI 页拆出清晰边界，为后续三层架构接入做准备。
+
+三、具体改造
+新增以下前端 service：
+- services/contextBuilder.js
+- services/aiConversationService.js
+- services/workflowService.js
+- services/uiBlockAdapter.js
+
+新增以下 block 组件目录：
+- components/ai-blocks/messageTextBlock/
+- components/ai-blocks/listingCardBlock/
+- components/ai-blocks/compareCardBlock/
+- components/ai-blocks/riskCardBlock/
+- components/ai-blocks/actionCardBlock/
+- components/ai-blocks/clarifyQuestionBlock/
+- components/ai-blocks/errorBlock/
+
+四、职责拆分
+1. pages/ai/index.js 只保留：
+- 输入框提交
+- 消息展示
+- 卡片点击事件
+- 线程切换
+- loading / toast / drawer
+- 页面级轻状态
+
+2. contextBuilder.js 负责：
+- recent messages 组装
+- summary 组装
+- compact context 组装
+- selected listings 上下文注入
+- 当前 thread / workflow_session 上下文打包
+
+3. aiConversationService.js 负责：
+- 调 llmGenerate
+- 处理模型返回
+- 更新 summary
+- 更新 compact context
+- memory patch 校验与落盘
+
+4. workflowService.js 负责：
+- 调 workflowDispatch
+- 处理 pairwise / critique / relax / refresh 等操作
+- 接收 current_stage/current_node/ui_blocks
+
+5. uiBlockAdapter.js 负责：
+- 把后端 ui_blocks 转为前端统一 block 数据
+- 给 block 补默认字段
+- 统一 block action 协议
+
+五、涉及文件
+- pages/ai/index.js
+- services/contextBuilder.js
+- services/aiConversationService.js
+- services/workflowService.js
+- services/uiBlockAdapter.js
+- components/ai-blocks/**
+
+六、验收标准
+- pages/ai/index.js 的主要逻辑长度明显下降
+- 页面层不再直接承载复杂业务流转
+- 后续切换工作流/检索实现时，页面层改动最小
+
+====================
+阶段2：统一调用协议与网关层建立
+====================
+
+一、阶段目标
+在不改变终局方向的前提下，先建立一个最小统一协议，把前端对云端的调用收口。
+
+二、终局目标保持不变的体现
+终局仍然要做到前端不感知内部实现。
+本阶段只是先建立统一外壳，让后续替换检索、生成、工作流实现时，不需要反复改前端调用方式。
+
+三、具体改造
+保留并改造 utils/cloud.js，使其成为唯一网关。
+
+前端统一调用三个标准入口：
+- retrievalSearch(payload)
+- llmGenerate(payload)
+- workflowDispatch(payload)
+
+旧接口先保留，但只作为兼容层：
+- queryPropertyRecommend
+- callDecisionEngine
+
+要求：旧接口内部逐步改为转发到新协议，而不是继续各自维护完整业务逻辑。
+
+四、最小统一请求结构
+建议先统一为：
+- request_id
+- thread_id
+- workflow_session_id
+- scene
+- payload
+
+五、最小统一响应结构
+建议先统一为：
+- success
+- status
+- current_stage
+- current_node
+- interrupt
+- ui_blocks
+- artifacts
+- memory_patch
+- error
+- meta(trace_id, duration_ms)
+
+六、涉及文件
+- utils/cloud.js
+- queryPropertyRecommend 兼容层
+- callDecisionEngine 兼容层
+- 云端入口函数定义
+
+七、验收标准
+- 前端新逻辑都只通过三个统一入口调用
+- 旧接口仍可兼容运行
+- 新旧逻辑可以并行一段时间，便于灰度与回退
+
+====================
+阶段3：工作流入口统一与状态机内核收口
+====================
+
+一、阶段目标
+把当前按 action 分叉的决策调用，逐步统一成 workflowDispatch 单入口。
+
+二、终局目标保持不变的体现
+终局仍然要求工作流层只负责状态推进、中断恢复、节点切换。
+本阶段只是先把入口收口，不是一次性把整个系统升级成重型工作流引擎。
+
+三、事件模型
+先收敛成三类顶层事件：
+- USER_MESSAGE
+- UI_ACTION
+- SYSTEM_ACTION
+
+内部再映射具体含义：
+- 用户自然语言输入
+- 用户点击卡片、选择房源、提交 pairwise
+- 系统刷新、自动推进、重试等内部动作
+
+四、decisionEngine 内部拆分
+在 cloudfunctions/decisionEngine/lib/ 下新增：
+- stateMachine.js
+- retrieval.js
+- viewModel.js
+
+五、模块职责
+1. stateMachine.js：
+- 接收 event
+- 读取与更新 state
+- 决定 current_stage / current_node
+- 决定是否需要 interrupt
+
+2. retrieval.js：
+- 根据 intake / memory / selected listings / critique 等生成检索条件
+- 调用检索层
+- 返回 candidates + evidence
+
+3. viewModel.js：
+- 把 workflow state 转成前端能直接渲染的 ui_blocks
+
+4. decisionEngine/index.js 最终只保留：
+- 参数校验
+- 加载 workflow session
+- 调 stateMachine
+- 必要时调 retrieval
+- 保存 state
+- 调 viewModel
+- 返回统一响应
+
+六、涉及文件
+- cloudfunctions/decisionEngine/index.js
+- cloudfunctions/decisionEngine/lib/stateMachine.js
+- cloudfunctions/decisionEngine/lib/retrieval.js
+- cloudfunctions/decisionEngine/lib/viewModel.js
+
+七、验收标准
+- 前端不再自己决定进入比较/风险/行动哪个阶段
+- 状态推进由后端工作流控制
+- 返回前端的数据已经是可渲染的 ui_blocks
+
+====================
+阶段4：状态持久化分阶段接入
+====================
+
+一、阶段目标
+最终目标依然是 workflow_sessions + workflow_events + workflow_checkpoints 三类状态数据，但采用分阶段接入，而不是一次性全部压上。
+
+二、终局目标保持不变的体现
+终局结构不删，只是启用顺序分开。
+
+三、本阶段接入顺序
+1. 先接入 workflow_sessions
+存当前最新状态，包括：
+- workflow_session_id
+- thread_id
+- user_id
+- status
+- current_stage
+- current_node
+- state_json
+- latest_checkpoint_id
+- updated_at
+- created_at
+
+2. 再接入 workflow_events
+只记录关键事件：
+- 用户发消息
+- 用户关键选择
+- 系统生成候选
+- 系统生成比较
+- 系统生成风险结果
+- 系统生成行动建议
+
+3. 最后接入 workflow_checkpoints
+只在关键节点打快照：
+- 候选集生成后
+- 比较结果生成后
+- 风险结果生成后
+- 行动建议生成后
+
+四、涉及文件/表
+- workflowRepo 新增
+- workflow_sessions
+- workflow_events
+- workflow_checkpoints
+
+五、验收标准
+- 会话重进后可以恢复关键工作流状态
+- 可以查看关键推进事件
+- 可以在关键节点回看状态快照
+
+====================
+阶段5：检索层独立化与混合检索接入
+====================
+
+一、阶段目标
+先把“找候选”和“生成人话解释”分开，再逐步接入混合检索与语义能力。
+
+二、终局目标保持不变的体现
+终局仍然要求检索层独立、支持混合检索、支持证据返回、后续支持 chunk/RAG。
+本阶段不是削弱终局，而是先做检索层独立化与搜索增强表。
+
+三、本阶段接入顺序
+1. 先建立检索 provider 抽象：
+- searchByRules(query, filters, options)
+- searchByVector(query, filters, options)（可以先留空）
+- mergeCandidates(ruleResult, vectorResult)
+- rerankCandidates(candidates, preferenceState)
+
+2. 先接 listing_search_docs
+用于：
+- 搜索文档
+- 证据摘要
+- 全文/关键词/混合召回输入
+
+建议字段：
+- listing_id
+- search_title
+- search_summary
+- doc_text
+- metadata_json
+- updated_at
+
+3. 后续再接 listing_chunks
+用于：
+- chunk 级证据
+- 真正 RAG
+- 更细粒度引用与解释
+
+四、当前阶段建议
+- 当前业务真相主数据继续保留现有最稳定存储方式
+- 不要求本阶段先迁主业务数据库
+- 向量数据库作为外挂增强能力接入
+- 前端不直连向量库，只通过后端网关调用
+
+五、涉及文件/模块
+- cloudfunctions/decisionEngine/lib/retrieval.js
+- retrieval provider 相关实现
+- listing_search_docs
+- 后续预留 listing_chunks
+
+六、验收标准
+- 检索与解释彻底解耦
+- 检索层可以返回 candidates + evidence
+- 规则检索可先跑通，向量检索后续平滑接入
+
+====================
+阶段6：生成层收窄为理解/澄清/解释/总结
+====================
+
+一、阶段目标
+让 LLM 从“直接包办找房”变成“只做语言理解与生成”。
+
+二、终局目标保持不变的体现
+终局依然要求生成层只负责：
+- intent
+- clarify
+- explain
+- summarize
+
+三、具体改造
+把 queryPropertyRecommend 改造成兼容入口：
+外部仍可调用，但内部逐步切换为：
+- intentParser
+- retrieval.search
+- llm.generate(mode=explain | clarify | summarize)
+
+四、生成模式
+统一为四种：
+- intent
+- clarify
+- explain
+- summarize
+
+五、要求
+- 模型不再直接作为候选真相源
+- 模型基于 retrieval 返回的候选与证据来解释
+- 召回不足时先澄清，不乱给结果
+
+六、涉及文件
+- queryPropertyRecommend 实现
+- llmGenerate 实现
+- prompt / schema / parser 相关定义
+
+七、验收标准
+- AI 回复中可以解释“为什么推荐这些候选”
+- 召回不足时优先澄清
+- 模型不再直接硬包办检索
+
+====================
+阶段7：比较/风险/行动/咨询统一节点化
+====================
+
+一、阶段目标
+把原来分散在独立页面或独立逻辑里的业务能力，逐步统一成工作流节点。
+
+二、终局目标保持不变的体现
+终局依然要形成真正的 AI 工作台：比较、风险、咨询、行动都由工作流驱动，而不是由一堆独立页分流。
+
+三、本阶段接入顺序
+1. 比较节点化
+- COMPARE_NODE
+- 输出 compare_card
+
+2. 风险节点化
+- RISK_NODE
+- 输出 risk_card
+
+3. 行动建议节点化
+- ACTION_NODE
+- 输出 action_card
+
+4. 咨询/预约节点化
+- CONSULT_NODE
+- APPOINTMENT_NODE
+- 通过 action block 触发
+
+四、页面层策略
+当前独立页：
+- pages/candidates
+- pages/compare
+- pages/risk
+- pages/action
+
+不立刻粗暴删除。
+而是按顺序处理：
+第一步：先下线主入口；
+第二步：功能迁入 AI 卡片流；
+第三步：确认稳定后再删除页面壳。
+
+五、验收标准
+- 比较、风险、行动、咨询可以在 AI 页消息流中完成
+- 独立页不再是主流程必须路径
+- 节点化后，前端只负责渲染 block
+
+====================
+阶段8：可靠性、观测、降级与回退体系补齐
+====================
+
+一、阶段目标
+为终局架构补齐可生产运行的可靠性与观测能力。
+
+二、终局目标保持不变的体现
+终局不是只有结构优雅，还必须可排障、可降级、可观察、可回退。
+
+三、必须补齐的能力
+1. schema 校验
+建议引入 zod，至少覆盖：
+- workflowRequestSchema
+- workflowResponseSchema
+- retrievalResponseSchema
+- llmIntentSchema
+- uiBlockSchema
+- memoryPatchSchema
+
+2. 请求幂等
+关键请求都带 request_id，避免重复点击导致重复提交。
+
+3. 降级策略
+必须定义：
+- 检索失败如何降级
+- 向量检索失败如何退回规则检索
+- LLM 超时如何给简版结果
+- workflow 状态写入失败如何兜底
+
+4. 观测指标
+至少统计：
+- AI 请求成功率
+- 平均响应时间
+- 检索命中率
+- 澄清率
+- 比较卡点击率
+- 风险卡点击率
+- 行动卡点击率
+- 咨询/预约转化率
+- workflow 恢复成功率
+- schema 校验失败率
+
+四、涉及文件/模块
+- schema 定义文件
+- utils/cloud.js
+- workflow / retrieval / llm 网关
+- 日志与埋点实现
+
+五、验收标准
+- 关键失败路径都有降级方案
+- 可以基于指标判断改造是否提升效果
+- 出错时不再只能靠体感排查
+
+====================
+阶段9：终局增强——真正 RAG / 更强工作流编排
+====================
+
+一、阶段目标
+在前面阶段已经把边界、状态、检索、节点化业务打稳后，再启用终局高级能力。
+
+二、进入本阶段的条件
+当出现以下情况之一时进入：
+- 搜索文档级证据不够，需要 chunk 级证据
+- 工作流节点明显增多，手写状态机维护成本上升
+- 需要更复杂的中断恢复、分支合流、子流程复用
+- 需要多工具编排、长流程状态图能力
+
+三、本阶段启用内容
+1. 接入 listing_chunks
+2. 接入真正 RAG
+3. 接入更强的工作流状态图/编排框架
+4. 把现有手写状态机平滑升级为更强图式工作流
+
+四、要求
+- 前端协议不变
+- 前端 block 协议不变
+- 大部分页面层不需要重改
+- 检索层、工作流层内部实现可升级但对外协议稳定
+
+五、验收标准
+- chunk 级证据可用
+- 更复杂工作流可以承载
+- 前端无需因底层切换而大改
+
+五、当前这一轮最现实的执行顺序
+
+建议当前先做以下四轮：
+
+第一轮：阶段0 + 阶段1 + 阶段2
+目标：先把边界和调用协议立住。
+
+第二轮：阶段3 + 阶段4
+目标：把工作流和状态持久化收口。
+
+第三轮：阶段5 + 阶段6
+目标：把检索与解释分离，逐步引入混合检索。
+
+第四轮：阶段7 + 阶段8
+目标：把业务节点统一进 AI 工作台，并补齐可靠性。
+
+阶段9 作为最后增强阶段。
+
+最终目标仍然保持为：
+- 前端是事件驱动的 AI 工作台
+- 云端是检索 / 生成 / 工作流三层边界
+- 数据层同时拥有业务真相、检索增强、工作流状态三类能力
+- 后续可平滑进入真正 RAG 与更强工作流编排
+
+只是实施上改成：
+- 先收口边界
+- 再收口状态
+- 再收口检索
+- 再节点化业务
+- 最后启用终局高级能力
+
+一句话总结：
+不删终局，不抢终局；先分阶段把终局能力逐步接上。

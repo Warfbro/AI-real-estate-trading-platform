@@ -165,7 +165,7 @@ function evaluateRisk({ listings, intake }) {
       title: "建议人工复核",
       level: riskLevel === "high" ? "high" : "medium",
       evidence: "命中人工复核触发条件",
-      explanation: "当前风险条件较复杂，建议顾问介入复核关键信息。",
+      explanation: "当前风险条件较复杂，建议中介介入复核关键信息。",
       action_suggestion: "发起人工复核并暂停高风险推进动作。"
     });
   }

@@ -136,9 +136,6 @@ function determineStage({ feasibleCount, pairwiseQuestion, relaxationOptions }) 
 function rebuildDecisionResult(candidatePool, state) {
   const feasibility = filterFeasibleListings(candidatePool, state.hard_constraints || {});
   const ranked = rankListings(feasibility.feasibleListings, state);
-  if (!ranked.nextPairwiseQuestion && Array.isArray(candidatePool) && candidatePool.length >= 2) {
-    ranked.nextPairwiseQuestion = rankListings(candidatePool, state).nextPairwiseQuestion;
-  }
   const relaxationOptions = planRelaxation({
     candidatePool,
     hardConstraints: state.hard_constraints || {},

@@ -101,7 +101,7 @@ page {
 }
 
 .chat-list {
-  padding: 24rpx 30rpx 28rpx;
+  padding: 16rpx 30rpx 28rpx;
 }
 
 .chat-msg {
@@ -186,9 +186,7 @@ page {
   left: 0;
   width: 100%;
   z-index: 50;
-  background: #ffffff;
-  border-radius: 0 0 40rpx 40rpx;
-  box-shadow: 0 20rpx 60rpx rgba(92, 64, 51, 0.1);
+  background: transparent;
   display: flex;
   flex-direction: column;
   padding-top: 1000px;
@@ -200,6 +198,9 @@ page {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 0 0 36rpx 36rpx;
+  box-shadow: 0 18rpx 44rpx rgba(102, 123, 156, 0.12);
 }
 
 .drawer-content-inner {
@@ -281,34 +282,36 @@ page {
 
 .swipe-header {
   width: 100%;
-  padding: 12rpx 0 16rpx;
-  background: #ffffff;
+  min-height: 56rpx;
+  padding: 8rpx 0 10rpx;
+  background: rgba(255, 255, 255, 0.98);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-top: 1rpx solid rgba(92, 64, 51, 0.02);
-  border-radius: 0 0 40rpx 40rpx;
-  box-shadow: 0 6rpx 16rpx rgba(92, 64, 51, 0.05);
+  border-top: 1rpx solid rgba(214, 224, 239, 0.8);
+  border-radius: 0 0 28rpx 28rpx;
+  box-shadow: 0 10rpx 24rpx rgba(102, 123, 156, 0.1);
+  box-sizing: border-box;
 }
 
 .swipe-header text {
-  font-size: 20rpx;
-  color: #999999;
-  letter-spacing: 2rpx;
-  margin-bottom: 8rpx;
+  font-size: 18rpx;
+  color: #6b7a8f;
+  letter-spacing: 1rpx;
+  margin-bottom: 6rpx;
   font-weight: 300;
   transition: color 0.3s;
 }
 
 .swipe-header.down text,
 .swipe-header.up text {
-  color: #a89582;
+  color: #31507b;
 }
 
 .swipe-indicator {
-  width: 44rpx;
-  height: 6rpx;
+  width: 52rpx;
+  height: 8rpx;
   position: relative;
 }
 
@@ -319,7 +322,7 @@ page {
   top: 0;
   width: 55%;
   height: 100%;
-  background-color: #d4c4b8;
+  background-color: #bccbdd;
   border-radius: 6rpx;
   transition: transform 0.3s cubic-bezier(0.25, 1.05, 0.5, 1), background-color 0.3s;
 }
@@ -336,22 +339,22 @@ page {
 
 .swipe-header.down .swipe-indicator::before {
   transform: rotate(-30deg);
-  background-color: #d1b8a4;
+  background-color: #6d86ac;
 }
 
 .swipe-header.down .swipe-indicator::after {
   transform: rotate(30deg);
-  background-color: #d1b8a4;
+  background-color: #6d86ac;
 }
 
 .swipe-header.up .swipe-indicator::before {
   transform: rotate(30deg);
-  background-color: #d1b8a4;
+  background-color: #6d86ac;
 }
 
 .swipe-header.up .swipe-indicator::after {
   transform: rotate(-30deg);
-  background-color: #d1b8a4;
+  background-color: #6d86ac;
 }
 
 .input-area {

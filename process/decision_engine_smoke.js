@@ -63,12 +63,19 @@ async function main() {
       },
       memory_profile: {
         elevator_required: true
-      }
+      },
+      use_historical_constraints: false
     }
   });
 
   if (!start.success) {
     throw new Error(`start failed: ${start.error && start.error.code}`);
+  }
+  if (start.data.current_stage !== "pairwise") {
+    throw new Error(`expected neutral decision start to enter pairwise, got ${start.data.current_stage}`);
+  }
+  if (Array.isArray(start.data.blockers) && start.data.blockers.length) {
+    throw new Error("neutral decision start should not immediately show blockers");
   }
 
   const decisionSessionId = start.data.decision_session_id;

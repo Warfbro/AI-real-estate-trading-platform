@@ -17,6 +17,50 @@ function normalizeText(value, fallback = "") {
   return text || fallback;
 }
 
+async function resolvePhoneInfo(phoneCode) {
+  const code = normalizeText(phoneCode);
+  if (!code) {
+    return {
+      mobile: "",
+      phoneBound: false,
+      phoneSyncError: ""
+    };
+  }
+
+  try {
+    const response = await cloud.openapi.phonenumber.getPhoneNumber({
+      code
+    });
+    const phoneInfo =
+      (response && (response.phone_info || response.phoneInfo)) ||
+      {};
+    const mobile = normalizeText(
+      phoneInfo.phoneNumber || phoneInfo.purePhoneNumber
+    );
+    if (!mobile) {
+      return {
+        mobile: "",
+        phoneBound: false,
+        phoneSyncError: "phone number empty"
+      };
+    }
+    return {
+      mobile,
+      phoneBound: true,
+      phoneSyncError: ""
+    };
+  } catch (err) {
+    return {
+      mobile: "",
+      phoneBound: false,
+      phoneSyncError: normalizeText(
+        err && (err.message || err.errMsg),
+        "phone decode failed"
+      )
+    };
+  }
+}
+
 async function getExistingUser(openid) {
   if (!openid) {
     return null;
@@ -29,7 +73,7 @@ async function getExistingUser(openid) {
   }
 }
 
-async function syncUserRecord({ openid, unionid, role, provider }) {
+async function syncUserRecord({ openid, unionid, role, provider, mobile }) {
   if (!openid) {
     throw new Error("missing openid");
   }
@@ -40,7 +84,7 @@ async function syncUserRecord({ openid, unionid, role, provider }) {
     user_id: openid,
     openid,
     unionid: unionid || (existing && existing.unionid) || "",
-    mobile: (existing && existing.mobile) || "",
+    mobile: normalizeText(mobile || (existing && existing.mobile) || ""),
     email: (existing && existing.email) || "",
     role: normalizeRole(role || (existing && existing.role) || "user"),
     provider: normalizeText(provider || (existing && existing.provider), "wechat"),
@@ -61,6 +105,8 @@ exports.main = async (event = {}) => {
   const unionid = normalizeText(context.UNIONID);
   const appid = normalizeText(context.APPID);
   const shouldSyncUser = Boolean(event && event.sync_user);
+  const phoneCode = normalizeText(event.phone_code);
+  const phoneResult = await resolvePhoneInfo(phoneCode);
   let userSynced = false;
   let userSyncError = "";
 
@@ -70,7 +116,8 @@ exports.main = async (event = {}) => {
         openid,
         unionid,
         role: event.role,
-        provider: event.provider
+        provider: event.provider,
+        mobile: phoneResult.mobile
       });
       userSynced = true;
     } catch (err) {
@@ -84,6 +131,8 @@ exports.main = async (event = {}) => {
     unionid,
     user_id: openid,
     user_synced: userSynced,
-    user_sync_error: userSyncError
+    user_sync_error: userSyncError,
+    phone_bound: phoneResult.phoneBound,
+    phone_sync_error: phoneResult.phoneSyncError
   };
 };

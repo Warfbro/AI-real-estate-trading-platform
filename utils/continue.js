@@ -1,19 +1,14 @@
 const { STORAGE_KEYS, get, set } = require("./storage");
 
-const DEFAULT_CONTINUE_ROUTE = "/pages/intake/index";
+const DEFAULT_CONTINUE_ROUTE = "/pages/ai/index";
 
 const ROUTE_LABELS = {
   "/pages/home/index": "首页",
   "/pages/ai/index": "AI咨询页",
-  "/pages/intake/index": "需求录入页",
   "/pages/import/index": "房源导入页",
-  "/pages/candidates/index": "传统搜索页",
+  "/pages/searchResult/index": "搜索结果页",
   "/pages/detail/index": "房源详情页",
-  "/pages/compare/index": "房源比较页",
-  "/pages/risk/index": "风险确认页",
-  "/pages/action/index": "下一步动作页",
-  "/pages/adminLeads/index": "后台线索列表",
-  "/pages/adminLeadDetail/index": "后台线索详情"
+  "/pages/myFavorites/index": "我的收藏"
 };
 
 const BLOCKED_PATHS = {
@@ -171,50 +166,6 @@ function validateRouteContext(path, query, maps) {
     }
   }
 
-  if (path === "/pages/adminLeadDetail/index") {
-    if (!query.lead_id || !maps.leadMap[query.lead_id]) {
-      return {
-        valid: false,
-        reasonCode: "stale_lead"
-      };
-    }
-  }
-
-  if (path === "/pages/risk/index" || path === "/pages/action/index") {
-    const listingIds = parseListingIds(query.listing_ids || "");
-    const hasListingContext = listingIds.some((id) => Boolean(maps.listingMap[id]));
-    const hasIntakeContext = query.intake_id && maps.intakeMap[query.intake_id];
-    const hasComparisonContext = query.comparison_id && maps.comparisonMap[query.comparison_id];
-    const hasRiskContext = query.risk_check_id && maps.riskCheckMap[query.risk_check_id];
-    if (!hasListingContext && !hasIntakeContext && !hasComparisonContext && !hasRiskContext) {
-      return {
-        valid: false,
-        reasonCode: "stale_context"
-      };
-    }
-    if (query.comparison_id && !maps.comparisonMap[query.comparison_id]) {
-      return {
-        valid: false,
-        reasonCode: "stale_comparison"
-      };
-    }
-    if (query.risk_check_id && !maps.riskCheckMap[query.risk_check_id]) {
-      return {
-        valid: false,
-        reasonCode: "stale_risk_check"
-      };
-    }
-  }
-
-  if (path === "/pages/compare/index") {
-    if (query.comparison_id && !maps.comparisonMap[query.comparison_id]) {
-      return {
-        valid: false,
-        reasonCode: "stale_comparison"
-      };
-    }
-  }
-
   return {
     valid: true,
     reasonCode: ""
@@ -247,44 +198,8 @@ function validateContinueRoute(route, role, snapshot) {
 }
 
 function buildBestContinueRoute(snapshot, role) {
-  const actions = [...(snapshot.actions || [])].sort(byUpdatedDesc);
-  const riskChecks = [...(snapshot.riskChecks || [])].sort(byUpdatedDesc);
-  const comparisons = [...(snapshot.comparisons || [])].sort(byUpdatedDesc);
   const listings = [...(snapshot.listings || [])].sort(byUpdatedDesc);
   const intakes = [...(snapshot.intakes || [])].sort(byUpdatedDesc);
-
-  const latestAction = actions.find((item) => item && item.action_id);
-  if (latestAction) {
-    return buildRoute("/pages/action/index", {
-      source: (latestAction.payload_json && latestAction.payload_json.source) || "",
-      intake_id: latestAction.intake_id || "",
-      comparison_id: latestAction.comparison_id || "",
-      risk_check_id: latestAction.risk_check_id || "",
-      listing_ids: Array.isArray(latestAction.payload_json && latestAction.payload_json.listing_ids)
-        ? latestAction.payload_json.listing_ids.join(",")
-        : "",
-      action_type: latestAction.action_type || ""
-    });
-  }
-
-  const latestRisk = riskChecks.find((item) => item && item.risk_check_id);
-  if (latestRisk) {
-    return buildRoute("/pages/risk/index", {
-      source: "comparison",
-      intake_id: latestRisk.intake_id || "",
-      risk_check_id: latestRisk.risk_check_id || "",
-      listing_ids: Array.isArray(latestRisk.listing_ids_json)
-        ? latestRisk.listing_ids_json.join(",")
-        : ""
-    });
-  }
-
-  const latestComparison = comparisons.find((item) => item && item.comparison_id);
-  if (latestComparison) {
-    return buildRoute("/pages/compare/index", {
-      comparison_id: latestComparison.comparison_id || ""
-    });
-  }
 
   const latestListing = listings.find((item) => item && item.listing_id);
   const latestIntake = intakes.find((item) => item && item.intake_id);
@@ -292,9 +207,6 @@ function buildBestContinueRoute(snapshot, role) {
     return "/pages/ai/index";
   }
 
-  if (role === "advisor" || role === "admin") {
-    return "/pages/adminLeads/index";
-  }
   return DEFAULT_CONTINUE_ROUTE;
 }
 
@@ -302,13 +214,7 @@ function reasonToHint(reasonCode, usedFallback) {
   if (!usedFallback) {
     return "已定位到最近可继续节点。";
   }
-  if (reasonCode === "admin_forbidden") {
-    return "上次停留页需要管理权限，已切换到当前可继续节点。";
-  }
-  if (reasonCode === "stale_context" || reasonCode === "stale_comparison" || reasonCode === "stale_risk_check") {
-    return "上次上下文已变化，已切换到最近有效节点。";
-  }
-  if (reasonCode === "stale_listing" || reasonCode === "stale_lead") {
+  if (reasonCode === "stale_listing") {
     return "上次对象已失效，已切换到最近有效节点。";
   }
   if (reasonCode === "blocked_path") {

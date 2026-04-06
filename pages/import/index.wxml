@@ -1,9 +1,9 @@
 <view class="page">
-  <view class="title">添加意向房源</view>
-  <view class="subtitle">将您看中的房源导入系统，稍后即可进行全方位比较与风险评估。</view>
+  <view class="title">{{page_title}}</view>
+  <view class="subtitle">{{page_subtitle}}</view>
 
   <view class="card">
-    <view class="label">选择添加方式</view>
+    <view class="label">选择上传方式</view>
     <view class="row format-tabs">
       <button class="{{btn_class_url}} btn-tab" data-type="url" bindtap="handleTypeChange">链接</button>
       <button class="{{btn_class_text}} btn-tab" data-type="text" bindtap="handleTypeChange">文本</button>

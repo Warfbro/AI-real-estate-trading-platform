@@ -25,7 +25,6 @@
   var KEY = {
     AUTH_SESSION: "auth_session",
     LAST_ROUTE: "last_route",
-    RECENT_CONTINUE_ROUTE: "recent_continue_route",
     DRAFT_INTAKE: "draft_intake",
     DRAFT_IMPORT: "draft_import",
     COMPARE_LISTING_IDS: "compare_listing_ids",
@@ -203,9 +202,7 @@
       listing_import_jobs: [],
       event_logs: [],
       activity_logs: [],
-      compare_listing_ids: ["listing_devtools_001", "listing_devtools_002"],
-      recent_continue_route:
-        "/pages/action/index?source=risk&intake_id=intake_devtools_001&comparison_id=comparison_devtools_001&risk_check_id=risk_devtools_001&listing_ids=listing_devtools_001%2Clisting_devtools_002&action_type=send_report"
+      compare_listing_ids: ["listing_devtools_001", "listing_devtools_002"]
     };
   }
 
@@ -224,7 +221,6 @@
     set(KEY.EVENT_LOGS, data.event_logs);
     set(KEY.ACTIVITY_LOGS, data.activity_logs);
     set(KEY.COMPARE_LISTING_IDS, data.compare_listing_ids);
-    set(KEY.RECENT_CONTINUE_ROUTE, data.recent_continue_route);
     set(KEY.LAST_ROUTE, "/pages/action/index");
     console.info("[SMOKE_HELPER] seed completed");
     printSummary();
@@ -417,18 +413,6 @@
     set(KEY.ACTIVITY_LOGS, logs);
     set(KEY.COMPARE_LISTING_IDS, [listingAId, listingBId]);
     set(
-      KEY.RECENT_CONTINUE_ROUTE,
-      "/pages/action/index?source=risk&intake_id=" +
-        intakeId +
-        "&comparison_id=" +
-        comparisonId +
-        "&risk_check_id=" +
-        riskCheckId +
-        "&listing_ids=" +
-        encodeURIComponent(listingAId + "," + listingBId) +
-        "&action_type=manual_review"
-    );
-    set(
       KEY.LAST_ROUTE,
       "/pages/risk/index?source=comparison&intake_id=" +
         intakeId +
@@ -607,8 +591,7 @@
       risk_checks: risks.length,
       next_actions: actions.length,
       advisor_leads: leads.length,
-      activity_logs: logs.length,
-      continue_route: get(KEY.RECENT_CONTINUE_ROUTE, "")
+      activity_logs: logs.length
     };
     console.info("[SMOKE_HELPER] summary", summary);
     return summary;

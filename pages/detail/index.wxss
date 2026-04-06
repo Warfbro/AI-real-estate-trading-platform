@@ -20,7 +20,7 @@
   min-height: 720rpx;
   max-height: 1120rpx;
   overflow: hidden;
-  background: #e8e1d8;
+  background: #d9e4f0;
 }
 
 .hero-swiper {
@@ -45,7 +45,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(160deg, #eae2d8 0%, #d8ccbe 100%);
+  background: linear-gradient(160deg, #dbe5f2 0%, #eef2f6 100%);
 }
 
 .hero-empty-title {
@@ -83,7 +83,7 @@
   box-sizing: border-box;
   border-radius: 24rpx;
   background: rgba(255, 255, 255, 0.97);
-  box-shadow: 0 10rpx 24rpx rgba(92, 64, 51, 0.12);
+  box-shadow: 0 10rpx 24rpx rgba(102, 123, 156, 0.12);
 }
 
 .section-title {
@@ -104,7 +104,7 @@
   padding: 16rpx 14rpx;
   border-radius: 14rpx;
   box-sizing: border-box;
-  background: #f8f3eb;
+  background: rgba(233, 239, 248, 0.92);
 }
 
 .info-item.full {
@@ -113,7 +113,7 @@
 
 .info-key {
   font-size: 22rpx;
-  color: #8b7667;
+  color: #7a8ca4;
 }
 
 .info-value {

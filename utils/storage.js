@@ -1,7 +1,6 @@
 const STORAGE_KEYS = {
   AUTH_SESSION: "auth_session",
   LAST_ROUTE: "last_route",
-  RECENT_CONTINUE_ROUTE: "recent_continue_route",
   DRAFT_INTAKE: "draft_intake",
   DRAFT_IMPORT: "draft_import",
   SEARCH_HISTORY: "search_history",
@@ -22,7 +21,11 @@ const STORAGE_KEYS = {
   LISTING_IMPORT_JOBS: "listing_import_jobs",
   LISTINGS: "listings",
   EVENT_LOGS: "event_logs",
-  ACTIVITY_LOGS: "activity_logs"
+  ACTIVITY_LOGS: "activity_logs",
+  // 阶段4: 工作流状态持久化
+  WORKFLOW_SESSIONS: "workflow_sessions",
+  WORKFLOW_EVENTS: "workflow_events",
+  WORKFLOW_CHECKPOINTS: "workflow_checkpoints"
 };
 
 function get(key, defaultValue = null) {
@@ -48,10 +51,66 @@ function uid(prefix) {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
+/**
+ * 读取带版本检查的数据
+ */
+function getWithVersion(key, defaultValue = null) {
+  try {
+    const value = get(key, null);
+    if (!value) {
+      return {
+        data: defaultValue,
+        version: null,
+        updated_at: null
+      };
+    }
+
+    return {
+      data: value,
+      version: value.version || "1",
+      updated_at: value.updated_at || null
+    };
+  } catch (err) {
+    return {
+      data: defaultValue,
+      version: null,
+      error: err.message
+    };
+  }
+}
+
+/**
+ * 写入带版本更新的数据
+ */
+function setWithVersion(key, data, currentVersion = "0") {
+  try {
+    const nextVersion = String((parseInt(currentVersion) + 1));
+    const withVersion = {
+      ...data,
+      version: nextVersion,
+      updated_at: new Date().toISOString()
+    };
+
+    set(key, withVersion);
+    return {
+      status: "success",
+      version: nextVersion,
+      updated_at: withVersion.updated_at
+    };
+  } catch (err) {
+    return {
+      status: "error",
+      error: err.message
+    };
+  }
+}
+
 module.exports = {
   STORAGE_KEYS,
   get,
   set,
   append,
-  uid
+  uid,
+  getWithVersion,
+  setWithVersion
 };

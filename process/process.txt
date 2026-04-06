@@ -116,3 +116,4 @@
 [2026-04-01] 编译阻断修复：`pages/ai/index.wxss` 文件头包含 UTF-8 BOM（`EF BB BF`），导致微信开发者工具报 `unexpected � at pos 1`；现已重写为无 BOM UTF-8，AI 页样式文件头恢复正常，未再发现其他 `pages/**/*.wxss` 与 `custom-tab-bar/**/*.wxss` 同类 BOM 残留。
 [2026-04-01] 页面阻断修复：登录页按最新参考图收敛为更简洁的单主操作布局，保留微信官方快捷登录弹窗链路；`pages/searchResult/index.js` 修复候选结果页筛选映射代码截断导致的语法错误，并补回收藏状态展示；`pages/ai/index.wxss` 首选择器恢复为 `page`，修正 AI 页根容器高度与绝对定位基准，避免进入后出现空白页。
 [2026-04-01] 测试态权限与 AI 布局收口：`utils/auth.js` 增加测试态强制管理员角色逻辑，当前所有微信登录统一写入 `role=admin`；登录页进一步收敛为仅保留 logo、标题与微信官方快捷登录按钮；`pages/ai/index.wxml/index.wxss` 调整聊天区顶部内边距、输入区底部贴边和 `adjust-position=false`，降低顶部留空、键盘弹出时整体上移的问题。
+[2026-04-03] AI 顶部抽屉布局修复：`pages/ai/index.js/index.wxml/index.wxss` 新增聊天区与抽屉分离的顶部偏移量（`chatTopOffset/drawerTopOffset`），将聊天记录抽屉把手上移并收窄视觉高度，避免顶部白块过深且首条消息被抽屉提示层覆盖。

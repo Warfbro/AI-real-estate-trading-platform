@@ -9,7 +9,6 @@
  */
 
 const { evaluateRisk } = require("../utils/risk");
-const { resolveContinueContext } = require("../utils/continue");
 const fs = require("fs");
 const path = require("path");
 

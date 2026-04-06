@@ -115,11 +115,12 @@ async function getOpenId() {
   return String(result.openid || "").trim();
 }
 
-async function getLoginIdentity({ role, provider = "wechat" }) {
+async function getLoginIdentity({ role, provider = "wechat", phoneCode = "" }) {
   const result = await callFunction("getOpenId", {
     sync_user: true,
     role,
-    provider
+    provider,
+    phone_code: String(phoneCode || "").trim()
   });
   const openid = String(result.openid || "").trim();
   const userSynced = Object.prototype.hasOwnProperty.call(result, "user_synced")
@@ -131,6 +132,10 @@ async function getLoginIdentity({ role, provider = "wechat" }) {
         ? ""
         : "getOpenId cloud function not upgraded for users sync")
   ).trim();
+  const phoneBound = Object.prototype.hasOwnProperty.call(result, "phone_bound")
+    ? Boolean(result.phone_bound)
+    : false;
+  const phoneSyncError = String(result.phone_sync_error || "").trim();
 
   return {
     openid,
@@ -138,7 +143,9 @@ async function getLoginIdentity({ role, provider = "wechat" }) {
     appid: String(result.appid || "").trim(),
     userId: String(result.user_id || openid).trim(),
     userSynced,
-    userSyncError
+    userSyncError,
+    phoneBound,
+    phoneSyncError
   };
 }
 
@@ -277,6 +284,274 @@ function callDecisionEngine({
   });
 }
 
+// ============================================================
+// 阶段2：统一调用协议 - 三个标准入口
+// ============================================================
+
+/**
+ * 统一请求结构
+ * - request_id: 请求唯一标识（用于幂等）
+ * - thread_id: 对话线程 ID
+ * - workflow_session_id: 工作流会话 ID
+ * - scene: 业务场景
+ * - payload: 具体请求参数
+ */
+
+/**
+ * 统一响应结构
+ * - success: 是否成功
+ * - status: 状态码
+ * - current_stage: 当前阶段
+ * - current_node: 当前节点
+ * - interrupt: 是否中断等待输入
+ * - ui_blocks: 前端渲染块
+ * - artifacts: 产出物
+ * - memory_patch: 记忆更新
+ * - error: 错误信息
+ * - meta: 元信息（trace_id, duration_ms）
+ */
+
+function generateRequestId() {
+  return `req_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function buildUnifiedRequest({
+  requestId,
+  threadId = "",
+  workflowSessionId = "",
+  scene = "",
+  payload = {}
+}) {
+  return {
+    request_id: requestId || generateRequestId(),
+    thread_id: String(threadId || "").trim(),
+    workflow_session_id: String(workflowSessionId || "").trim(),
+    scene: String(scene || "").trim(),
+    payload: payload && typeof payload === "object" && !Array.isArray(payload) ? payload : {},
+    timestamp: new Date().toISOString()
+  };
+}
+
+function normalizeUnifiedResponse(result) {
+  const safe = result && typeof result === "object" ? result : {};
+  const data = safe.data && typeof safe.data === "object" ? safe.data : safe;
+
+  return {
+    success: safe.success !== false && !safe.error,
+    status: String(safe.status || data.status || "ok").trim(),
+    current_stage: String(data.current_stage || "").trim(),
+    current_node: String(data.current_node || "").trim(),
+    interrupt: Boolean(data.interrupt),
+    ui_blocks: Array.isArray(data.ui_blocks) ? data.ui_blocks : [],
+    artifacts: data.artifacts && typeof data.artifacts === "object" ? data.artifacts : {},
+    memory_patch: data.memory_patch && typeof data.memory_patch === "object" ? data.memory_patch : null,
+    error: safe.error || data.error || null,
+    meta: {
+      trace_id: String(data.trace_id || safe.trace_id || "").trim(),
+      duration_ms: Number(data.duration_ms || safe.duration_ms) || null
+    },
+    raw: safe
+  };
+}
+
+/**
+ * 检索层统一入口
+ * 只负责：解析检索条件、召回候选、返回证据、混合检索与重排
+ */
+async function retrievalSearch({
+  requestId,
+  threadId = "",
+  scene = "property_search",
+  query = "",
+  filters = {},
+  options = {}
+} = {}) {
+  const request = buildUnifiedRequest({
+    requestId,
+    threadId,
+    scene,
+    payload: {
+      query: String(query || "").trim(),
+      filters: filters && typeof filters === "object" ? filters : {},
+      options: options && typeof options === "object" ? options : {}
+    }
+  });
+
+  // 当前阶段：转发到现有接口，后续可替换为独立检索云函数
+  try {
+    const result = await callFunction("getHomeGuessListings", {
+      keyword: request.payload.query,
+      ...request.payload.filters,
+      ...request.payload.options
+    });
+
+    return normalizeUnifiedResponse({
+      success: true,
+      status: "ok",
+      data: {
+        candidates: Array.isArray(result.list) ? result.list : [],
+        evidence: [],
+        strategy: result.strategy || "fallback"
+      }
+    });
+  } catch (err) {
+    return normalizeUnifiedResponse({
+      success: false,
+      status: "error",
+      error: { code: "RETRIEVAL_ERROR", message: err && (err.message || err.errMsg) }
+    });
+  }
+}
+
+/**
+ * 生成层统一入口
+ * 只负责：需求理解、澄清问题、解释候选、总结输出
+ */
+async function llmGenerate({
+  requestId,
+  threadId = "",
+  workflowSessionId = "",
+  scene = "property_consult",
+  mode = "intent",
+  query = "",
+  context = {}
+} = {}) {
+  const request = buildUnifiedRequest({
+    requestId,
+    threadId,
+    workflowSessionId,
+    scene,
+    payload: {
+      mode: String(mode || "intent").trim(),
+      query: String(query || "").trim(),
+      context: context && typeof context === "object" ? context : {}
+    }
+  });
+
+  // 当前阶段：转发到 queryPropertyRecommend，后续可替换为独立生成云函数
+  try {
+    const result = await queryPropertyRecommend({
+      query: request.payload.query,
+      userId: context.user_id || "",
+      sessionId: request.thread_id,
+      context: request.payload.context
+    });
+
+    return normalizeUnifiedResponse({
+      success: true,
+      status: "ok",
+      data: result
+    });
+  } catch (err) {
+    return normalizeUnifiedResponse({
+      success: false,
+      status: "error",
+      error: { code: "LLM_ERROR", message: err && (err.message || err.errMsg) }
+    });
+  }
+}
+
+/**
+ * 工作流层统一入口
+ * 只负责：状态推进、中断恢复、节点切换、输出前端 ui_blocks
+ */
+async function workflowDispatch({
+  requestId,
+  threadId = "",
+  workflowSessionId = "",
+  scene = "decision",
+  event = "UI_ACTION",
+  action = "",
+  payload = {},
+  context = {},
+  localListings = []
+} = {}) {
+  const request = buildUnifiedRequest({
+    requestId,
+    threadId,
+    workflowSessionId,
+    scene,
+    payload: {
+      event: String(event || "UI_ACTION").trim(),
+      action: String(action || "").trim(),
+      ...payload
+    }
+  });
+
+  // 当前阶段：转发到 decisionEngine，后续可升级为更强工作流框架
+  try {
+    const result = await callDecisionEngine({
+      action: request.payload.action,
+      userId: context.user_id || "",
+      chatSessionId: request.thread_id,
+      decisionSessionId: request.workflow_session_id,
+      selectedListingIds: payload.selected_listing_ids || [],
+      winnerListingId: payload.winner || "",
+      loserListingId: payload.loser || "",
+      text: payload.text || payload.critique || "",
+      context,
+      localListings
+    });
+
+    return normalizeUnifiedResponse(result);
+  } catch (err) {
+    return normalizeUnifiedResponse({
+      success: false,
+      status: "error",
+      error: { code: "WORKFLOW_ERROR", message: err && (err.message || err.errMsg) }
+    });
+  }
+}
+
+// ============================================================
+// 原有辅助函数
+// ============================================================
+
+/**
+ * 标准化云数据对象（补充版本和时间戳）
+ */
+function normalizeCloudObject(obj) {
+  if (!obj) {
+    return null;
+  }
+
+  return {
+    ...obj,
+    version: obj.version || "1",
+    updated_at: obj.updated_at || new Date().toISOString(),
+    user_id: obj.user_id || ""
+  };
+}
+
+/**
+ * 标准化云函数响应
+ */
+function normalizeCloudResponse(result) {
+  if (!result) {
+    return {
+      status: "error",
+      message: "no response",
+      data: null
+    };
+  }
+
+  const { result: data, errMsg } = result;
+
+  if (errMsg && errMsg.indexOf("success") < 0) {
+    return {
+      status: "error",
+      message: errMsg,
+      data: null
+    };
+  }
+
+  return {
+    status: "success",
+    data: normalizeCloudObject(data),
+    message: "ok"
+  };
+}
+
 module.exports = {
   CLOUD_ENV_ID,
   CLOUD_COLLECTIONS,
@@ -293,5 +568,14 @@ module.exports = {
   getHomeHotListings,
   getHomeGuessListings,
   queryPropertyRecommend,
-  callDecisionEngine
+  callDecisionEngine,
+  normalizeCloudObject,
+  normalizeCloudResponse,
+  // 阶段2：三个统一入口
+  generateRequestId,
+  buildUnifiedRequest,
+  normalizeUnifiedResponse,
+  retrievalSearch,
+  llmGenerate,
+  workflowDispatch
 };

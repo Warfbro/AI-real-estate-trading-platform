@@ -4,6 +4,12 @@ function normalizeText(value, fallback = "") {
 }
 
 function toNumber(value) {
+  if (value == null) {
+    return null;
+  }
+  if (typeof value === "string" && !value.trim()) {
+    return null;
+  }
   const num = Number(value);
   return Number.isFinite(num) ? num : null;
 }
@@ -44,16 +50,17 @@ function createInitialDecisionState(context = {}, selectedListingIds = []) {
   const activeRequirement = normalized.activeRequirement;
   const targetArea = sanitizeStringArray(activeRequirement.target_area || activeRequirement.district || []);
   const profileDistrict = sanitizeStringArray(memoryProfile.district || []);
+  const useHistoricalConstraints = context.use_historical_constraints !== false;
 
   return {
     hard_constraints: {
-      city: normalizeText(activeIntake.city || memoryProfile.city),
-      district: targetArea.length ? targetArea : profileDistrict,
-      budget_min: toNumber(activeIntake.budget_min || memoryProfile.budget_min),
-      budget_max: toNumber(activeIntake.budget_max || memoryProfile.budget_max),
-      area_min: toNumber(activeIntake.area_min),
-      elevator_required: Boolean(memoryProfile.elevator_required),
-      layout_pref: normalizeText(memoryProfile.preferred_layout || activeIntake.layout_pref)
+      city: useHistoricalConstraints ? normalizeText(activeIntake.city || memoryProfile.city) : "",
+      district: useHistoricalConstraints ? (targetArea.length ? targetArea : profileDistrict) : [],
+      budget_min: useHistoricalConstraints ? toNumber(activeIntake.budget_min || memoryProfile.budget_min) : null,
+      budget_max: useHistoricalConstraints ? toNumber(activeIntake.budget_max || memoryProfile.budget_max) : null,
+      area_min: useHistoricalConstraints ? toNumber(activeIntake.area_min) : null,
+      elevator_required: useHistoricalConstraints ? Boolean(memoryProfile.elevator_required) : false,
+      layout_pref: useHistoricalConstraints ? normalizeText(memoryProfile.preferred_layout || activeIntake.layout_pref) : ""
     },
     soft_weights: {
       price: 2.4,

@@ -1,7 +1,7 @@
-const { isLoggedIn, requireLogin } = require("../../utils/auth");
+const { isLoggedIn, requireLogin, getUserRole } = require("../../utils/auth");
 const { EVENTS, trackEvent } = require("../../utils/track");
 
-const USER_ENTRY_ITEMS = [
+const BUYER_ENTRY_ITEMS = [
   {
     key: "favorites",
     title: "我的收藏",
@@ -15,13 +15,35 @@ const USER_ENTRY_ITEMS = [
   {
     key: "join",
     title: "入驻平台",
-    desc: "顾问/经纪人入驻入口"
+    desc: "申请中介身份并开始上传房源"
   }
 ];
 
+const AGENT_ENTRY_ITEMS = [
+  {
+    key: "favorites",
+    title: "我的收藏",
+    desc: "查看与编辑收藏房源"
+  },
+  {
+    key: "appointments",
+    title: "我的预约",
+    desc: "查看预约进展"
+  },
+  {
+    key: "upload",
+    title: "上传房源",
+    desc: "上传链接、文本或截图房源"
+  }
+];
+
+function buildEntriesByRole(role) {
+  return role === "advisor" ? AGENT_ENTRY_ITEMS : BUYER_ENTRY_ITEMS;
+}
+
 Page({
   data: {
-    entries: USER_ENTRY_ITEMS
+    entries: BUYER_ENTRY_ITEMS
   },
 
   onShow() {
@@ -33,7 +55,12 @@ Page({
 
     if (!isLoggedIn()) {
       requireLogin("/pages/my/index");
+      return;
     }
+
+    this.setData({
+      entries: buildEntriesByRole(getUserRole())
+    });
   },
 
   handleEntryTap(event) {
@@ -42,6 +69,13 @@ Page({
     if (key === "favorites") {
       wx.navigateTo({
         url: "/pages/myFavorites/index"
+      });
+      return;
+    }
+
+    if (key === "upload") {
+      wx.navigateTo({
+        url: "/pages/import/index?source=broker"
       });
       return;
     }
@@ -56,4 +90,3 @@ Page({
     });
   }
 });
-

@@ -7,15 +7,13 @@
  * 3) manual_review queue sort/filter (type/risk/source) + note trace fields
  * 4) appointment status mapping branches
  * 5) trace logs for next_action + comparison_report
- * 6) recent_continue_route fallback and recovery branches
- * 7) advisor_lead status full-flow transitions and trace coverage
+ * 6) advisor_lead status full-flow transitions and trace coverage
  *
  * Run:
  *   node process/regression_branches.js
  */
 
 const { evaluateRisk } = require("../utils/risk");
-const { resolveContinueContext } = require("../utils/continue");
 const fs = require("fs");
 const path = require("path");
 

@@ -2,8 +2,8 @@
   <view class="circle-anim-bg" wx:if="{{showAnim}}"></view>
 
   <view class="chat-core" style="top: {{chatTopOffset}}px;">
-    <scroll-view class="chat-scroll" scroll-y enable-flex scroll-into-view="{{scrollTo}}">
-      <view class="chat-list" style="min-height: {{chatMinHeight}}px;">
+    <scroll-view class="chat-scroll" scroll-y scroll-into-view="{{scrollTo}}">
+      <view class="chat-list">
         <view
           wx:for="{{messages}}"
           wx:key="id"

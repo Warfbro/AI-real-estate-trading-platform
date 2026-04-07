@@ -127,3 +127,4 @@
 [2026-04-07] 小程序运行时导入修复：微信开发者工具不支持 `require('../../modules/identity')` 这类目录导入自动解析 `index.js`，已将 `pages/home`、`pages/ai`、`pages/detail`、`pages/import`、`pages/login`、`pages/my`、`pages/myFavorites`、`pages/search`、`pages/searchResult` 的模块入口统一改为显式 `../../modules/*/index.js`；`node --check`、`node process/regression_branches.js`、`node process/smoke_e2e.js` 均已通过。
 [2026-04-07] 开发工具登录与 AI 布局阻断修复：`pages/login` 新增开发工具环境识别，微信开发者工具下改为“测试登录”入口并允许 `modules/identity/authClient.js` 在 `wx.login` 失败时回退到本地测试态 session，避免 `getPhoneNumber` 在 devtools 不可用导致无法联调；`pages/ai` 收敛聊天记录抽屉，仅在存在多个会话时展示，并在关闭态隐藏抽屉主体，移除首屏异常白块。
 [2026-04-07] AI 首屏布局二次收口：针对短会话场景下“内容堆在顶部、下方大面积留白”的界面问题，`pages/ai/index` 新增 `chatMinHeight` 与基于窗口高度/底部安全区的聊天区最小高度计算，聊天列表改为在内容不足一屏时贴近输入区自然落位；同时收敛 AI 页顶部留白与导航分隔感，恢复到蓝灰渐变背景与更弱的顶部分隔样式。
+[2026-04-07] AI 首屏布局回退修复：上一轮“短内容贴底”处理判断错误，已撤回 `chatMinHeight + justify-content:flex-end` 方案，恢复消息与决策卡从顶部自然排布；同时将聊天记录抽屉入口恢复为默认可见，不再因仅有单会话而隐藏“记录管理”入口。

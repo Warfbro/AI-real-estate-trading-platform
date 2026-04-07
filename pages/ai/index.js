@@ -589,7 +589,6 @@ Page({
     navBarHeight: 44,
     totalNavHeight: 64,
     chatTopOffset: 80,
-    chatMinHeight: 420,
     drawerTopOffset: 64,
     capWidth: 90,
     canBack: true,
@@ -644,23 +643,18 @@ Page({
     const statusBarHeight = base.statusBarHeight || 20;
     const capWidth = base.capWidth || 90;
     const windowHeight = base.windowHeight || totalNavHeight + 640;
-    const bottomSafeInset = base.bottomSafeInset || 0;
     const maxViewport = Math.max(windowHeight - totalNavHeight, 320);
     const drawerPeekHeight = showHistoryDrawer ? Math.max(Math.round(navBarHeight * 0.58), 28) : 0;
     const drawerOverlapHeight = showHistoryDrawer ? Math.max(Math.round(drawerPeekHeight * 0.35), 10) : 0;
     const drawerHeight = Math.max(Math.round(maxViewport * 0.62), 320);
-    const chatTopOffset = showHistoryDrawer
-      ? totalNavHeight + drawerPeekHeight - drawerOverlapHeight
-      : totalNavHeight + 4;
-    const inputAreaReserve = 110 + bottomSafeInset;
-    const chatMinHeight = Math.max(windowHeight - chatTopOffset - inputAreaReserve, 240);
     const nextData = {
       statusBarHeight,
       navBarHeight,
       totalNavHeight,
       capWidth,
-      chatTopOffset,
-      chatMinHeight,
+      chatTopOffset: showHistoryDrawer
+        ? totalNavHeight + drawerPeekHeight - drawerOverlapHeight
+        : totalNavHeight + 4,
       drawerTopOffset: showHistoryDrawer
         ? Math.max(totalNavHeight - drawerOverlapHeight, 0)
         : totalNavHeight,
@@ -716,11 +710,7 @@ Page({
       navBarHeight,
       totalNavHeight,
       capWidth: capW,
-      windowHeight: sysInfo.windowHeight,
-      bottomSafeInset: Math.max(
-        sysInfo.windowHeight - ((sysInfo.safeArea && sysInfo.safeArea.bottom) || sysInfo.windowHeight),
-        0
-      )
+      windowHeight: sysInfo.windowHeight
     };
 
     this._chatThreads = [];
@@ -819,7 +809,7 @@ Page({
     }
 
     const threadItems = this.buildThreadItems();
-    this.applyHistoryDrawerLayout(threadItems.length > 1, {
+    this.applyHistoryDrawerLayout(threadItems.length > 0, {
       chat_threads: threadItems,
       has_chat_threads: threadItems.length > 0,
       active_session_id: normalizeText(this._aiSessionId)

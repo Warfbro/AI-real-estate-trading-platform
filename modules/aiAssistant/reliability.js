@@ -1,5 +1,5 @@
 /**
- * utils/reliability.js - 可靠性基础设施
+ * modules/aiAssistant/reliability.js - 可靠性基础设施
  *
  * 职责：
  * 1) 超时与重试

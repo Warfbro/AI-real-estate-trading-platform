@@ -1,6 +1,6 @@
-const { isLoggedIn, requireLogin, getSession } = require("../../utils/auth");
+const { isLoggedIn, requireLogin, getSession } = require("../../modules/identity");
 const { EVENTS, trackEvent, writeActivityLog } = require("../../utils/track");
-const { listingRepo } = require("../../repos/index");
+const { listingRepo } = require("../../modules/listingSearch");
 
 function normalizeText(value, fallback = "") {
   const text = String(value || "").trim();
@@ -125,4 +125,3 @@ Page({
     });
   }
 });
-

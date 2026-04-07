@@ -1,13 +1,4 @@
-/**
- * chatRepo.js - AI 对话管理
- *
- * 职责：
- * 1) 管理 AI_CHAT_THREADS、AI_CHAT_ACTIVE_SESSION_ID、chat_messages
- * 2) 提供线程/消息的读写、激活切换接口
- * 3) 自动处理最近消息聚合、会话摘要
- */
-
-const { STORAGE_KEYS, get, set } = require("../utils/storage");
+const { STORAGE_KEYS, get, set } = require("../../utils/storage");
 
 let _threadsCache = null;
 let _activeSessionCache = null;
@@ -25,9 +16,6 @@ function normalizeText(value, fallback = "") {
   return text || fallback;
 }
 
-/**
- * 获取所有对话线程
- */
 function getThreads() {
   if (_threadsCache !== null) {
     return {
@@ -48,7 +36,7 @@ function getThreads() {
       };
     }
   } catch (err) {
-    console.warn("[chatRepo] getThreads failed", err);
+    console.warn("[aiAssistant.chatRepo] getThreads failed", err);
   }
 
   return {
@@ -58,9 +46,6 @@ function getThreads() {
   };
 }
 
-/**
- * 获取当前激活会话 ID
- */
 function getActiveSessionId() {
   if (_activeSessionCache !== null) {
     return _activeSessionCache;
@@ -75,15 +60,11 @@ function getActiveSessionId() {
   }
 }
 
-/**
- * 设置激活会话
- */
 function setActiveSessionId(sessionId) {
   try {
     const id = normalizeText(sessionId);
     set(STORAGE_KEYS.AI_CHAT_ACTIVE_SESSION_ID, id);
     _activeSessionCache = id;
-
     return {
       status: "success",
       session_id: id
@@ -96,31 +77,24 @@ function setActiveSessionId(sessionId) {
   }
 }
 
-/**
- * 获取线程（通过 session_id）
- */
 function getThread(sessionId) {
   const result = getThreads();
   if (result.status !== "success") {
     return result;
   }
 
-  const thread = result.data.find((t) => t.session_id === sessionId);
+  const thread = result.data.find((item) => item.session_id === sessionId);
   return {
     status: thread ? "success" : "not_found",
     data: thread || null
   };
 }
 
-/**
- * 创建或更新线程
- */
 function upsertThread(sessionId, updates) {
   try {
     const result = getThreads();
     const threads = result.data || [];
-
-    const existing = threads.findIndex((t) => t.session_id === sessionId);
+    const existing = threads.findIndex((item) => item.session_id === sessionId);
     const now = nowISOTime();
 
     let thread;
@@ -130,7 +104,7 @@ function upsertThread(sessionId, updates) {
         ...updates,
         session_id: sessionId,
         updated_at: now,
-        version: String((parseInt(threads[existing].version || "0") + 1))
+        version: String(parseInt(threads[existing].version || "0", 10) + 1)
       };
       threads[existing] = thread;
     } else {
@@ -147,7 +121,6 @@ function upsertThread(sessionId, updates) {
       threads.unshift(thread);
     }
 
-    // 保持在限制内
     const trimmed = threads.slice(0, MAX_THREADS);
     set(STORAGE_KEYS.AI_CHAT_THREADS, trimmed);
     _threadsCache = trimmed;
@@ -164,19 +137,14 @@ function upsertThread(sessionId, updates) {
   }
 }
 
-/**
- * 删除线程
- */
 function deleteThread(sessionId) {
   try {
     const result = getThreads();
     const threads = result.data || [];
-
-    const filtered = threads.filter((t) => t.session_id !== sessionId);
+    const filtered = threads.filter((item) => item.session_id !== sessionId);
     set(STORAGE_KEYS.AI_CHAT_THREADS, filtered);
     _threadsCache = filtered;
 
-    // 如果删除的是激活会话，清空
     if (normalizeText(getActiveSessionId()) === normalizeText(sessionId)) {
       set(STORAGE_KEYS.AI_CHAT_ACTIVE_SESSION_ID, "");
       _activeSessionCache = "";
@@ -194,10 +162,6 @@ function deleteThread(sessionId) {
   }
 }
 
-/**
- * 获取线程的消息列表（从存储中读取）
- * 约定：消息存储在 STORAGE_KEYS[`chat_messages_${sessionId}`]
- */
 function getThreadMessages(sessionId) {
   try {
     const key = `chat_messages_${sessionId}`;
@@ -216,15 +180,11 @@ function getThreadMessages(sessionId) {
   }
 }
 
-/**
- * 追加消息到线程
- */
 function appendMessage(sessionId, message) {
   try {
     const key = `chat_messages_${sessionId}`;
     const messages = get(key, []);
     const list = Array.isArray(messages) ? messages : [];
-
     const msg = {
       ...message,
       message_id: message.message_id || `msg_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
@@ -233,8 +193,6 @@ function appendMessage(sessionId, message) {
     };
 
     list.push(msg);
-
-    // 保持在限制内
     const trimmed = list.slice(-MAX_MESSAGES_PER_THREAD);
     set(key, trimmed);
 
@@ -250,9 +208,6 @@ function appendMessage(sessionId, message) {
   }
 }
 
-/**
- * 获取最近 N 条消息
- */
 function getRecentMessages(sessionId, limit = RECENT_MESSAGE_LIMIT) {
   try {
     const result = getThreadMessages(sessionId);
@@ -275,9 +230,6 @@ function getRecentMessages(sessionId, limit = RECENT_MESSAGE_LIMIT) {
   }
 }
 
-/**
- * 清空线程所有消息
- */
 function clearThreadMessages(sessionId) {
   try {
     const key = `chat_messages_${sessionId}`;
@@ -288,9 +240,6 @@ function clearThreadMessages(sessionId) {
   }
 }
 
-/**
- * 缓存失效
- */
 function invalidateCache() {
   _threadsCache = null;
   _activeSessionCache = null;

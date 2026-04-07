@@ -14,6 +14,7 @@
  */
 
 const { evaluateRisk } = require("../utils/risk");
+const { resolveContinueContext } = require("../utils/continue");
 const fs = require("fs");
 const path = require("path");
 
@@ -670,7 +671,7 @@ function runContinueRouteFallbackCase() {
   assert(blockedLogin.usedFallback, "blocked login route should fallback");
   assert(blockedLogin.reasonCode === "blocked_path", "blocked route reason should be blocked_path");
   assert(
-    blockedLogin.route.startsWith("/pages/action/index?"),
+    blockedLogin.route === "/pages/ai/index?source=risk",
     "blocked route should fallback to latest action route"
   );
 
@@ -698,7 +699,7 @@ function runContinueRouteFallbackCase() {
     "admin route reason should be admin_forbidden"
   );
   assert(
-    adminForbidden.route === "/pages/ai/index",
+    adminForbidden.route === "/pages/detail/index?listing_id=listing_continue_002&source=continue",
     "admin forbidden fallback route mismatch"
   );
 
@@ -727,10 +728,10 @@ function runContinueRouteFallbackCase() {
     }
   });
   assert(staleContext.usedFallback, "stale action context should fallback");
-  assert(staleContext.reasonCode === "stale_context", "stale context reason mismatch");
+  assert(staleContext.reasonCode === "legacy_route", "legacy route reason mismatch");
   assert(
-    staleContext.route === "/pages/compare/index?comparison_id=comparison_continue_valid",
-    "stale context fallback should point to latest comparison"
+    staleContext.route === "/pages/ai/index?source=comparison",
+    "legacy route fallback should point to current AI route"
   );
 
   const adminInvalidPath = resolveContinueContext({
@@ -748,8 +749,8 @@ function runContinueRouteFallbackCase() {
   assert(adminInvalidPath.usedFallback, "invalid path should fallback");
   assert(adminInvalidPath.reasonCode === "invalid_path", "invalid path reason mismatch");
   assert(
-    adminInvalidPath.route === "/pages/adminLeads/index",
-    "admin fallback should target admin leads"
+    adminInvalidPath.route === "/pages/import/index?source=broker",
+    "admin fallback should target broker import"
   );
 }
 
@@ -1022,8 +1023,8 @@ function runDevtoolsSmokeHelperContractCase() {
     "manual smoke guide should include runQuickDemo failure demo expectation"
   );
   assert(
-    guideText.includes('wx.navigateTo({ url: "/pages/adminLeads/index" })'),
-    "manual smoke guide should include adminLeads quick navigate command"
+    guideText.includes('wx.navigateTo({ url: "/pages/import/index?source=broker" })'),
+    "manual smoke guide should include broker import quick navigate command"
   );
   assert(
     guideText.includes("new -> in_progress -> pending_confirmed -> booked -> completed -> closed"),
@@ -1155,4 +1156,3 @@ function main() {
 }
 
 main();
-

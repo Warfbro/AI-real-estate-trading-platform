@@ -1,24 +1,11 @@
-/**
- * listingRepo.js - 房源数据仓库
- *
- * 职责：
- * 1) 管理 LISTINGS、FAVORITE_LISTING_IDS、COMPARE_LISTING_IDS
- * 2) 提供查询、搜索、过滤、收藏操作的统一接口
- * 3) 维护三层缓存：内存 -> storage -> 云端
- *
- * 数据流：
- * 页面查询 -> listingRepo.query() -> 优先内存/storage -> 按需云端同步
- * 页面收藏 -> listingRepo.toggleFavorite() -> 更新内存 -> storage -> 异步云端
- */
-
-const { STORAGE_KEYS, get, set } = require("../utils/storage");
+const { STORAGE_KEYS, get, set } = require("../../utils/storage");
+const favoritesStore = require("../userState/favoritesStore");
 
 let _listingCache = null;
 let _listingCacheExpireAt = 0;
-let _favoriteCache = null;
-let _compareCacheCache = null;
+let _compareCache = null;
 
-const LISTINGS_CACHE_TTL_MS = 10 * 60 * 1000; // 10分钟
+const LISTINGS_CACHE_TTL_MS = 10 * 60 * 1000;
 
 function nowISOTime() {
   return new Date().toISOString();
@@ -38,11 +25,7 @@ function invalidateListingCache() {
   _listingCacheExpireAt = 0;
 }
 
-/**
- * 读取所有房源列表（三层缓存）
- */
 function getListings({ userId, includeInactive = false } = {}) {
-  // 第一层：内存缓存
   if (isListingCacheValid()) {
     return {
       status: "success",
@@ -51,13 +34,11 @@ function getListings({ userId, includeInactive = false } = {}) {
     };
   }
 
-  // 第二层：storage 缓存
   try {
     const listings = get(STORAGE_KEYS.LISTINGS, []);
     if (Array.isArray(listings) && listings.length > 0) {
       _listingCache = listings;
       _listingCacheExpireAt = Date.now() + LISTINGS_CACHE_TTL_MS;
-      
       return {
         status: "success",
         data: listings.filter((item) => includeInactive || item.status === "active"),
@@ -65,10 +46,9 @@ function getListings({ userId, includeInactive = false } = {}) {
       };
     }
   } catch (err) {
-    console.warn("[listingRepo] getListings from storage failed", err);
+    console.warn("[listingSearch.listingRepo] getListings from storage failed", err);
   }
 
-  // 第三层：兜底空数组
   return {
     status: "success",
     data: [],
@@ -77,9 +57,6 @@ function getListings({ userId, includeInactive = false } = {}) {
   };
 }
 
-/**
- * 查询房源（支持过滤）
- */
 function queryListings(criteria = {}) {
   const result = getListings(criteria);
   if (result.status !== "success") {
@@ -88,20 +65,15 @@ function queryListings(criteria = {}) {
 
   let filtered = result.data;
 
-  // 按用户过滤
   if (criteria.userId) {
     filtered = filtered.filter((item) => item.user_id === criteria.userId);
   }
 
-  // 按城市过滤
   if (criteria.city) {
     const cityLower = String(criteria.city).toLowerCase();
-    filtered = filtered.filter((item) => 
-      String(item.city || "").toLowerCase() === cityLower
-    );
+    filtered = filtered.filter((item) => String(item.city || "").toLowerCase() === cityLower);
   }
 
-  // 按区域过滤
   if (criteria.district) {
     const districtLower = String(criteria.district).toLowerCase();
     filtered = filtered.filter((item) =>
@@ -109,7 +81,6 @@ function queryListings(criteria = {}) {
     );
   }
 
-  // 按关键词过滤
   if (criteria.keyword) {
     const kwLower = String(criteria.keyword).toLowerCase();
     filtered = filtered.filter((item) =>
@@ -119,7 +90,6 @@ function queryListings(criteria = {}) {
     );
   }
 
-  // 按价格范围过滤
   if (criteria.priceMin != null || criteria.priceMax != null) {
     filtered = filtered.filter((item) => {
       const price = item.price_total;
@@ -130,9 +100,8 @@ function queryListings(criteria = {}) {
     });
   }
 
-  // 按收藏状态过滤
   if (criteria.favoriteId) {
-    const favoriteIds = getFavoriteIds();
+    const favoriteIds = favoritesStore.getFavoriteIds();
     filtered = filtered.filter((item) =>
       favoriteIds.includes(normalizeText(item.listing_id))
     );
@@ -146,9 +115,6 @@ function queryListings(criteria = {}) {
   };
 }
 
-/**
- * 获取单个房源
- */
 function getListing(listingId) {
   const result = getListings();
   if (result.status !== "success") {
@@ -163,24 +129,16 @@ function getListing(listingId) {
   };
 }
 
-/**
- * 更新房源列表（通常来自云端同步）
- */
 function updateListings(listings, syncStatus = "synced") {
   try {
     const normalized = Array.isArray(listings) ? listings : [];
-    
-    // 补充版本信息
     const withVersion = normalized.map((item) => ({
       ...item,
       version: item.version || "1",
       updated_at: item.updated_at || nowISOTime()
     }));
 
-    // 写入 storage
     set(STORAGE_KEYS.LISTINGS, withVersion);
-
-    // 更新内存缓存
     _listingCache = withVersion;
     _listingCacheExpireAt = Date.now() + LISTINGS_CACHE_TTL_MS;
 
@@ -190,7 +148,7 @@ function updateListings(listings, syncStatus = "synced") {
       syncStatus
     };
   } catch (err) {
-    console.error("[listingRepo] updateListings failed", err);
+    console.error("[listingSearch.listingRepo] updateListings failed", err);
     return {
       status: "error",
       error: err.message
@@ -198,80 +156,30 @@ function updateListings(listings, syncStatus = "synced") {
   }
 }
 
-/**
- * 获取收藏列表 ID
- */
 function getFavoriteIds() {
-  if (_favoriteCache !== null) {
-    return Array.isArray(_favoriteCache) ? _favoriteCache : [];
-  }
-
-  try {
-    const favorites = get(STORAGE_KEYS.FAVORITE_LISTING_IDS, []);
-    _favoriteCache = Array.isArray(favorites) ? favorites : [];
-    return _favoriteCache;
-  } catch (err) {
-    return [];
-  }
+  return favoritesStore.getFavoriteIds();
 }
 
-/**
- * 切换房源收藏状态
- */
 function toggleFavorite(listingId) {
-  const favorites = getFavoriteIds();
-  const index = favorites.indexOf(listingId);
-  let favorited = false;
-
-  if (index >= 0) {
-    favorites.splice(index, 1);
-    favorited = false;
-  } else {
-    favorites.push(listingId);
-    favorited = true;
-  }
-
-  try {
-    set(STORAGE_KEYS.FAVORITE_LISTING_IDS, favorites);
-    _favoriteCache = favorites;
-
-    return {
-      status: "success",
-      favorited,
-      listing_id: listingId,
-      total_favorites: favorites.length,
-      updated_at: nowISOTime()
-    };
-  } catch (err) {
-    return {
-      status: "error",
-      error: err.message
-    };
-  }
+  return favoritesStore.toggleFavorite(listingId);
 }
 
-/**
- * 获取比较列表 ID
- */
 function getCompareIds() {
-  if (_compareCacheCache !== null) {
-    return Array.isArray(_compareCacheCache) ? _compareCacheCache : [];
+  if (_compareCache !== null) {
+    return Array.isArray(_compareCache) ? _compareCache : [];
   }
 
   try {
     const compare = get(STORAGE_KEYS.COMPARE_LISTING_IDS, []);
-    _compareCacheCache = Array.isArray(compare) ? compare : [];
-    return _compareCacheCache;
+    _compareCache = Array.isArray(compare) ? compare : [];
+    return _compareCache;
   } catch (err) {
     return [];
   }
 }
 
-/**
- * 切换房源比较状态
- */
 function toggleCompare(listingId) {
-  const compared = getCompareIds();
+  const compared = getCompareIds().slice();
   const index = compared.indexOf(listingId);
   let included = false;
 
@@ -292,7 +200,7 @@ function toggleCompare(listingId) {
 
   try {
     set(STORAGE_KEYS.COMPARE_LISTING_IDS, compared);
-    _compareCacheCache = compared;
+    _compareCache = compared;
 
     return {
       status: "success",
@@ -309,39 +217,24 @@ function toggleCompare(listingId) {
   }
 }
 
-/**
- * 清空收藏
- */
 function clearFavorites() {
-  try {
-    set(STORAGE_KEYS.FAVORITE_LISTING_IDS, []);
-    _favoriteCache = [];
-    return { status: "success" };
-  } catch (err) {
-    return { status: "error", error: err.message };
-  }
+  return favoritesStore.clearFavorites();
 }
 
-/**
- * 清空比较
- */
 function clearCompare() {
   try {
     set(STORAGE_KEYS.COMPARE_LISTING_IDS, []);
-    _compareCacheCache = [];
+    _compareCache = [];
     return { status: "success" };
   } catch (err) {
     return { status: "error", error: err.message };
   }
 }
 
-/**
- * 缓存失效
- */
 function invalidateCache() {
   invalidateListingCache();
-  _favoriteCache = null;
-  _compareCacheCache = null;
+  _compareCache = null;
+  favoritesStore.invalidateCache();
 }
 
 module.exports = {

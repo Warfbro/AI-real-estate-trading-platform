@@ -1,13 +1,4 @@
-/**
- * profileRepo.js - 用户个人资料与设置
- *
- * 职责：
- * 1) 管理 AI_MEMORY_PROFILE、AI_ACTIVE_REQUIREMENT 等用户业务资料
- * 2) 维护搜索偏好、区域选择等用户设置
- * 3) 提供统一读写接口
- */
-
-const { STORAGE_KEYS, get, set } = require("../utils/storage");
+const { STORAGE_KEYS, get, set } = require("../../utils/storage");
 
 let _profileCache = null;
 let _requirementCache = null;
@@ -17,9 +8,6 @@ function nowISOTime() {
   return new Date().toISOString();
 }
 
-/**
- * 获取 AI 记忆资料
- */
 function getAIMemoryProfile() {
   if (_profileCache !== null) {
     return {
@@ -40,7 +28,7 @@ function getAIMemoryProfile() {
       };
     }
   } catch (err) {
-    console.warn("[profileRepo] getAIMemoryProfile failed", err);
+    console.warn("[userState.profileRepo] getAIMemoryProfile failed", err);
   }
 
   return {
@@ -50,14 +38,11 @@ function getAIMemoryProfile() {
   };
 }
 
-/**
- * 更新 AI 记忆资料
- */
 function updateAIMemoryProfile(profile) {
   try {
     const updated = {
       ...profile,
-      version: String((parseInt(profile.version || "0") + 1)),
+      version: String(parseInt(profile.version || "0", 10) + 1),
       updated_at: nowISOTime()
     };
 
@@ -76,9 +61,6 @@ function updateAIMemoryProfile(profile) {
   }
 }
 
-/**
- * 获取当前活跃需求(requirement)
- */
 function getActiveRequirement() {
   if (_requirementCache !== null) {
     return {
@@ -99,7 +81,7 @@ function getActiveRequirement() {
       };
     }
   } catch (err) {
-    console.warn("[profileRepo] getActiveRequirement failed", err);
+    console.warn("[userState.profileRepo] getActiveRequirement failed", err);
   }
 
   return {
@@ -109,14 +91,11 @@ function getActiveRequirement() {
   };
 }
 
-/**
- * 更新活跃需求
- */
 function updateActiveRequirement(requirement) {
   try {
     const updated = {
       ...requirement,
-      version: String((parseInt(requirement.version || "0") + 1)),
+      version: String(parseInt(requirement.version || "0", 10) + 1),
       updated_at: nowISOTime()
     };
 
@@ -135,9 +114,6 @@ function updateActiveRequirement(requirement) {
   }
 }
 
-/**
- * 获取用户搜索偏好
- */
 function getPreferences() {
   if (_preferencesCache !== null) {
     return _preferencesCache;
@@ -161,30 +137,23 @@ function getPreferences() {
   }
 }
 
-/**
- * 更新搜索历史
- */
 function updateSearchHistory(keyword, maxItems = 20) {
   try {
     const history = get(STORAGE_KEYS.SEARCH_HISTORY, []);
     const list = Array.isArray(history) ? history : [];
-    
-    const normalized = String(keyword).trim();
+    const normalized = String(keyword || "").trim();
     if (!normalized) {
       return { status: "skip" };
     }
 
-    // 去重 & 从前移
     const idx = list.indexOf(normalized);
     if (idx >= 0) {
       list.splice(idx, 1);
     }
     list.unshift(normalized);
 
-    // 截断
     const trimmed = list.slice(0, maxItems);
     set(STORAGE_KEYS.SEARCH_HISTORY, trimmed);
-
     _preferencesCache = null;
 
     return {
@@ -199,9 +168,6 @@ function updateSearchHistory(keyword, maxItems = 20) {
   }
 }
 
-/**
- * 更新主城市区域选择
- */
 function updateHomeCityRegion(regionArray) {
   try {
     set(STORAGE_KEYS.HOME_CITY_REGION, regionArray);
@@ -212,9 +178,6 @@ function updateHomeCityRegion(regionArray) {
   }
 }
 
-/**
- * 更新搜索区域过滤
- */
 function updateSearchRegionFilter(regionArray) {
   try {
     set(STORAGE_KEYS.SEARCH_REGION_FILTER, regionArray);
@@ -225,9 +188,6 @@ function updateSearchRegionFilter(regionArray) {
   }
 }
 
-/**
- * 清空搜索历史
- */
 function clearSearchHistory() {
   try {
     set(STORAGE_KEYS.SEARCH_HISTORY, []);
@@ -238,9 +198,6 @@ function clearSearchHistory() {
   }
 }
 
-/**
- * 缓存失效
- */
 function invalidateCache() {
   _profileCache = null;
   _requirementCache = null;

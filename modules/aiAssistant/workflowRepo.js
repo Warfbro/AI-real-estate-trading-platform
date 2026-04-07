@@ -1,28 +1,14 @@
-/**
- * repos/workflowRepo.js - 工作流状态仓库
- *
- * 职责：
- * 1) 管理 workflow_sessions / workflow_events / workflow_checkpoints
- * 2) 提供会话恢复、事件记录、快照查询的统一接口
- * 3) 维护三层缓存：内存 -> storage -> 云端
- *
- * 数据流：
- * 页面/服务调用 -> workflowRepo -> 内存/storage/云端
- */
+const { get, set } = require("../../utils/storage");
 
-const { STORAGE_KEYS, get, set } = require("../utils/storage");
-
-// 内存缓存
 let _sessionsCache = null;
 let _sessionsCacheExpireAt = 0;
 let _eventsCache = null;
 let _checkpointsCache = null;
 
-const SESSIONS_CACHE_TTL_MS = 5 * 60 * 1000; // 5分钟
+const SESSIONS_CACHE_TTL_MS = 5 * 60 * 1000;
 const MAX_EVENTS_PER_SESSION = 100;
 const MAX_CHECKPOINTS_PER_SESSION = 10;
 
-// Storage keys
 const WORKFLOW_SESSIONS_KEY = "WORKFLOW_SESSIONS";
 const WORKFLOW_EVENTS_KEY = "WORKFLOW_EVENTS";
 const WORKFLOW_CHECKPOINTS_KEY = "WORKFLOW_CHECKPOINTS";
@@ -41,7 +27,7 @@ function generateId(prefix) {
 }
 
 function isSessionsCacheValid() {
-  return _sessionsCache && Date.now() < _sessionsCacheExpireAt;
+  return Boolean(_sessionsCache) && Date.now() < _sessionsCacheExpireAt;
 }
 
 function invalidateCache() {
@@ -51,21 +37,14 @@ function invalidateCache() {
   _checkpointsCache = null;
 }
 
-// ============================================================
-// Workflow Sessions
-// ============================================================
-
-/**
- * 获取所有工作流会话
- */
 function getSessions({ userId = "", status = null } = {}) {
   if (isSessionsCacheValid()) {
     let result = _sessionsCache;
     if (userId) {
-      result = result.filter((s) => s.user_id === userId);
+      result = result.filter((item) => item.user_id === userId);
     }
     if (status) {
-      result = result.filter((s) => s.status === status);
+      result = result.filter((item) => item.status === status);
     }
     return { status: "success", data: result, source: "memory" };
   }
@@ -78,23 +57,20 @@ function getSessions({ userId = "", status = null } = {}) {
 
       let result = sessions;
       if (userId) {
-        result = result.filter((s) => s.user_id === userId);
+        result = result.filter((item) => item.user_id === userId);
       }
       if (status) {
-        result = result.filter((s) => s.status === status);
+        result = result.filter((item) => item.status === status);
       }
       return { status: "success", data: result, source: "storage" };
     }
   } catch (err) {
-    console.warn("[workflowRepo] getSessions failed", err);
+    console.warn("[aiAssistant.workflowRepo] getSessions failed", err);
   }
 
   return { status: "success", data: [], source: "none" };
 }
 
-/**
- * 获取单个工作流会话
- */
 function getSession(workflowSessionId) {
   const sessionId = normalizeText(workflowSessionId);
   if (!sessionId) {
@@ -102,7 +78,7 @@ function getSession(workflowSessionId) {
   }
 
   const result = getSessions();
-  const session = (result.data || []).find((s) => s.workflow_session_id === sessionId);
+  const session = (result.data || []).find((item) => item.workflow_session_id === sessionId);
 
   return {
     status: session ? "success" : "not_found",
@@ -111,9 +87,6 @@ function getSession(workflowSessionId) {
   };
 }
 
-/**
- * 创建或更新工作流会话
- */
 function upsertSession(sessionData) {
   const sessionId = normalizeText(sessionData.workflow_session_id);
   if (!sessionId) {
@@ -122,13 +95,13 @@ function upsertSession(sessionData) {
 
   try {
     const sessions = get(WORKFLOW_SESSIONS_KEY, []);
-    const existingIndex = sessions.findIndex((s) => s.workflow_session_id === sessionId);
+    const existingIndex = sessions.findIndex((item) => item.workflow_session_id === sessionId);
     const now = nowISOTime();
 
     const session = {
       ...sessionData,
       workflow_session_id: sessionId,
-      version: String((parseInt(sessionData.version || "0") + 1)),
+      version: String(parseInt(sessionData.version || "0", 10) + 1),
       updated_at: now,
       created_at: sessionData.created_at || now
     };
@@ -149,9 +122,6 @@ function upsertSession(sessionData) {
   }
 }
 
-/**
- * 更新会话状态
- */
 function updateSessionStatus(workflowSessionId, status) {
   const result = getSession(workflowSessionId);
   if (result.status !== "success" || !result.data) {
@@ -164,9 +134,28 @@ function updateSessionStatus(workflowSessionId, status) {
   });
 }
 
-/**
- * 删除会话
- */
+function cleanupSessionEvents(workflowSessionId) {
+  try {
+    const allEvents = get(WORKFLOW_EVENTS_KEY, {});
+    delete allEvents[workflowSessionId];
+    set(WORKFLOW_EVENTS_KEY, allEvents);
+    _eventsCache = allEvents;
+  } catch (err) {
+    // best effort
+  }
+}
+
+function cleanupSessionCheckpoints(workflowSessionId) {
+  try {
+    const allCheckpoints = get(WORKFLOW_CHECKPOINTS_KEY, {});
+    delete allCheckpoints[workflowSessionId];
+    set(WORKFLOW_CHECKPOINTS_KEY, allCheckpoints);
+    _checkpointsCache = allCheckpoints;
+  } catch (err) {
+    // best effort
+  }
+}
+
 function deleteSession(workflowSessionId) {
   const sessionId = normalizeText(workflowSessionId);
   if (!sessionId) {
@@ -175,12 +164,11 @@ function deleteSession(workflowSessionId) {
 
   try {
     const sessions = get(WORKFLOW_SESSIONS_KEY, []);
-    const filtered = sessions.filter((s) => s.workflow_session_id !== sessionId);
+    const filtered = sessions.filter((item) => item.workflow_session_id !== sessionId);
     set(WORKFLOW_SESSIONS_KEY, filtered);
     _sessionsCache = filtered;
     _sessionsCacheExpireAt = Date.now() + SESSIONS_CACHE_TTL_MS;
 
-    // 同时清理关联的事件和检查点
     cleanupSessionEvents(sessionId);
     cleanupSessionCheckpoints(sessionId);
 
@@ -190,13 +178,6 @@ function deleteSession(workflowSessionId) {
   }
 }
 
-// ============================================================
-// Workflow Events
-// ============================================================
-
-/**
- * 获取会话的所有事件
- */
 function getSessionEvents(workflowSessionId, { limit = 50 } = {}) {
   const sessionId = normalizeText(workflowSessionId);
   if (!sessionId) {
@@ -218,15 +199,28 @@ function getSessionEvents(workflowSessionId, { limit = 50 } = {}) {
   }
 }
 
-/**
- * 记录工作流事件
- */
-function recordEvent({
-  workflowSessionId,
-  eventType,
-  eventData = {},
-  userId = ""
-}) {
+function normalizeRecordEventInput(inputOrWorkflowSessionId, legacyEvent) {
+  if (typeof inputOrWorkflowSessionId === "string") {
+    const payload = legacyEvent && typeof legacyEvent === "object" ? legacyEvent : {};
+    return {
+      workflowSessionId: inputOrWorkflowSessionId,
+      eventType: payload.eventType || payload.event_type || "",
+      eventData: payload.eventData || payload.event_data || payload.payload || {},
+      userId: payload.userId || payload.user_id || ""
+    };
+  }
+
+  return inputOrWorkflowSessionId || {};
+}
+
+function recordEvent(inputOrWorkflowSessionId, legacyEvent) {
+  const {
+    workflowSessionId,
+    eventType,
+    eventData = {},
+    userId = ""
+  } = normalizeRecordEventInput(inputOrWorkflowSessionId, legacyEvent);
+
   const sessionId = normalizeText(workflowSessionId);
   if (!sessionId) {
     return { status: "error", error: "workflow_session_id is required" };
@@ -235,19 +229,16 @@ function recordEvent({
   try {
     const allEvents = get(WORKFLOW_EVENTS_KEY, {});
     const sessionEvents = allEvents[sessionId] || [];
-    const now = nowISOTime();
-
     const event = {
       event_id: generateId("evt"),
       workflow_session_id: sessionId,
       event_type: normalizeText(eventType),
       event_data: eventData,
       user_id: normalizeText(userId),
-      created_at: now
+      created_at: nowISOTime()
     };
 
     sessionEvents.push(event);
-    // 限制每个会话的事件数量
     if (sessionEvents.length > MAX_EVENTS_PER_SESSION) {
       sessionEvents.splice(0, sessionEvents.length - MAX_EVENTS_PER_SESSION);
     }
@@ -262,27 +253,6 @@ function recordEvent({
   }
 }
 
-/**
- * 清理会话事件
- */
-function cleanupSessionEvents(workflowSessionId) {
-  try {
-    const allEvents = get(WORKFLOW_EVENTS_KEY, {});
-    delete allEvents[workflowSessionId];
-    set(WORKFLOW_EVENTS_KEY, allEvents);
-    _eventsCache = allEvents;
-  } catch (err) {
-    // Best effort
-  }
-}
-
-// ============================================================
-// Workflow Checkpoints
-// ============================================================
-
-/**
- * 获取会话的所有检查点
- */
 function getSessionCheckpoints(workflowSessionId) {
   const sessionId = normalizeText(workflowSessionId);
   if (!sessionId) {
@@ -290,23 +260,31 @@ function getSessionCheckpoints(workflowSessionId) {
   }
 
   if (_checkpointsCache) {
-    const checkpoints = _checkpointsCache[sessionId] || [];
-    return { status: "success", data: checkpoints, source: "memory" };
+    return {
+      status: "success",
+      data: _checkpointsCache[sessionId] || [],
+      source: "memory"
+    };
   }
 
   try {
     const allCheckpoints = get(WORKFLOW_CHECKPOINTS_KEY, {});
     _checkpointsCache = allCheckpoints;
-    const checkpoints = allCheckpoints[sessionId] || [];
-    return { status: "success", data: checkpoints, source: "storage" };
+    return {
+      status: "success",
+      data: allCheckpoints[sessionId] || [],
+      source: "storage"
+    };
   } catch (err) {
     return { status: "success", data: [], source: "none" };
   }
 }
 
-/**
- * 获取最新检查点
- */
+function getCheckpoints(workflowSessionId) {
+  const result = getSessionCheckpoints(workflowSessionId);
+  return result.data || [];
+}
+
 function getLatestCheckpoint(workflowSessionId) {
   const result = getSessionCheckpoints(workflowSessionId);
   const checkpoints = result.data || [];
@@ -316,15 +294,29 @@ function getLatestCheckpoint(workflowSessionId) {
   return { status: "success", data: checkpoints[checkpoints.length - 1] };
 }
 
-/**
- * 创建检查点
- */
-function createCheckpoint({
-  workflowSessionId,
-  stage,
-  stateSnapshot,
-  reason = ""
-}) {
+function normalizeCheckpointInput(inputOrWorkflowSessionId, legacyCheckpoint) {
+  if (typeof inputOrWorkflowSessionId === "string") {
+    const payload = legacyCheckpoint && typeof legacyCheckpoint === "object" ? legacyCheckpoint : {};
+    const stateSnapshot = payload.stateSnapshot || payload.state_snapshot || {};
+    return {
+      workflowSessionId: inputOrWorkflowSessionId,
+      stage: payload.stage || stateSnapshot.state || "",
+      stateSnapshot,
+      reason: payload.reason || payload.checkpoint_type || ""
+    };
+  }
+
+  return inputOrWorkflowSessionId || {};
+}
+
+function createCheckpoint(inputOrWorkflowSessionId, legacyCheckpoint) {
+  const {
+    workflowSessionId,
+    stage,
+    stateSnapshot,
+    reason = ""
+  } = normalizeCheckpointInput(inputOrWorkflowSessionId, legacyCheckpoint);
+
   const sessionId = normalizeText(workflowSessionId);
   if (!sessionId) {
     return { status: "error", error: "workflow_session_id is required" };
@@ -333,19 +325,16 @@ function createCheckpoint({
   try {
     const allCheckpoints = get(WORKFLOW_CHECKPOINTS_KEY, {});
     const sessionCheckpoints = allCheckpoints[sessionId] || [];
-    const now = nowISOTime();
-
     const checkpoint = {
       checkpoint_id: generateId("chk"),
       workflow_session_id: sessionId,
       stage: normalizeText(stage),
       state_snapshot: stateSnapshot || {},
       reason: normalizeText(reason),
-      created_at: now
+      created_at: nowISOTime()
     };
 
     sessionCheckpoints.push(checkpoint);
-    // 限制检查点数量
     if (sessionCheckpoints.length > MAX_CHECKPOINTS_PER_SESSION) {
       sessionCheckpoints.splice(0, sessionCheckpoints.length - MAX_CHECKPOINTS_PER_SESSION);
     }
@@ -354,7 +343,6 @@ function createCheckpoint({
     set(WORKFLOW_CHECKPOINTS_KEY, allCheckpoints);
     _checkpointsCache = allCheckpoints;
 
-    // 更新会话的 latest_checkpoint_id
     const sessionResult = getSession(sessionId);
     if (sessionResult.data) {
       upsertSession({
@@ -369,13 +357,10 @@ function createCheckpoint({
   }
 }
 
-/**
- * 恢复到检查点
- */
 function restoreToCheckpoint(workflowSessionId, checkpointId) {
   const sessionId = normalizeText(workflowSessionId);
   const result = getSessionCheckpoints(sessionId);
-  const checkpoint = (result.data || []).find((c) => c.checkpoint_id === checkpointId);
+  const checkpoint = (result.data || []).find((item) => item.checkpoint_id === checkpointId);
 
   if (!checkpoint) {
     return { status: "not_found", error: "checkpoint not found" };
@@ -386,7 +371,6 @@ function restoreToCheckpoint(workflowSessionId, checkpointId) {
     return { status: "not_found", error: "session not found" };
   }
 
-  // 恢复状态
   const restored = upsertSession({
     ...sessionResult.data,
     current_stage: checkpoint.stage,
@@ -394,7 +378,6 @@ function restoreToCheckpoint(workflowSessionId, checkpointId) {
     restored_from_checkpoint_id: checkpointId
   });
 
-  // 记录恢复事件
   recordEvent({
     workflowSessionId: sessionId,
     eventType: "checkpoint_restored",
@@ -404,72 +387,46 @@ function restoreToCheckpoint(workflowSessionId, checkpointId) {
   return restored;
 }
 
-/**
- * 清理会话检查点
- */
-function cleanupSessionCheckpoints(workflowSessionId) {
-  try {
-    const allCheckpoints = get(WORKFLOW_CHECKPOINTS_KEY, {});
-    delete allCheckpoints[workflowSessionId];
-    set(WORKFLOW_CHECKPOINTS_KEY, allCheckpoints);
-    _checkpointsCache = allCheckpoints;
-  } catch (err) {
-    // Best effort
-  }
-}
-
-// ============================================================
-// 便捷方法
-// ============================================================
-
-/**
- * 获取用户的活跃会话
- */
 function getActiveSession(userId) {
   const result = getSessions({ userId, status: "active" });
   const sessions = result.data || [];
   if (!sessions.length) {
     return { status: "not_found", data: null };
   }
-  // 返回最新的活跃会话
-  sessions.sort((a, b) => (b.updated_at || "").localeCompare(a.updated_at || ""));
+
+  sessions.sort((left, right) => (right.updated_at || "").localeCompare(left.updated_at || ""));
   return { status: "success", data: sessions[0] };
 }
 
-/**
- * 创建新会话
- */
-function createSession({
-  userId,
-  threadId = "",
-  intakeId = "",
-  initialStage = "clarifying",
-  initialState = {}
-}) {
+function normalizeSessionInput(input = {}) {
   const now = nowISOTime();
-  const session = {
-    workflow_session_id: generateId("wf"),
-    thread_id: normalizeText(threadId),
-    user_id: normalizeText(userId),
-    intake_id: normalizeText(intakeId),
-    status: "active",
-    current_stage: normalizeText(initialStage),
-    current_node: "",
-    state_json: initialState,
-    latest_checkpoint_id: "",
-    created_at: now,
-    updated_at: now,
-    version: "1"
+  return {
+    workflow_session_id: normalizeText(input.workflow_session_id) || generateId("wf"),
+    workflow_type: normalizeText(input.workflow_type, "decision"),
+    thread_id: normalizeText(input.thread_id || input.threadId),
+    user_id: normalizeText(input.user_id || input.userId),
+    intake_id: normalizeText(input.intake_id || input.intakeId),
+    status: normalizeText(input.status, "active"),
+    current_stage: normalizeText(input.current_stage || input.initialStage, "clarifying"),
+    current_node: normalizeText(input.current_node),
+    state_json: input.state_json || input.initialState || {},
+    latest_checkpoint_id: normalizeText(input.latest_checkpoint_id),
+    created_at: input.created_at || now,
+    updated_at: input.updated_at || now,
+    version: input.version || "1"
   };
+}
 
+function createSession(input = {}) {
+  const session = normalizeSessionInput(input);
   const result = upsertSession(session);
+
   if (result.status === "success") {
-    // 记录创建事件
     recordEvent({
       workflowSessionId: session.workflow_session_id,
       eventType: "session_created",
-      eventData: { initial_stage: initialStage },
-      userId
+      eventData: { initial_stage: session.current_stage },
+      userId: session.user_id
     });
   }
 
@@ -477,7 +434,6 @@ function createSession({
 }
 
 module.exports = {
-  // Sessions
   getSessions,
   getSession,
   upsertSession,
@@ -485,17 +441,12 @@ module.exports = {
   deleteSession,
   getActiveSession,
   createSession,
-
-  // Events
   getSessionEvents,
   recordEvent,
-
-  // Checkpoints
   getSessionCheckpoints,
+  getCheckpoints,
   getLatestCheckpoint,
   createCheckpoint,
   restoreToCheckpoint,
-
-  // Cache
   invalidateCache
 };

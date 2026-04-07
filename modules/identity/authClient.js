@@ -1,6 +1,6 @@
-const { STORAGE_KEYS, get, set } = require("./storage");
-const { writeActivityLog } = require("./track");
-const { getLoginIdentity } = require("./cloud");
+const { STORAGE_KEYS, get, set } = require("../../utils/storage");
+const { writeActivityLog } = require("../../utils/track");
+const { getLoginIdentity } = require("../../utils/cloud");
 
 const ROLES = ["user", "advisor", "admin"];
 const FORCE_ADMIN_ROLE_IN_TEST = true;
@@ -64,11 +64,11 @@ function loginWithWeChat(role = "user", options = {}) {
           phoneBound = Boolean(identity.phoneBound);
           phoneSyncError = identity.phoneSyncError || "";
           if (!cloudSynced && cloudSyncError) {
-            console.warn("[auth] users sync incomplete", identity);
+            console.warn("[identity.authClient] users sync incomplete", identity);
           }
         } catch (err) {
           cloudSyncError = (err && (err.message || err.errMsg)) || "cloud sync failed";
-          console.warn("[auth] cloud sync failed", err);
+          console.warn("[identity.authClient] cloud sync failed", err);
         }
 
         const session = {

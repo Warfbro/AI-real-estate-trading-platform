@@ -1,37 +1,19 @@
-/**
- * intakeRepo.js - 需求管理仓库
- *
- * 职责：
- * 1) 管理 BUYER_INTAKES 需求列表
- * 2) 提供查询、创建、更新需求的接口
- * 3) 支持需求状态转换和标记草稿
- */
-
-const { STORAGE_KEYS, get, set } = require("../utils/storage");
+const { STORAGE_KEYS, get, set } = require("../../utils/storage");
 
 let _intakesCache = null;
 let _intakeCacheExpireAt = 0;
 
-const INTAKES_CACHE_TTL_MS = 5 * 60 * 1000; // 5分钟
+const INTAKES_CACHE_TTL_MS = 5 * 60 * 1000;
 
 function nowISOTime() {
   return new Date().toISOString();
-}
-
-function normalizeText(value, fallback = "") {
-  const text = String(value || "").trim();
-  return text || fallback;
 }
 
 function isCacheValid() {
   return _intakesCache && Date.now() < _intakeCacheExpireAt;
 }
 
-/**
- * 获取所有需求
- */
 function getIntakes({ userId, status = "submitted" } = {}) {
-  // 第一层：内存缓存
   if (isCacheValid()) {
     let result = _intakesCache;
     if (userId) {
@@ -47,7 +29,6 @@ function getIntakes({ userId, status = "submitted" } = {}) {
     };
   }
 
-  // 第二层：storage 缓存
   try {
     const intakes = get(STORAGE_KEYS.BUYER_INTAKES, []);
     if (Array.isArray(intakes)) {
@@ -69,7 +50,7 @@ function getIntakes({ userId, status = "submitted" } = {}) {
       };
     }
   } catch (err) {
-    console.warn("[intakeRepo] getIntakes failed", err);
+    console.warn("[userState.intakeRepo] getIntakes failed", err);
   }
 
   return {
@@ -79,9 +60,6 @@ function getIntakes({ userId, status = "submitted" } = {}) {
   };
 }
 
-/**
- * 获取单个需求
- */
 function getIntake(intakeId) {
   const result = getIntakes();
   if (result.status !== "success") {
@@ -95,18 +73,13 @@ function getIntake(intakeId) {
   };
 }
 
-/**
- * 创建或更新需求
- */
 function upsertIntake(intake) {
   try {
-    const result = getIntakes({ status: null }); // 获取所有
+    const result = getIntakes({ status: null });
     const intakes = result.data || [];
-
     const now = nowISOTime();
     const intakeId = intake.intake_id || `intake_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-
-    const existing = intakes.findIndex((i) => i.intake_id === intakeId);
+    const existing = intakes.findIndex((item) => item.intake_id === intakeId);
 
     let updated;
     if (existing >= 0) {
@@ -115,7 +88,7 @@ function upsertIntake(intake) {
         ...intake,
         intake_id: intakeId,
         updated_at: now,
-        version: String((parseInt(intakes[existing].version || "0") + 1))
+        version: String(parseInt(intakes[existing].version || "0", 10) + 1)
       };
       intakes[existing] = updated;
     } else {
@@ -146,15 +119,11 @@ function upsertIntake(intake) {
   }
 }
 
-/**
- * 更新需求状态
- */
 function updateIntakeStatus(intakeId, newStatus) {
   try {
     const result = getIntakes({ status: null });
     const intakes = result.data || [];
-
-    const intake = intakes.find((i) => i.intake_id === intakeId);
+    const intake = intakes.find((item) => item.intake_id === intakeId);
     if (!intake) {
       return {
         status: "not_found"
@@ -165,11 +134,10 @@ function updateIntakeStatus(intakeId, newStatus) {
       ...intake,
       status: newStatus,
       updated_at: nowISOTime(),
-      version: String((parseInt(intake.version || "0") + 1))
+      version: String(parseInt(intake.version || "0", 10) + 1)
     };
 
-    const idx = intakes.indexOf(intake);
-    intakes[idx] = updated;
+    intakes[intakes.indexOf(intake)] = updated;
 
     set(STORAGE_KEYS.BUYER_INTAKES, intakes);
     _intakesCache = intakes;
@@ -187,15 +155,11 @@ function updateIntakeStatus(intakeId, newStatus) {
   }
 }
 
-/**
- * 删除需求
- */
 function deleteIntake(intakeId) {
   try {
     const result = getIntakes({ status: null });
     const intakes = result.data || [];
-
-    const filtered = intakes.filter((i) => i.intake_id !== intakeId);
+    const filtered = intakes.filter((item) => item.intake_id !== intakeId);
 
     set(STORAGE_KEYS.BUYER_INTAKES, filtered);
     _intakesCache = filtered;
@@ -213,14 +177,9 @@ function deleteIntake(intakeId) {
   }
 }
 
-/**
- * 批量更新需求列表（通常来自云端同步）
- */
 function updateIntakes(intakes) {
   try {
     const normalized = Array.isArray(intakes) ? intakes : [];
-    
-    // 补充版本信息
     const withVersion = normalized.map((item) => ({
       ...item,
       version: item.version || "1",
@@ -243,9 +202,6 @@ function updateIntakes(intakes) {
   }
 }
 
-/**
- * 缓存失效
- */
 function invalidateCache() {
   _intakesCache = null;
   _intakeCacheExpireAt = 0;

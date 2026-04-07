@@ -221,7 +221,7 @@
     set(KEY.EVENT_LOGS, data.event_logs);
     set(KEY.ACTIVITY_LOGS, data.activity_logs);
     set(KEY.COMPARE_LISTING_IDS, data.compare_listing_ids);
-    set(KEY.LAST_ROUTE, "/pages/action/index");
+    set(KEY.LAST_ROUTE, "/pages/ai/index?source=continue");
     console.info("[SMOKE_HELPER] seed completed");
     printSummary();
   }
@@ -414,12 +414,7 @@
     set(KEY.COMPARE_LISTING_IDS, [listingAId, listingBId]);
     set(
       KEY.LAST_ROUTE,
-      "/pages/risk/index?source=comparison&intake_id=" +
-        intakeId +
-        "&comparison_id=" +
-        comparisonId +
-        "&listing_ids=" +
-        encodeURIComponent(listingAId + "," + listingBId)
+      "/pages/ai/index?source=risk"
     );
 
     console.info("[SMOKE_HELPER] high risk scenario seeded", {
@@ -439,7 +434,7 @@
   function runQuickDemo(options) {
     var opts = options || {};
     var targetRole = String(opts.role || "admin").trim() || "admin";
-    var targetUrl = String(opts.target_url || "/pages/adminLeads/index").trim() || "/pages/adminLeads/index";
+    var targetUrl = String(opts.target_url || "/pages/import/index?source=broker").trim() || "/pages/import/index?source=broker";
     var shouldNavigate = opts.navigate !== false;
     var shouldVerify = opts.verify !== false;
     var beginAt = Date.now();

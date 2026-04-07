@@ -1,5 +1,5 @@
 /**
- * utils/nodeHandlers.js - 业务节点统一处理框架
+ * modules/aiAssistant/nodeHandlers.js - 业务节点统一处理框架
  *
  * 职责：
  * 1) 统一 compare / risk / action / consult 节点接口

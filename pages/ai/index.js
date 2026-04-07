@@ -1,21 +1,24 @@
-const { isLoggedIn, getSession } = require("../../utils/auth");
+const { isLoggedIn, getSession } = require("../../modules/identity");
 const { EVENTS, trackEvent, writeActivityLog } = require("../../utils/track");
 const { STORAGE_KEYS, get, set } = require("../../utils/storage");
-const { AI_SCENES, requestAIConversation } = require("../../utils/ai");
 const {
+  AI_SCENES,
+  requestAIConversation,
   startDecisionSession,
   getDecisionState,
   submitDecisionPairwise,
   submitDecisionCritique,
-  getDecisionRelaxation
-} = require("../../utils/decision");
+  getDecisionRelaxation,
+  chatRepo
+} = require("../../modules/aiAssistant");
 const {
   syncBuyerIntake,
   syncUserProfile,
   syncChatSession,
   syncChatMessage
 } = require("../../utils/cloud");
-const { chatRepo, listingRepo, intakeRepo } = require("../../repos/index");
+const { listingRepo } = require("../../modules/listingSearch");
+const { intakeRepo } = require("../../modules/userState");
 
 const NAV_REVEAL_DELAY_MS = 160;
 const MAX_QUERY_LENGTH = 1000;

@@ -1,5 +1,5 @@
 /**
- * utils/uiBlockAdapter.js - UI Block 适配器
+ * modules/aiAssistant/uiBlockAdapter.js - UI Block 适配器
  *
  * 职责：
  * 1) 把后端 ui_blocks 转为前端统一 block 数据

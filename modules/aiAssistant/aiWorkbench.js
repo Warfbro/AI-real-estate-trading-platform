@@ -1,5 +1,5 @@
 /**
- * utils/aiWorkbench.js - AI 工作台统一入口
+ * modules/aiAssistant/aiWorkbench.js - AI 工作台统一入口
  *
  * 职责：
  * 1) 整合检索层、生成层、工作流层
@@ -13,7 +13,7 @@ const { createRetrievalProvider } = require("./retrievalProvider");
 const { createLLMProvider, LLM_MODES } = require("./llmProvider");
 const { createNodeRouter, NODE_TYPES } = require("./nodeHandlers");
 const { reliableCall, logObservability, getHealthStatus } = require("./reliability");
-const { workflowRepo } = require("../repos/index");
+const workflowRepo = require("./workflowRepo");
 
 function normalizeText(value, fallback = "") {
   const text = String(value || "").trim();
@@ -95,17 +95,21 @@ function createAIWorkbench(options = {}) {
    * 恢复会话
    */
   async function resumeSession(sessionId) {
-    const session = workflowRepo.getSession(sessionId);
+    const sessionResult = workflowRepo.getSession(sessionId);
 
-    if (!session) {
+    if (sessionResult.status !== "success" || !sessionResult.data) {
       return { success: false, error: { code: "SESSION_NOT_FOUND", message: "会话不存在" } };
     }
 
-    currentSession = session;
+    currentSession = {
+      ...sessionResult.data,
+      session_id: sessionResult.data.workflow_session_id
+    };
 
     // 恢复最近的检查点
-    const checkpoints = workflowRepo.getCheckpoints(sessionId);
-    if (checkpoints && checkpoints.length > 0) {
+    const checkpointsResult = workflowRepo.getSessionCheckpoints(sessionId);
+    const checkpoints = checkpointsResult.data || [];
+    if (checkpoints.length > 0) {
       const latest = checkpoints[checkpoints.length - 1];
       if (latest.state_snapshot) {
         currentState = latest.state_snapshot.state || WORKBENCH_STATES.IDLE;
@@ -145,9 +149,11 @@ function createAIWorkbench(options = {}) {
     });
 
     // 记录事件
-    workflowRepo.recordEvent(sessionId, {
-      event_type: "user_input",
-      payload: { input, context: inputContext }
+    workflowRepo.recordEvent({
+      workflowSessionId: sessionId,
+      eventType: "user_input",
+      eventData: { input, context: inputContext },
+      userId: currentSession.user_id || ""
     });
 
     try {
@@ -208,10 +214,11 @@ function createAIWorkbench(options = {}) {
       }
 
       // 4. 创建检查点
-      workflowRepo.createCheckpoint(sessionId, {
-        checkpoint_type: "auto",
+      workflowRepo.createCheckpoint({
+        workflowSessionId: sessionId,
         reason: `intent:${intentType}`,
-        state_snapshot: {
+        stage: currentState,
+        stateSnapshot: {
           state: currentState,
           candidates,
           context

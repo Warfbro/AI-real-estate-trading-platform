@@ -1,5 +1,5 @@
 /**
- * utils/aiConversationService.js - AI 对话服务层
+ * modules/aiAssistant/aiConversationService.js - AI 对话服务层
  *
  * 职责：
  * 1) 调用 llmGenerate 进行对话
@@ -11,8 +11,8 @@
  * 页面调用 -> aiConversationService -> 云端 AI -> 返回统一响应
  */
 
-const { STORAGE_KEYS, get, set } = require("./storage");
-const { AI_SCENES, requestAIConversation } = require("./ai");
+const { STORAGE_KEYS, get, set } = require("../../utils/storage");
+const { AI_SCENES, requestAIConversation } = require("./aiGateway");
 const {
   buildAIRequestContext,
   extractCompactContext,
@@ -213,10 +213,10 @@ async function sendMessage({
   });
 
   try {
-    const result = await requestAIConversation(AI_SCENES.PROPERTY_CONSULT, {
+    const result = await requestAIConversation({
       query: normalizeText(query),
-      user_id: userId,
-      session_id: sessionId,
+      userId,
+      sessionId,
       context
     });
 

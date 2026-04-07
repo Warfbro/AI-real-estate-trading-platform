@@ -1,5 +1,5 @@
 /**
- * utils/retrievalProvider.js - 检索层 Provider 抽象
+ * modules/aiAssistant/retrievalProvider.js - 检索层 Provider 抽象
  *
  * 职责：
  * 1) 提供统一的检索接口
@@ -10,7 +10,7 @@
  * 查询请求 -> retrievalProvider -> 候选 + 证据
  */
 
-const { listingRepo } = require("../repos/index");
+const listingRepo = require("../listingSearch/listingRepo");
 
 function normalizeText(value, fallback = "") {
   const text = String(value || "").trim();

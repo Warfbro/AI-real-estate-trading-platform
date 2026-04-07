@@ -1,118 +1,98 @@
 文档名称：演示与交付收口
-版本：V1.3
-日期：2026-03-10
-适用范围：微信小程序 MVP + 后台最小承接
+版本：v1.4
+日期：2026-04-07
+适用范围：微信小程序 MVP 当前 9 页面版本
 
 【一、收口结论】
-结论：首期 MVP 核心链路达到“可演示、可验收、可追溯”状态，且后台线索状态流转已完成自动化与手工自检双覆盖，可进入演示交付。
+结论：本轮已完成“去兼容层、保留当前页面集、统一五模块入口”的收口，演示与交付以当前页面和模块边界为准。
+
 依据：
-1）自动化回归通过：`node process/regression_branches.js`
-2）端到端冒烟通过：`node process/smoke_e2e.js`
-3）开发者工具手工冒烟通过：`SMOKE_HELPER.verifyReportFail/verifyReportRetrySuccess/verifyManualReviewLead/verifyManualReviewNoteTrace` 均可通过
-4）状态全流转自动化通过：回归脚本新增 `lead_status_full_flow`，覆盖 appointment/manual_review 的关键状态迁移与日志链路
-5）测试脚本契约通过：`helper_contract` 覆盖 `switchRole/toAdmin/toUser/seedHighRisk/verifyHighRiskSeed` 及手工说明同步性
+1. `node process/regression_branches.js`
+2. `node process/smoke_e2e.js`
+3. `node process/decision_engine_smoke.js`
+4. `SMOKE_HELPER.runQuickDemo()`
 
-【二、验收记录（对齐 doc/06_验收标准.txt）】
-2.1 P0 主流程验收
-1）需求提交 -> 通过
-2）房源导入（成功/失败） -> 通过
-3）2~5 套房源比较 -> 通过
-4）风险确认（含高风险建议人工复核） -> 通过
-5）下一步动作（consult/appointment/manual_review/send_report/save_for_later） -> 通过
-6）后台承接线索（列表/详情/状态更新/日志） -> 通过
-7）我的空间关键链路可查看与继续 -> 通过
+【二、交付范围】
+当前页面仅保留：
+1. `/pages/home/index`
+2. `/pages/search/index`
+3. `/pages/ai/index`
+4. `/pages/login/index`
+5. `/pages/import/index`
+6. `/pages/searchResult/index`
+7. `/pages/detail/index`
+8. `/pages/my/index`
+9. `/pages/myFavorites/index`
 
-2.2 数据验收
-`smoke_e2e` 输出：
-buyer_intakes=1
-listings=2
-comparison_reports=1
-risk_checks=1
-next_actions=3
-advisor_leads=2
-activity_logs=7
-结论：满足首期数据落库最小要求。
+已移除旧兼容页面：
+1. `/pages/action/index`
+2. `/pages/compare/index`
+3. `/pages/risk/index`
+4. `/pages/intake/index`
+5. `/pages/candidates/index`
+6. `/pages/adminLeads/index`
+7. `/pages/adminLeadDetail/index`
 
-2.3 业务规则验收
-1）send_report 失败记录保留 `error_code` -> 通过
-2）send_report 重试链路：`attempt_no` 递增且 `retry_of_action_id` 回指 -> 通过
-3）send_report 重试目标无效时自动降级为首发，不污染尝试链路 -> 通过（自动化）
-4）comparison_report 日志字段一致性：`message/send_channel/attempt_no` 完整 -> 通过（自动化）
-5）manual_review 线索反查：`risk_level/source_page/trace` 可见 -> 通过
-6）manual_review 队列：后台可按类型快速筛选并优先排序 -> 通过（自动化）
-7）manual_review 处理意见：`summary_json.manual_review_note` 可保存，日志可回看 -> 通过（自动化）
-8）后台线索状态全流转：appointment/manual_review 关键状态迁移与日志连续性 -> 通过（自动化 + 手工自检）
-9）动作提交后状态可追踪且有 activity_logs -> 通过
+【三、部署前最小检查】
+1. `node --check pages/home/index.js`
+2. `node --check pages/ai/index.js`
+3. `node --check pages/import/index.js`
+4. `node --check process/devtools_smoke_helper.js`
+5. `node --check utils/continue.js`
+6. `node process/regression_branches.js`
+7. `node process/smoke_e2e.js`
+8. `node process/decision_engine_smoke.js`
 
-2.4 埋点验收（最小集）
-已覆盖并在手工冒烟中观察到关键事件：
-`EVT_COMPARE_GENERATE`
-`EVT_RISK_GENERATE`
-`EVT_ACTION_REPORT_SEND`
-`EVT_ACTION_MANUAL_REVIEW_SUBMIT`
-`EVT_LEAD_CREATED`
-`EVT_LEAD_STATUS_UPDATE`（后台状态更新链路）
+【四、演示前 60 秒快检】
+命令：
+```js
+SMOKE_HELPER.seedBase()
+SMOKE_HELPER.runQuickDemo()
+SMOKE_HELPER.seedHighRisk()
+SMOKE_HELPER.switchRole("admin")
+```
 
-【三、最小发布说明】
-3.1 本次交付能力
-1）前台动作中心支持报告失败重试与追踪字段展示。
-2）send_report 增加重试目标有效性校验，确保 `retry_of_action_id/attempt_no` 链路可靠。
-3）日志可联查到 `next_action` 与 `comparison_report` 发送失败/成功记录，且包含 `message/send_channel/attempt_no`。
-4）后台线索列表/详情支持人工复核上下文反查（`action_result/attempt_no/retry_of_action_id/risk_level/source_page/trace`）。
-5）后台线索列表支持 `manual_review` 快速筛选与优先排序；详情支持人工复核处理意见留痕与日志回看。
-6）开发者工具 smoke helper 支持一键切换后台角色与一键造高风险上下文，缩短联调准备时间。
-7）自动化脚本补齐后台线索状态全流转断言，能快速发现状态迁移回归。
+可选读取返回值：
+```js
+const quick = SMOKE_HELPER.runQuickDemo()
+console.log(quick.ok, quick.reason_code, quick.duration_ms)
+console.log(quick.step_results, quick.navigate_result)
+```
 
-3.2 部署前最小检查
-1）`node --check pages/action/index.js`
-2）`node --check pages/adminLeads/index.js`
-3）`node --check pages/adminLeadDetail/index.js`
-4）`node --check process/devtools_smoke_helper.js`
-5）`node process/regression_branches.js`
-6）`node process/smoke_e2e.js`
-7）可选：开发者工具执行 `SMOKE_HELPER.seedBase()` 后按《process/手工冒烟说明.txt》完成一次手工冒烟（含“后台线索状态全流转自检”）
+关键字段：
+- `reason_code`
+- `step_results`
+- `started_at/finished_at/duration_ms`
 
-3.2.1 演示前 60 秒快速校验
-目标：演示开始前快速确认“可进后台 + 有高风险上下文 + 可继续 manual_review”。
-命令（开发者工具 Console）：
-1）`SMOKE_HELPER.runQuickDemo()`
-2）`SMOKE_HELPER.verifyHighRiskSeed()`（可选）
-3）建议读取 `runQuickDemo` 返回值中的关键字段：
-`reason_code`（成功应为 `ok`）
-`step_results`（逐步状态）
-`started_at/finished_at/duration_ms`（时序与耗时）
-失败码清单：`seed_base_failed/seed_high_risk_failed/switch_role_failed/verify_high_risk_failed/navigate_failed`
-返回字段判读速查表：
-- `ok=true && reason_code="ok"`：演示准备成功
-- `ok=false && reason_code="switch_role_failed"`：角色参数非法（仅 `user/advisor/admin`）
-- `ok=false && reason_code="verify_high_risk_failed"`：高风险校验失败，建议重跑 `SMOKE_HELPER.runQuickDemo()`
-- `step_results.*.status`：`done/failed/skipped`，用于快速定位失败步骤
-- `navigate_result.status`：`attempted/fallback_redirect/failed/skipped`，用于判断是否需手动跳转后台页
-4）如需分步控制，可改为：
-`SMOKE_HELPER.seedBase()`
-`SMOKE_HELPER.seedHighRisk()`
-`SMOKE_HELPER.switchRole("admin")`
-`wx.navigateTo({ url: "/pages/adminLeads/index" })`
-5）失败态演示模板（可选）：
-`const quickFail = SMOKE_HELPER.runQuickDemo({ role: "guest", navigate: false })`
-`console.log(quickFail.ok, quickFail.reason_code)`
-预期：`quickFail.ok === false` 且 `quickFail.reason_code === "switch_role_failed"`
+速查：
+- `ok=true && reason_code="ok"`
+- `step_results.*.status`
+- `navigate_result.status`
+- `seed_base_failed/seed_high_risk_failed/switch_role_failed/verify_high_risk_failed/navigate_failed`
+
+失败态示例：
+```js
+const quickFail = SMOKE_HELPER.runQuickDemo({ role: "guest", navigate: false })
+console.log(quickFail.ok, quickFail.reason_code)
+```
+
+预期：
+- `quickFail.reason_code === "switch_role_failed"`
+
+当前经纪人入口：
+```js
+wx.navigateTo({ url: "/pages/import/index?source=broker" })
+```
+
 通过标准：
-1）可进入 `/pages/adminLeads/index`
-2）`verifyHighRiskSeed` 返回 `true`
-3）线索列表可看到 manual_review 相关上下文字段（risk/source/trace）
+1. `SMOKE_HELPER.verifyHighRiskSeed()` 返回 `true`
+2. `/pages/import/index?source=broker` 可进入
+3. AI 页和详情页均可继续当前主链路
 
-3.3 已知非阻断项
-1）开发者工具控制台的 `getSystemInfo` 提示与 `SharedArrayBuffer` 警告为环境提示，不影响当前验收。
-2）`reportRealtimeAction:fail not support` 为开发者工具能力提示，不影响动作链路落库与状态追踪。
+【五、已知非阻断项】
+1. 开发者工具中的环境告警不作为本轮阻断。
+2. 旧兼容页面已删除，任何仍指向旧页面的缓存路由都应回退到当前路由。
 
-3.4 回退方式
-1）如需回退本轮收口文档变更，按 Git 提交边界回退 `process/演示与交付收口.txt` 与 `process/process.txt`。
-2）脚本层改动可按提交边界回退 `process/regression_branches.js`、`process/smoke_e2e.js`、`process/devtools_smoke_helper.js`、`process/手工冒烟说明.txt`。
-
-【四、交付边界说明】
-根据当前范围与验收进度，本期不再新增功能开发任务。
-交付阶段默认策略：
-1）冻结功能范围，仅执行提测、验收与交付动作。
-2）仅处理阻断级缺陷（影响主流程跑通或验收失败）。
-3）非阻断优化项统一进入下期需求池，不在本期继续扩展。
+【六、回退方式】
+1. 文档回退：按 Git 提交边界回退 `process/演示与交付收口.txt` 与 `process/process.txt`。
+2. 脚本回退：按 Git 提交边界回退 `process/regression_branches.js`、`process/smoke_e2e.js`、`process/devtools_smoke_helper.js`、`utils/continue.js`。

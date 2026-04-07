@@ -1,5 +1,5 @@
 /**
- * utils/workflowService.js - 工作流服务层
+ * modules/aiAssistant/workflowService.js - 工作流服务层
  *
  * 职责：
  * 1) 调用 workflowDispatch 统一入口
@@ -11,7 +11,7 @@
  * 页面调用 -> workflowService -> 云端 workflowDispatch -> 返回统一响应
  */
 
-const { callDecisionEngine } = require("./cloud");
+const { callDecisionEngine } = require("../../utils/cloud");
 const { buildDecisionContext, buildDecisionLocalListings, getDecisionSeed } = require("./contextBuilder");
 const { adaptWorkflowResponse, createErrorBlock } = require("./uiBlockAdapter");
 

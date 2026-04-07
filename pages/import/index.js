@@ -1,4 +1,4 @@
-const { requireLogin, getSession, getUserRole } = require("../../utils/auth");
+const { requireLogin, getSession, getUserRole } = require("../../modules/identity");
 const { EVENTS, trackEvent, writeActivityLog } = require("../../utils/track");
 const { STORAGE_KEYS, get, set, append, uid } = require("../../utils/storage");
 const {
@@ -6,7 +6,7 @@ const {
   syncListing,
   uploadImportImage
 } = require("../../utils/cloud");
-const { intakeRepo } = require("../../repos/index");
+const { intakeRepo } = require("../../modules/userState");
 
 function nowIso() {
   return new Date().toISOString();

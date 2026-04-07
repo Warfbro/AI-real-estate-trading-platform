@@ -1,5 +1,5 @@
 /**
- * utils/llmProvider.js - 生成层 Provider 抽象
+ * modules/aiAssistant/llmProvider.js - 生成层 Provider 抽象
  *
  * 职责：
  * 1) 需求理解 (intent)
@@ -13,7 +13,7 @@
  * 检索结果 + 用户输入 -> llmProvider.generate() -> 理解/澄清/解释/总结
  */
 
-const { queryPropertyRecommend } = require("./cloud");
+const { queryPropertyRecommend } = require("../../utils/cloud");
 
 function normalizeText(value, fallback = "") {
   const text = String(value || "").trim();

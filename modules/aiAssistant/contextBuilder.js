@@ -1,5 +1,5 @@
 /**
- * utils/contextBuilder.js - 上下文构建服务
+ * modules/aiAssistant/contextBuilder.js - 上下文构建服务
  *
  * 职责：
  * 1) recent messages 组装
@@ -12,8 +12,10 @@
  * 页面调用 -> contextBuilder.build() -> 返回统一 context 对象
  */
 
-const { STORAGE_KEYS, get } = require("./storage");
-const { chatRepo, listingRepo, intakeRepo } = require("../repos/index");
+const { STORAGE_KEYS, get } = require("../../utils/storage");
+const chatRepo = require("./chatRepo");
+const listingRepo = require("../listingSearch/listingRepo");
+const intakeRepo = require("../userState/intakeRepo");
 
 const RECENT_MESSAGE_LIMIT = 5;
 const PROFILE_ARRAY_FIELDS = ["district"];

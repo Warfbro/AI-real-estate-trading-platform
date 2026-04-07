@@ -9,6 +9,7 @@
  */
 
 const { evaluateRisk } = require("../utils/risk");
+const { resolveContinueContext } = require("../utils/continue");
 const fs = require("fs");
 const path = require("path");
 
@@ -270,7 +271,7 @@ function seedAndRunFlow() {
       report_email: "fail@example.com",
       source: "comparison",
       listing_ids: comparison.listing_ids_json,
-      last_page: "/pages/action/index",
+      last_page: "/pages/ai/index?source=comparison",
       attempt_no: 1,
       retry_of_action_id: "",
       send_channel: "email"
@@ -329,7 +330,7 @@ function seedAndRunFlow() {
       report_email: "ok@example.com",
       source: "comparison",
       listing_ids: comparison.listing_ids_json,
-      last_page: "/pages/action/index",
+      last_page: "/pages/ai/index?source=comparison",
       attempt_no: 2,
       retry_of_action_id: sendReportFail.action_id,
       send_channel: "email"
@@ -392,7 +393,7 @@ function seedAndRunFlow() {
       report_email: "",
       source: "risk",
       listing_ids: comparison.listing_ids_json,
-      last_page: "/pages/action/index",
+      last_page: "/pages/ai/index?source=risk",
       attempt_no: 1,
       retry_of_action_id: "",
       send_channel: ""
@@ -783,7 +784,7 @@ function runAssertions(state) {
   }
 
   const continueSnapshot = buildContinueSnapshot(state, userId);
-  const validContinueRoute = "/pages/action/index?source=risk&intake_id=intake_smoke_001&comparison_id=comparison_smoke_001&risk_check_id=risk_smoke_001&listing_ids=listing_smoke_001,listing_smoke_002&action_type=send_report";
+  const validContinueRoute = "/pages/detail/index?listing_id=listing_smoke_001&source=continue";
   const validContinue = resolveContinueContext({
     storedRoute: validContinueRoute,
     role: "user",
@@ -792,14 +793,8 @@ function runAssertions(state) {
   if (validContinue.usedFallback) {
     errors.push("valid continue route should not fallback");
   }
-  if (!validContinue.route.startsWith("/pages/action/index?")) {
+  if (validContinue.route !== validContinueRoute) {
     errors.push("valid continue route path mismatch");
-  }
-  if (!validContinue.route.includes("comparison_id=comparison_smoke_001")) {
-    errors.push("valid continue route should preserve comparison_id");
-  }
-  if (!validContinue.route.includes("listing_smoke_001") || !validContinue.route.includes("listing_smoke_002")) {
-    errors.push("valid continue route should preserve listing_ids");
   }
 
   const staleContinue = resolveContinueContext({
@@ -807,11 +802,11 @@ function runAssertions(state) {
     role: "user",
     snapshot: continueSnapshot
   });
-  if (!staleContinue.usedFallback || staleContinue.reasonCode !== "stale_context") {
-    errors.push("stale continue route should fallback with stale_context");
+  if (!staleContinue.usedFallback || staleContinue.reasonCode !== "legacy_route") {
+    errors.push("legacy continue route should fallback with legacy_route");
   }
-  if (!staleContinue.route.startsWith("/pages/action/index?")) {
-    errors.push("stale continue route should fallback to latest action route");
+  if (staleContinue.route !== "/pages/ai/index?source=risk") {
+    errors.push("legacy continue route should fallback to latest AI action route");
   }
 
   const adminForbiddenContinue = resolveContinueContext({
@@ -821,6 +816,9 @@ function runAssertions(state) {
   });
   if (!adminForbiddenContinue.usedFallback || adminForbiddenContinue.reasonCode !== "admin_forbidden") {
     errors.push("admin route should fallback for user role");
+  }
+  if (adminForbiddenContinue.route !== "/pages/ai/index?source=risk") {
+    errors.push("admin route should fallback to latest AI action route");
   }
 
   const adminDefaultContinue = resolveContinueContext({
@@ -835,8 +833,8 @@ function runAssertions(state) {
       leads: []
     }
   });
-  if (!adminDefaultContinue.usedFallback || adminDefaultContinue.route !== "/pages/adminLeads/index") {
-    errors.push("admin empty snapshot should fallback to admin leads");
+  if (!adminDefaultContinue.usedFallback || adminDefaultContinue.route !== "/pages/import/index?source=broker") {
+    errors.push("admin empty snapshot should fallback to broker import");
   }
 
   try {
@@ -945,8 +943,8 @@ function runAssertions(state) {
     if (!guideText.includes('quickFail.reason_code === "switch_role_failed"')) {
       errors.push("manual smoke guide missing runQuickDemo failure demo expectation");
     }
-    if (!guideText.includes('wx.navigateTo({ url: "/pages/adminLeads/index" })')) {
-      errors.push("manual smoke guide missing adminLeads quick navigate command");
+    if (!guideText.includes('wx.navigateTo({ url: "/pages/import/index?source=broker" })')) {
+      errors.push("manual smoke guide missing broker import quick navigate command");
     }
     if (!guideText.includes("new -> in_progress -> pending_confirmed -> booked -> completed -> closed")) {
       errors.push("manual smoke guide missing appointment full-flow sequence");
@@ -1031,4 +1029,3 @@ function main() {
 }
 
 main();
-

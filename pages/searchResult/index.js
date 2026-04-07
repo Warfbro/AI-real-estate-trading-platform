@@ -1,7 +1,7 @@
-const { isLoggedIn, requireLogin, getSession } = require("../../utils/auth");
+const { isLoggedIn, requireLogin, getSession } = require("../../modules/identity");
 const { EVENTS, trackEvent, writeActivityLog } = require("../../utils/track");
 const { STORAGE_KEYS, get, set } = require("../../utils/storage");
-const { listingRepo } = require("../../repos/index");
+const { listingRepo } = require("../../modules/listingSearch");
 
 const HISTORY_LIMIT = 12;
 

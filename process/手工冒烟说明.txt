@@ -1,147 +1,112 @@
 【手工冒烟说明（微信开发者工具）】
 
-目标：
-验证“报告发送失败重试 + 人工复核承接追踪 + 人工复核队列增强（快速筛选/处理意见留痕）”在真实页面交互中可用且可追溯。
+目标：在不依赖旧兼容页面的前提下，验证当前 9 个页面版本下的关键链路、Smoke Helper、继续路由回退和日志留痕。
 
-零、最短命令序列（复制即跑）
-用途：演示前 5 分钟内完成初始化并切到后台可演示状态。
-1）Console 执行（按顺序）：
+一、最快命令序列
+1. Console 执行：
+```js
 SMOKE_HELPER.runQuickDemo()
-可选：读取返回结果（建议）：
+```
+2. 可选读取返回值：
+```js
 const quick = SMOKE_HELPER.runQuickDemo()
 console.log(quick.ok, quick.reason_code, quick.duration_ms)
 console.log(quick.step_results, quick.navigate_result)
+```
+
 返回字段重点：
-- `reason_code`：成功为 `ok`；失败可见 `seed_base_failed/seed_high_risk_failed/switch_role_failed/verify_high_risk_failed/navigate_failed`
-- `step_results`：逐步显示 `seed_base/seed_high_risk/switch_role/verify_high_risk/print_summary/navigate` 的 `ok/status`
-- `started_at/finished_at/duration_ms`：用于核对执行时序和耗时
-返回字段判读速查表：
-- `ok=true && reason_code="ok"`：演示准备成功，可直接进入后台演示链路
-- `ok=false && reason_code="switch_role_failed"`：`role` 非法（仅支持 `user/advisor/admin`）
-- `ok=false && reason_code="verify_high_risk_failed"`：高风险校验未通过，优先重跑 `SMOKE_HELPER.runQuickDemo()`
-- `step_results.*.status`：`done=完成`、`failed=失败`、`skipped=按配置跳过`
-- `navigate_result.status`：`attempted/fallback_redirect/failed/skipped`，用于判断是否需要手动跳转后台页
-失败态演示模板（可选）：
+- `reason_code`
+- `step_results`
+- `started_at/finished_at/duration_ms`
+
+返回字段速查：
+- `ok=true && reason_code="ok"`：一键演示准备成功
+- `step_results.*.status`：用于快速判断哪一步失败
+- `navigate_result.status`：用于判断是否需要手动跳转
+- `seed_base_failed/seed_high_risk_failed/switch_role_failed/verify_high_risk_failed/navigate_failed`
+
+失败态演示模板：
+```js
 const quickFail = SMOKE_HELPER.runQuickDemo({ role: "guest", navigate: false })
 console.log(quickFail.ok, quickFail.reason_code)
 console.log(quickFail.step_results.switch_role)
+```
+
 预期：
 - `quickFail.ok === false`
 - `quickFail.reason_code === "switch_role_failed"`
-- `quickFail.step_results.switch_role.status === "failed"`
-2）快速校验（可选）：
-SMOKE_HELPER.verifyHighRiskSeed()
-SMOKE_HELPER.printSummary()
-预期：
-- 当前角色已切到 admin
-- 后台线索页可访问
-- 已有高风险上下文可直接发起 manual_review 演示链路
-3）如需手动分步（可选）：
-SMOKE_HELPER.seedBase()
-SMOKE_HELPER.seedHighRisk()
-SMOKE_HELPER.switchRole("admin")
-wx.navigateTo({ url: "/pages/adminLeads/index" })
 
-一、准备
-1）打开微信开发者工具，进入本项目并编译成功
-2）打开 Console，粘贴执行 process/devtools_smoke_helper.js 全部内容
-3）执行：
+二、基础准备
+1. 打开微信开发者工具并确保项目编译成功。
+2. 将 `process/devtools_smoke_helper.js` 全量粘贴到 Console 执行。
+3. 执行：
+```js
 SMOKE_HELPER.seedBase()
 SMOKE_HELPER.printSummary()
+```
 
 预期：
-- buyer_intakes=1
-- listings=2
-- comparison_reports=1（status=generated）
-- risk_checks=1（risk_level=high）
-- next_actions=0
-- advisor_leads=0
+- `buyer_intakes=1`
+- `listings=2`
+- `comparison_reports=1`
+- `risk_checks=1`
+- `next_actions=0`
+- `advisor_leads=0`
 
-二、报告发送失败路径
-1）进入页面：
-/pages/action/index?source=risk&intake_id=intake_devtools_001&comparison_id=comparison_devtools_001&risk_check_id=risk_devtools_001&listing_ids=listing_devtools_001,listing_devtools_002&action_type=send_report
-2）选择“发送报告”
-3）邮箱填：fail@example.com
-4）提交动作
-
-预期：
-- 页面提示发送失败
-- 最近动作记录出现 send_report failed
-- next_actions 新增 failed 记录，result_json.error_code 非空
-
-校验命令：
-SMOKE_HELPER.verifyReportFail()
-
-三、报告发送重试成功路径
-1）仍在动作页，点击“复用上次失败参数重试”
-2）把邮箱改为：ok@example.com
-3）再次提交动作
-
-预期：
-- 页面提示提交成功
-- 最新 send_report 状态为 done
-- payload_json.attempt_no >= 2
-- payload_json.retry_of_action_id 指向上次失败 action_id
-- comparison_reports 对应 comparison_id 状态变为 sent
-- activity_logs 中有 comparison_report 对象的 send fail/done 轨迹
-
-校验命令：
-SMOKE_HELPER.verifyReportRetrySuccess()
-
-四、人工复核承接路径
-1）一键生成高风险上下文（推荐）：
+三、AI 路径与高风险上下文
+1. 执行：
+```js
 SMOKE_HELPER.seedHighRisk()
 SMOKE_HELPER.verifyHighRiskSeed()
-2）进入动作页并提交“人工复核”（可用 seedHighRisk 返回的 intake_id/comparison_id/risk_check_id 组装路由）
-3）切换后台角色：
-SMOKE_HELPER.switchRole("admin")
-（可替代：SMOKE_HELPER.toAdmin()）
-4）进入后台线索列表和详情
-
-预期（后台）：
-- 出现 lead_type=manual_review 线索
-- 列表可见 risk_level/source_page/trace
-- 详情可见 action_result/attempt_no/retry_of_action_id/risk_level/source_page
-
-校验命令：
-SMOKE_HELPER.verifyManualReviewLead()
-
-五、人工复核队列增强路径（后台）
-1）切换为 admin 角色并进入：
-/pages/adminLeads/index
-2）点击“仅看人工复核（N）”，确认列表仅展示 lead_type=manual_review，且默认排在靠前
-3）进入某条 manual_review 线索详情：
-/pages/adminLeadDetail/index?lead_id=xxx
-4）在“人工复核处理意见”输入：
-已电话核对房东，补充材料待回传
-5）点击“保存处理意见”
-6）可选：变更状态（如 in_progress -> completed）并提交
+```
+2. 进入 AI 页：
+```js
+wx.navigateTo({ url: "/pages/ai/index?source=risk" })
+```
+3. 在 AI 页继续完成 manual_review / send_report 相关操作。
 
 预期：
-- 线索详情展示最近处理意见、note_updated_at、note_updated_by
-- 相关日志出现 manual_review_note_update 或带 note 预览的 lead_status_update
-- 返回线索列表后，人工复核线索仍可通过快捷筛选快速定位
+- `SMOKE_HELPER.verifyHighRiskSeed()` 返回 `true`
+- AI 页可正常打开
+- 当前上下文可触发高风险相关建议
 
-校验命令：
-SMOKE_HELPER.verifyManualReviewNoteTrace()
+四、经纪人入口与演示跳转
+1. 执行：
+```js
+SMOKE_HELPER.switchRole("admin")
+```
+2. 手动跳转到当前保留的经纪人入口：
+```js
+wx.navigateTo({ url: "/pages/import/index?source=broker" })
+```
 
-五点一、后台线索状态全流转自检（建议）
-1）选择一条 appointment 线索，按顺序更新状态：
-new -> in_progress -> pending_confirmed -> booked -> completed -> closed
-2）每次提交后观察：
-- 详情页当前状态变化正确
-- 日志新增 lead_status_update，from_status/to_status 连续
-- 若线索类型为 appointment，预约对象状态映射依次为：
-pending_confirmed -> pending_confirmed -> pending_confirmed -> confirmed -> completed -> cancelled
-3）选择一条 manual_review 线索，按顺序更新状态：
-new -> in_progress -> pending_confirmed -> completed -> closed
-4）每次提交后观察：
-- lead_status_update 日志存在 note 预览（当输入处理意见时）
-- 线索列表 updated_at 有刷新
+预期：
+- 角色切换成功
+- 可进入 `/pages/import/index?source=broker`
+- 页面标题和副标题按经纪人模式展示
 
-六、结束与清理
-1）如需重测可执行：
+五、日志与状态自检
+1. 关键日志名称需可观察到：
+- `lead_status_update`
+- `manual_review_note_update`
+2. 预约线索状态全流转检查顺序：
+- `new -> in_progress -> pending_confirmed -> booked -> completed -> closed`
+3. manual_review 线索至少检查：
+- note 已写入
+- updated_at 已刷新
+- 状态变更后有 `lead_status_update`
+
+六、推荐命令清单
+```js
 SMOKE_HELPER.seedBase()
+SMOKE_HELPER.seedHighRisk()
+SMOKE_HELPER.verifyHighRiskSeed()
+SMOKE_HELPER.switchRole("admin")
+SMOKE_HELPER.runQuickDemo()
+```
+
+七、结束与清理
+```js
 SMOKE_HELPER.toUser()
-2）清理数据执行：
 SMOKE_HELPER.clearAll()
+```

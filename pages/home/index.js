@@ -1,8 +1,8 @@
-const { isLoggedIn, getSession } = require("../../modules/identity");
+const { isLoggedIn, getSession } = require("../../modules/identity/index.js");
 const { EVENTS, trackEvent, writeActivityLog } = require("../../utils/track");
 const { STORAGE_KEYS, get, set } = require("../../utils/storage");
 const { getHomeHotListings, getHomeGuessListings } = require("../../utils/cloud");
-const { listingRepo } = require("../../modules/listingSearch");
+const { listingRepo } = require("../../modules/listingSearch/index.js");
 
 const HOME_FEED_REFRESH_INTERVAL_MS = 30000;
 const SEARCH_PLACEHOLDER_TEXT = "搜索感兴趣的房源或区域";
@@ -624,4 +624,3 @@ Page({
     // Removed: continue functionality
   },
 });
-

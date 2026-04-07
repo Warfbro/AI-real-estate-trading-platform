@@ -1,4 +1,4 @@
-const { isLoggedIn, requireLogin } = require("../../modules/identity");
+const { isLoggedIn, requireLogin } = require("../../modules/identity/index.js");
 const { EVENTS, trackEvent, writeActivityLog } = require("../../utils/track");
 const { STORAGE_KEYS, get, set } = require("../../utils/storage");
 

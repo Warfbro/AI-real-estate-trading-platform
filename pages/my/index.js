@@ -1,4 +1,4 @@
-const { isLoggedIn, requireLogin, getUserRole } = require("../../modules/identity");
+const { isLoggedIn, requireLogin, getUserRole } = require("../../modules/identity/index.js");
 const { EVENTS, trackEvent } = require("../../utils/track");
 
 const BUYER_ENTRY_ITEMS = [

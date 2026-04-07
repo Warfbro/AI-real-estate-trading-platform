@@ -1,4 +1,4 @@
-const { loginWithWeChat, getLoginRedirect } = require("../../modules/identity");
+const { loginWithWeChat, getLoginRedirect } = require("../../modules/identity/index.js");
 const { set, STORAGE_KEYS } = require("../../utils/storage");
 const { writeActivityLog } = require("../../utils/track");
 

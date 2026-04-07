@@ -9,6 +9,14 @@ const TAB_BAR_PATHS = {
 };
 const FORCED_TEST_ROLE = "admin";
 
+function isDevtoolsRuntime() {
+  try {
+    return String(wx.getSystemInfoSync().platform || "").toLowerCase() === "devtools";
+  } catch (err) {
+    return false;
+  }
+}
+
 function stripQuery(url = "") {
   return String(url || "").split("?")[0] || DEFAULT_REDIRECT;
 }
@@ -67,6 +75,9 @@ function resolveLoginErrorMessage(err) {
   if (rawMessage.indexOf("deny") > -1 || rawMessage.indexOf("cancel") > -1) {
     return "你已取消微信授权，请重新发起登录。";
   }
+  if (rawMessage.indexOf("phonenumber") > -1 || rawMessage.indexOf("getphonenumber") > -1) {
+    return "当前环境不支持微信快捷登录，请使用开发工具测试登录或真机测试。";
+  }
   if (rawMessage.indexOf("timeout") > -1) {
     return "登录校验超时，请检查网络后重试。";
   }
@@ -78,6 +89,8 @@ Page({
     loading: false,
     redirect: DEFAULT_REDIRECT,
     primary_login_text: "微信官方快速登录",
+    helper_text: "",
+    is_devtools: false,
     status_text: "",
     error_text: ""
   },
@@ -86,12 +99,18 @@ Page({
     const redirect = decodeRedirect(
       (options && options.redirect) || getLoginRedirect(DEFAULT_REDIRECT)
     );
+    const devtoolsRuntime = isDevtoolsRuntime();
     this.setData({
-      redirect
+      redirect,
+      is_devtools: devtoolsRuntime,
+      primary_login_text: devtoolsRuntime ? "开发工具测试登录" : "微信官方快速登录",
+      helper_text: devtoolsRuntime
+        ? "开发工具不支持手机号快捷登录，当前按钮会走测试态登录。真机仍使用微信官方授权。"
+        : "使用微信官方授权完成安全登录。"
     });
   },
 
-  async submitLogin({ phoneCode = "", loginScene = "wechat_login" } = {}) {
+  async submitLogin({ phoneCode = "", loginScene = "wechat_login", allowDevtoolsMock = false } = {}) {
     if (this.data.loading) {
       return;
     }
@@ -105,7 +124,8 @@ Page({
     try {
       const session = await loginWithWeChat(FORCED_TEST_ROLE, {
         phoneCode,
-        loginScene
+        loginScene,
+        allowDevtoolsMock
       });
       const redirect = this.data.redirect || getLoginRedirect(DEFAULT_REDIRECT);
       const redirectMethod = getRedirectMethod(redirect);
@@ -124,7 +144,9 @@ Page({
 
       this.setData({
         status_text:
-          loginScene === "phone_quick_login" && session && session.phone_bound
+          session && session.devtools_mock
+            ? "开发工具测试登录成功，正在返回上一步流程..."
+            : loginScene === "phone_quick_login" && session && session.phone_bound
             ? "快速登录成功，手机号已同步，正在返回上一步流程..."
             : "登录成功，正在返回上一步流程..."
       });
@@ -156,6 +178,9 @@ Page({
     if (this.data.loading) {
       return;
     }
+    if (this.data.is_devtools) {
+      return this.handleDevtoolsLogin();
+    }
     const detail = (event && event.detail) || {};
     const errMsg = String(detail.errMsg || "");
     if (errMsg && errMsg.indexOf(":ok") < 0) {
@@ -175,6 +200,17 @@ Page({
     return this.submitLogin({
       phoneCode: String(detail.code || "").trim(),
       loginScene: "phone_quick_login"
+    });
+  },
+
+  handleDevtoolsLogin() {
+    if (this.data.loading) {
+      return;
+    }
+
+    return this.submitLogin({
+      loginScene: "devtools_test_login",
+      allowDevtoolsMock: true
     });
   }
 });

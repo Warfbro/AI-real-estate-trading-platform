@@ -174,13 +174,14 @@
 
   <view
     class="chat-mask"
-    wx:if="{{offset > -drawerHeight}}"
+    wx:if="{{show_history_drawer && offset > -drawerHeight}}"
     style="top: {{drawerTopOffset}}px; opacity: {{(offset + drawerHeight) / drawerHeight * 0.45}}; transition: {{isDragging ? 'none' : 'opacity 0.6s cubic-bezier(0.25, 1.05, 0.4, 1)'}}"
   >
   </view>
 
   <view
-    class="blind-drawer"
+    wx:if="{{show_history_drawer}}"
+    class="blind-drawer {{drawerState === 'closed' && !isDragging ? 'drawer-collapsed' : ''}}"
     style="top: {{drawerTopOffset}}px; transform: translateY({{offset}}px); transition: {{isDragging ? 'none' : 'transform 0.6s cubic-bezier(0.25, 1.05, 0.4, 1)'}}"
   >
     <view class="history-content" style="height: {{drawerHeight}}px;">

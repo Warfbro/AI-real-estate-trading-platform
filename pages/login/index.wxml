@@ -7,6 +7,7 @@
 
     <view class="action-panel">
       <button
+        wx:if="{{!is_devtools}}"
         class="btn-primary login-btn"
         open-type="getPhoneNumber"
         bindgetphonenumber="handleQuickLogin"
@@ -15,6 +16,16 @@
       >
         {{loading ? '登录中...' : primary_login_text}}
       </button>
+      <button
+        wx:else
+        class="btn-primary login-btn"
+        bindtap="handleDevtoolsLogin"
+        loading="{{loading}}"
+        disabled="{{loading}}"
+      >
+        {{loading ? '登录中...' : primary_login_text}}
+      </button>
+      <view class="helper-text" wx:if="{{helper_text}}">{{helper_text}}</view>
       <view class="status-text" wx:if="{{status_text}}">{{status_text}}</view>
       <view class="error-text" wx:if="{{error_text}}">{{error_text}}</view>
     </view>

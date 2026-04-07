@@ -193,6 +193,11 @@ page {
   margin-top: -1000px;
 }
 
+.drawer-collapsed .history-content {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .history-content {
   width: 100%;
   display: flex;
@@ -201,6 +206,7 @@ page {
   background: rgba(255, 255, 255, 0.98);
   border-radius: 0 0 36rpx 36rpx;
   box-shadow: 0 18rpx 44rpx rgba(102, 123, 156, 0.12);
+  transition: opacity 0.22s ease;
 }
 
 .drawer-content-inner {

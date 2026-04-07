@@ -603,6 +603,7 @@ Page({
     favorite_empty_text: "暂无可选收藏",
 
     scrollTo: "",
+    show_history_drawer: false,
     drawerHeight: 500,
     offset: -500,
     isDragging: false,
@@ -635,6 +636,45 @@ Page({
     sending: false
   },
 
+  applyHistoryDrawerLayout(showHistoryDrawer = false, extraData = {}, callback) {
+    const base = this._layoutBase || {};
+    const totalNavHeight = base.totalNavHeight || 64;
+    const navBarHeight = base.navBarHeight || 44;
+    const statusBarHeight = base.statusBarHeight || 20;
+    const capWidth = base.capWidth || 90;
+    const windowHeight = base.windowHeight || totalNavHeight + 640;
+    const maxViewport = Math.max(windowHeight - totalNavHeight, 320);
+    const drawerPeekHeight = showHistoryDrawer ? Math.max(Math.round(navBarHeight * 0.58), 28) : 0;
+    const drawerOverlapHeight = showHistoryDrawer ? Math.max(Math.round(drawerPeekHeight * 0.35), 10) : 0;
+    const drawerHeight = Math.max(Math.round(maxViewport * 0.62), 320);
+    const nextData = {
+      statusBarHeight,
+      navBarHeight,
+      totalNavHeight,
+      capWidth,
+      chatTopOffset: showHistoryDrawer
+        ? totalNavHeight + drawerPeekHeight - drawerOverlapHeight
+        : totalNavHeight + 12,
+      drawerTopOffset: showHistoryDrawer
+        ? Math.max(totalNavHeight - drawerOverlapHeight, 0)
+        : totalNavHeight,
+      drawerHeight,
+      show_history_drawer: showHistoryDrawer,
+      ...extraData
+    };
+
+    if (!showHistoryDrawer) {
+      nextData.offset = -drawerHeight;
+      nextData.drawerState = "closed";
+      nextData.dragDir = "";
+      nextData.isDragging = false;
+    } else if (!Object.prototype.hasOwnProperty.call(extraData, "offset")) {
+      nextData.offset = this.data.drawerState === "open" ? 0 : -drawerHeight;
+    }
+
+    this.setData(nextData, callback);
+  },
+
   onLoad(options) {
     const opts = options && typeof options === "object" ? options : {};
     const source = normalizeText(opts.source, "home");
@@ -665,30 +705,24 @@ Page({
 
     const navBarHeight = navH + diff * 2;
     const totalNavHeight = sysInfo.statusBarHeight + navBarHeight;
-    const drawerPeekHeight = Math.max(Math.round(navBarHeight * 0.75), 30);
-    const drawerOverlapHeight = Math.max(Math.round(drawerPeekHeight * 0.4), 12);
-    const chatTopOffset = totalNavHeight + drawerPeekHeight - drawerOverlapHeight;
-    const drawerTopOffset = Math.max(totalNavHeight - drawerOverlapHeight, 0);
-    const maxVP = sysInfo.windowHeight - totalNavHeight;
-    const drawerHeight = maxVP * 0.7;
+    this._layoutBase = {
+      statusBarHeight: sysInfo.statusBarHeight,
+      navBarHeight,
+      totalNavHeight,
+      capWidth: capW,
+      windowHeight: sysInfo.windowHeight
+    };
 
     this._chatThreads = [];
     this._compactContext = null;
     this._sessionSummary = "";
     this._decisionSessionIdCache = "";
 
-    this.setData(
+    this.applyHistoryDrawerLayout(
+      false,
       {
-        statusBarHeight: sysInfo.statusBarHeight,
-        navBarHeight,
-        totalNavHeight,
-        chatTopOffset,
-        drawerTopOffset,
-        capWidth: capW,
         canBack: getCurrentPages().length > 1 || Boolean(fallbackTabRoute),
         fallback_tab_route: fallbackTabRoute,
-        drawerHeight,
-        offset: -drawerHeight,
         source,
         messages: []
       },
@@ -775,7 +809,7 @@ Page({
     }
 
     const threadItems = this.buildThreadItems();
-    this.setData({
+    this.applyHistoryDrawerLayout(threadItems.length > 1, {
       chat_threads: threadItems,
       has_chat_threads: threadItems.length > 0,
       active_session_id: normalizeText(this._aiSessionId)

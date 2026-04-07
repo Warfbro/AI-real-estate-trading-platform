@@ -60,6 +60,14 @@
   box-shadow: 0 16rpx 32rpx rgba(240, 106, 35, 0.18);
 }
 
+.helper-text {
+  margin-top: 18rpx;
+  text-align: center;
+  font-size: 22rpx;
+  line-height: 1.7;
+  color: #6b7a8f;
+}
+
 .status-text,
 .error-text {
   margin-top: 20rpx;

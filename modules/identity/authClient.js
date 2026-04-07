@@ -4,6 +4,7 @@ const { getLoginIdentity } = require("../../utils/cloud");
 
 const ROLES = ["user", "advisor", "admin"];
 const FORCE_ADMIN_ROLE_IN_TEST = true;
+const DEVTOOLS_MOCK_USER_ID = "devtools_mock_user";
 
 function getSession() {
   return get(STORAGE_KEYS.AUTH_SESSION, null);
@@ -14,6 +15,38 @@ function normalizeRole(role) {
     return "admin";
   }
   return ROLES.includes(role) ? role : "user";
+}
+
+function getRuntimePlatform() {
+  try {
+    if (typeof wx === "undefined" || !wx || typeof wx.getSystemInfoSync !== "function") {
+      return "";
+    }
+    return String(wx.getSystemInfoSync().platform || "").toLowerCase();
+  } catch (err) {
+    return "";
+  }
+}
+
+function isDevtoolsRuntime() {
+  return getRuntimePlatform() === "devtools";
+}
+
+function buildDevtoolsMockSession(role, loginScene, reason = "") {
+  return {
+    provider: "wechat_devtools",
+    login_code: DEVTOOLS_MOCK_USER_ID,
+    user_id: DEVTOOLS_MOCK_USER_ID,
+    openid: DEVTOOLS_MOCK_USER_ID,
+    role: normalizeRole(role),
+    logged_in_at: new Date().toISOString(),
+    login_scene: loginScene,
+    cloud_synced: false,
+    cloud_sync_error: String(reason || "devtools mock login").trim(),
+    phone_bound: false,
+    phone_sync_error: "",
+    devtools_mock: true
+  };
 }
 
 function isLoggedIn() {
@@ -35,6 +68,7 @@ function requireLogin(redirectPath) {
 function loginWithWeChat(role = "user", options = {}) {
   const phoneCode = String(options.phoneCode || "").trim();
   const loginScene = String(options.loginScene || "wechat_login").trim() || "wechat_login";
+  const allowDevtoolsMock = Boolean(options.allowDevtoolsMock);
   return new Promise((resolve, reject) => {
     wx.login({
       async success(res) {
@@ -102,6 +136,25 @@ function loginWithWeChat(role = "user", options = {}) {
         resolve(session);
       },
       fail(err) {
+        if (allowDevtoolsMock && isDevtoolsRuntime()) {
+          const session = buildDevtoolsMockSession(role, loginScene, err && (err.message || err.errMsg));
+          set(STORAGE_KEYS.AUTH_SESSION, session);
+          writeActivityLog({
+            action_type: "auth_login",
+            object_type: "auth_session",
+            detail_json: {
+              provider: session.provider,
+              role: session.role,
+              login_scene: session.login_scene,
+              cloud_synced: false,
+              cloud_sync_error: session.cloud_sync_error,
+              phone_bound: false,
+              devtools_mock: true
+            }
+          });
+          resolve(session);
+          return;
+        }
         reject(err);
       }
     });

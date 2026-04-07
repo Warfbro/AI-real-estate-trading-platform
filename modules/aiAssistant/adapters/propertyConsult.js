@@ -1,4 +1,4 @@
-const { queryPropertyRecommend } = require("../../cloud");
+const { queryPropertyRecommend } = require("../../../utils/cloud");
 
 function normalizeObject(value) {
   return value && typeof value === "object" && !Array.isArray(value) ? value : {};

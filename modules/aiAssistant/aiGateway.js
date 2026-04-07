@@ -1,4 +1,4 @@
-const propertyConsultAdapter = require("../../utils/ai/adapters/propertyConsult");
+const propertyConsultAdapter = require("./adapters/propertyConsult");
 
 const AI_SCENES = {
   PROPERTY_CONSULT: "property_consult"

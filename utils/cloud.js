@@ -7,6 +7,7 @@ const CLOUD_COLLECTIONS = {
   BUYER_INTAKES: "buyer_intakes",
   LISTING_IMPORT_JOBS: "listing_import_jobs",
   LISTINGS: "listings",
+  FAVORITES: "favorites",
   DECISION_SESSIONS: "decision_sessions",
   CHAT_SESSIONS: "chat_sessions",
   CHAT_MESSAGES: "chat_messages"
@@ -65,6 +66,51 @@ function callFunction(name, data = {}) {
   });
 }
 
+function ensureGatewaySuccess(result, fallbackMessage) {
+  const safe = result && typeof result === "object" ? result : {};
+  if (safe.ok !== false && !safe.error) {
+    return safe;
+  }
+
+  const message = String(
+    safe.message ||
+      safe.details ||
+      (safe.error && (safe.error.message || safe.error.details)) ||
+      fallbackMessage ||
+      "cloud function failed"
+  ).trim();
+
+  throw new Error(message || "cloud function failed");
+}
+
+function callIdentityAction(action, data = {}) {
+  return callFunction("identityGateway", {
+    action,
+    ...data
+  });
+}
+
+function callUserStateAction(action, data = {}) {
+  return callFunction("userStateGateway", {
+    action,
+    ...data
+  });
+}
+
+function callListingDataAction(action, data = {}) {
+  return callFunction("listingDataGateway", {
+    action,
+    ...data
+  });
+}
+
+function callListingSearchAction(action, data = {}) {
+  return callFunction("listingSearchGateway", {
+    action,
+    ...data
+  });
+}
+
 function setDocument(collectionName, docId, data) {
   return new Promise((resolve, reject) => {
     getDatabase()
@@ -82,26 +128,6 @@ function setDocument(collectionName, docId, data) {
   });
 }
 
-function getDocument(collectionName, docId) {
-  return new Promise((resolve, reject) => {
-    if (!docId) {
-      resolve(null);
-      return;
-    }
-    getDatabase()
-      .collection(collectionName)
-      .doc(docId)
-      .get({
-        success(res) {
-          resolve((res && res.data) || null);
-        },
-        fail(err) {
-          reject(err);
-        }
-      });
-  });
-}
-
 function saveByIdField(collectionName, idField, data) {
   const docId = String((data && data[idField]) || "").trim();
   if (!docId) {
@@ -111,27 +137,28 @@ function saveByIdField(collectionName, idField, data) {
 }
 
 async function getOpenId() {
-  const result = await callFunction("getOpenId");
-  return String(result.openid || "").trim();
+  const result = ensureGatewaySuccess(
+    await callIdentityAction("get_current_identity"),
+    "identity gateway get_current_identity failed"
+  );
+  return String(result.openid || result.user_id || result.uid || "").trim();
 }
 
 async function getLoginIdentity({ role, provider = "wechat", phoneCode = "" }) {
-  const result = await callFunction("getOpenId", {
-    sync_user: true,
-    role,
-    provider,
-    phone_code: String(phoneCode || "").trim()
-  });
-  const openid = String(result.openid || "").trim();
+  const result = ensureGatewaySuccess(
+    await callIdentityAction("login_init", {
+      sync_user: true,
+      role,
+      provider,
+      phone_code: String(phoneCode || "").trim()
+    }),
+    "identity gateway login_init failed"
+  );
+  const openid = String(result.openid || result.user_id || result.uid || "").trim();
   const userSynced = Object.prototype.hasOwnProperty.call(result, "user_synced")
     ? Boolean(result.user_synced)
     : false;
-  const userSyncError = String(
-    result.user_sync_error ||
-      (Object.prototype.hasOwnProperty.call(result, "user_synced")
-        ? ""
-        : "getOpenId cloud function not upgraded for users sync")
-  ).trim();
+  const userSyncError = String(result.user_sync_error || "").trim();
   const phoneBound = Object.prototype.hasOwnProperty.call(result, "phone_bound")
     ? Boolean(result.phone_bound)
     : false;
@@ -141,7 +168,8 @@ async function getLoginIdentity({ role, provider = "wechat", phoneCode = "" }) {
     openid,
     unionid: String(result.unionid || "").trim(),
     appid: String(result.appid || "").trim(),
-    userId: String(result.user_id || openid).trim(),
+    userId: String(result.user_id || result.uid || openid).trim(),
+    uid: String(result.uid || result.user_id || openid).trim(),
     userSynced,
     userSyncError,
     phoneBound,
@@ -149,36 +177,44 @@ async function getLoginIdentity({ role, provider = "wechat", phoneCode = "" }) {
   };
 }
 
-function syncBuyerIntake(intake) {
-  return saveByIdField(CLOUD_COLLECTIONS.BUYER_INTAKES, "intake_id", intake);
+async function syncBuyerIntake(intake) {
+  const result = ensureGatewaySuccess(
+    await callUserStateAction("sync_buyer_intake", {
+      intake
+    }),
+    "user state gateway sync_buyer_intake failed"
+  );
+  return (result && result.data) || intake;
 }
 
 async function syncUserProfile(profile) {
-  const userId = String((profile && profile.user_id) || "").trim();
-  if (!userId) {
-    return Promise.reject(new Error("user_profiles missing user_id"));
-  }
-
-  let existing = null;
-  try {
-    existing = await getDocument(CLOUD_COLLECTIONS.USER_PROFILES, userId);
-  } catch (err) {
-    existing = null;
-  }
-
-  const next = {
-    ...(existing || {}),
-    ...(profile || {})
-  };
-  return setDocument(CLOUD_COLLECTIONS.USER_PROFILES, userId, next);
+  const result = ensureGatewaySuccess(
+    await callUserStateAction("sync_user_profile", {
+      profile
+    }),
+    "user state gateway sync_user_profile failed"
+  );
+  return (result && result.data) || profile;
 }
 
-function syncListingImportJob(job) {
-  return saveByIdField(CLOUD_COLLECTIONS.LISTING_IMPORT_JOBS, "job_id", job);
+async function syncListingImportJob(job) {
+  const result = ensureGatewaySuccess(
+    await callListingDataAction("sync_listing_import_job", {
+      job
+    }),
+    "listing data gateway sync_listing_import_job failed"
+  );
+  return (result && result.data) || job;
 }
 
-function syncListing(listing) {
-  return saveByIdField(CLOUD_COLLECTIONS.LISTINGS, "listing_id", listing);
+async function syncListing(listing) {
+  const result = ensureGatewaySuccess(
+    await callListingDataAction("sync_listing", {
+      listing
+    }),
+    "listing data gateway sync_listing failed"
+  );
+  return (result && result.data) || listing;
 }
 
 function syncChatSession(session) {
@@ -220,26 +256,32 @@ function uploadImportImage({ userId, tempFilePath }) {
   });
 }
 
-function getHomeHotListings({ limit = 8, city = "", userId = "" } = {}) {
-  return callFunction("getHomeHotListings", {
-    limit,
-    city,
-    user_id: userId
-  });
+async function getHomeHotListings({ limit = 8, city = "", userId = "" } = {}) {
+  return ensureGatewaySuccess(
+    await callListingSearchAction("query_home_hot", {
+      limit,
+      city,
+      user_id: userId
+    }),
+    "listing search gateway query_home_hot failed"
+  );
 }
 
-function getHomeGuessListings({
+async function getHomeGuessListings({
   page = 1,
   pageSize = 10,
   city = "",
   userId = ""
 } = {}) {
-  return callFunction("getHomeGuessListings", {
-    page,
-    page_size: pageSize,
-    city,
-    user_id: userId
-  });
+  return ensureGatewaySuccess(
+    await callListingSearchAction("query_home_guess", {
+      page,
+      page_size: pageSize,
+      city,
+      user_id: userId
+    }),
+    "listing search gateway query_home_guess failed"
+  );
 }
 
 function queryPropertyRecommend({
@@ -379,17 +421,21 @@ async function retrievalSearch({
 
   // 当前阶段：转发到现有接口，后续可替换为独立检索云函数
   try {
-    const result = await callFunction("getHomeGuessListings", {
-      keyword: request.payload.query,
-      ...request.payload.filters,
-      ...request.payload.options
-    });
+    const result = ensureGatewaySuccess(
+      await callListingSearchAction("query_unified", {
+        query: request.payload.query,
+        mode: "brief",
+        ...request.payload.filters,
+        ...request.payload.options
+      }),
+      "listing search gateway query_unified failed"
+    );
 
     return normalizeUnifiedResponse({
       success: true,
       status: "ok",
       data: {
-        candidates: Array.isArray(result.list) ? result.list : [],
+        candidates: Array.isArray(result.items) ? result.items : [],
         evidence: [],
         strategy: result.strategy || "fallback"
       }

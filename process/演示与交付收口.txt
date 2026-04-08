@@ -9,7 +9,7 @@
 依据：
 1. `node process/regression_branches.js`
 2. `node process/smoke_e2e.js`
-3. `node process/decision_engine_smoke.js`
+3. `node --check cloudfunctions/aiAssistantGateway/index.js`
 4. `SMOKE_HELPER.runQuickDemo()`
 
 【二、交付范围】
@@ -41,7 +41,7 @@
 5. `node --check utils/continue.js`
 6. `node process/regression_branches.js`
 7. `node process/smoke_e2e.js`
-8. `node process/decision_engine_smoke.js`
+8. `node --check cloudfunctions/aiAssistantGateway/index.js`
 
 【四、演示前 60 秒快检】
 命令：
@@ -92,6 +92,7 @@ wx.navigateTo({ url: "/pages/import/index?source=broker" })
 【五、已知非阻断项】
 1. 开发者工具中的环境告警不作为本轮阻断。
 2. 旧兼容页面已删除，任何仍指向旧页面的缓存路由都应回退到当前路由。
+3. AI 页当前不再依赖仓库内 `decisionEngine/queryPropertyRecommend`，外部 agent 行为由环境变量配置的上游服务负责。
 
 【六、回退方式】
 1. 文档回退：按 Git 提交边界回退 `process/演示与交付收口.txt` 与 `process/process.txt`。

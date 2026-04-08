@@ -1,13 +1,8 @@
-const {
-  CLOUD_COLLECTIONS,
-  syncListingImportJob,
-  syncListing,
-  uploadImportImage
-} = require("../../utils/cloud");
+const { CLOUD_COLLECTIONS, listingDataGateway, uploadImportImage } = require("../../utils/cloud");
 
 module.exports = {
   CLOUD_COLLECTIONS,
-  syncListingImportJob,
-  syncListing,
+  syncListingImportJob: listingDataGateway.syncListingImportJob,
+  syncListing: listingDataGateway.syncListing,
   uploadImportImage
 };

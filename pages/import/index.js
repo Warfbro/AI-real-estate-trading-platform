@@ -1,11 +1,7 @@
 const { requireLogin, getSession, getUserRole } = require("../../modules/identity/index.js");
 const { EVENTS, trackEvent, writeActivityLog } = require("../../utils/track");
 const { STORAGE_KEYS, get, set, append, uid } = require("../../utils/storage");
-const {
-  syncListingImportJob,
-  syncListing,
-  uploadImportImage
-} = require("../../utils/cloud");
+const { syncListingImportJob, syncListing, uploadImportImage } = require("../../modules/listingData/index.js");
 const { intakeRepo } = require("../../modules/userState/index.js");
 
 function nowIso() {

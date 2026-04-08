@@ -40,13 +40,6 @@ function ensureCloud() {
   return true;
 }
 
-function getDatabase() {
-  if (!ensureCloud()) {
-    throw new Error("wx.cloud unavailable");
-  }
-  return wx.cloud.database();
-}
-
 function callFunction(name, data = {}) {
   return new Promise((resolve, reject) => {
     if (!ensureCloud()) {
@@ -111,40 +104,30 @@ function callListingSearchAction(action, data = {}) {
   });
 }
 
-function setDocument(collectionName, docId, data) {
-  return new Promise((resolve, reject) => {
-    getDatabase()
-      .collection(collectionName)
-      .doc(docId)
-      .set({
-        data,
-        success() {
-          resolve(data);
-        },
-        fail(err) {
-          reject(err);
-        }
-      });
+function callAiAssistantAction(action, data = {}) {
+  return callFunction("aiAssistantGateway", {
+    action,
+    ...data
   });
 }
 
-function saveByIdField(collectionName, idField, data) {
-  const docId = String((data && data[idField]) || "").trim();
-  if (!docId) {
-    return Promise.reject(new Error(`${collectionName} missing ${idField}`));
-  }
-  return setDocument(collectionName, docId, data);
-}
-
-async function getOpenId() {
+async function getCurrentIdentity() {
   const result = ensureGatewaySuccess(
     await callIdentityAction("get_current_identity"),
     "identity gateway get_current_identity failed"
   );
-  return String(result.openid || result.user_id || result.uid || "").trim();
+
+  const openid = String(result.openid || result.user_id || result.uid || "").trim();
+  return {
+    openid,
+    unionid: String(result.unionid || "").trim(),
+    appid: String(result.appid || "").trim(),
+    userId: String(result.user_id || result.uid || openid).trim(),
+    uid: String(result.uid || result.user_id || openid).trim()
+  };
 }
 
-async function getLoginIdentity({ role, provider = "wechat", phoneCode = "" }) {
+async function loginInit({ role, provider = "wechat", phoneCode = "" } = {}) {
   const result = ensureGatewaySuccess(
     await callIdentityAction("login_init", {
       sync_user: true,
@@ -154,6 +137,7 @@ async function getLoginIdentity({ role, provider = "wechat", phoneCode = "" }) {
     }),
     "identity gateway login_init failed"
   );
+
   const openid = String(result.openid || result.user_id || result.uid || "").trim();
   const userSynced = Object.prototype.hasOwnProperty.call(result, "user_synced")
     ? Boolean(result.user_synced)
@@ -217,14 +201,6 @@ async function syncListing(listing) {
   return (result && result.data) || listing;
 }
 
-function syncChatSession(session) {
-  return saveByIdField(CLOUD_COLLECTIONS.CHAT_SESSIONS, "session_id", session);
-}
-
-function syncChatMessage(message) {
-  return saveByIdField(CLOUD_COLLECTIONS.CHAT_MESSAGES, "message_id", message);
-}
-
 function uploadImportImage({ userId, tempFilePath }) {
   return new Promise((resolve, reject) => {
     if (!tempFilePath) {
@@ -256,7 +232,7 @@ function uploadImportImage({ userId, tempFilePath }) {
   });
 }
 
-async function getHomeHotListings({ limit = 8, city = "", userId = "" } = {}) {
+async function queryHomeHot({ limit = 8, city = "", userId = "" } = {}) {
   return ensureGatewaySuccess(
     await callListingSearchAction("query_home_hot", {
       limit,
@@ -267,12 +243,7 @@ async function getHomeHotListings({ limit = 8, city = "", userId = "" } = {}) {
   );
 }
 
-async function getHomeGuessListings({
-  page = 1,
-  pageSize = 10,
-  city = "",
-  userId = ""
-} = {}) {
+async function queryHomeGuess({ page = 1, pageSize = 10, city = "", userId = "" } = {}) {
   return ensureGatewaySuccess(
     await callListingSearchAction("query_home_guess", {
       page,
@@ -284,14 +255,35 @@ async function getHomeGuessListings({
   );
 }
 
-function queryPropertyRecommend({
+async function ensureConversation({
+  userId = "",
+  sessionId = "",
+  source = "wechat",
+  title = "",
+  summary = "",
+  preview = ""
+} = {}) {
+  return ensureGatewaySuccess(
+    await callAiAssistantAction("ensure_conversation", {
+      user_id: String(userId || "").trim(),
+      session_id: String(sessionId || "").trim(),
+      source: String(source || "wechat").trim(),
+      title: String(title || "").trim(),
+      summary: String(summary || "").trim(),
+      preview: String(preview || "").trim()
+    }),
+    "ai assistant gateway ensure_conversation failed"
+  );
+}
+
+function sendMessage({
   query,
   userId = "",
   sessionId = "",
   source = "wechat",
   context = {}
 } = {}) {
-  return callFunction("queryPropertyRecommend", {
+  return callAiAssistantAction("send_message", {
     query: String(query || "").trim(),
     user_id: String(userId || "").trim(),
     session_id: String(sessionId || "").trim(),
@@ -300,7 +292,7 @@ function queryPropertyRecommend({
   });
 }
 
-function callDecisionEngine({
+function dispatchDecision({
   action,
   userId = "",
   chatSessionId = "",
@@ -312,8 +304,8 @@ function callDecisionEngine({
   context = {},
   localListings = []
 } = {}) {
-  return callFunction("decisionEngine", {
-    action: String(action || "").trim(),
+  return callAiAssistantAction("decision_dispatch", {
+    decision_action: String(action || "").trim(),
     user_id: String(userId || "").trim(),
     chat_session_id: String(chatSessionId || "").trim(),
     decision_session_id: String(decisionSessionId || "").trim(),
@@ -326,302 +318,40 @@ function callDecisionEngine({
   });
 }
 
-// ============================================================
-// 阶段2：统一调用协议 - 三个标准入口
-// ============================================================
+const identityGateway = {
+  getCurrentIdentity,
+  loginInit
+};
 
-/**
- * 统一请求结构
- * - request_id: 请求唯一标识（用于幂等）
- * - thread_id: 对话线程 ID
- * - workflow_session_id: 工作流会话 ID
- * - scene: 业务场景
- * - payload: 具体请求参数
- */
+const userStateGateway = {
+  syncBuyerIntake,
+  syncUserProfile
+};
 
-/**
- * 统一响应结构
- * - success: 是否成功
- * - status: 状态码
- * - current_stage: 当前阶段
- * - current_node: 当前节点
- * - interrupt: 是否中断等待输入
- * - ui_blocks: 前端渲染块
- * - artifacts: 产出物
- * - memory_patch: 记忆更新
- * - error: 错误信息
- * - meta: 元信息（trace_id, duration_ms）
- */
+const listingDataGateway = {
+  syncListingImportJob,
+  syncListing
+};
 
-function generateRequestId() {
-  return `req_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-}
+const listingSearchGateway = {
+  queryHomeHot,
+  queryHomeGuess
+};
 
-function buildUnifiedRequest({
-  requestId,
-  threadId = "",
-  workflowSessionId = "",
-  scene = "",
-  payload = {}
-}) {
-  return {
-    request_id: requestId || generateRequestId(),
-    thread_id: String(threadId || "").trim(),
-    workflow_session_id: String(workflowSessionId || "").trim(),
-    scene: String(scene || "").trim(),
-    payload: payload && typeof payload === "object" && !Array.isArray(payload) ? payload : {},
-    timestamp: new Date().toISOString()
-  };
-}
-
-function normalizeUnifiedResponse(result) {
-  const safe = result && typeof result === "object" ? result : {};
-  const data = safe.data && typeof safe.data === "object" ? safe.data : safe;
-
-  return {
-    success: safe.success !== false && !safe.error,
-    status: String(safe.status || data.status || "ok").trim(),
-    current_stage: String(data.current_stage || "").trim(),
-    current_node: String(data.current_node || "").trim(),
-    interrupt: Boolean(data.interrupt),
-    ui_blocks: Array.isArray(data.ui_blocks) ? data.ui_blocks : [],
-    artifacts: data.artifacts && typeof data.artifacts === "object" ? data.artifacts : {},
-    memory_patch: data.memory_patch && typeof data.memory_patch === "object" ? data.memory_patch : null,
-    error: safe.error || data.error || null,
-    meta: {
-      trace_id: String(data.trace_id || safe.trace_id || "").trim(),
-      duration_ms: Number(data.duration_ms || safe.duration_ms) || null
-    },
-    raw: safe
-  };
-}
-
-/**
- * 检索层统一入口
- * 只负责：解析检索条件、召回候选、返回证据、混合检索与重排
- */
-async function retrievalSearch({
-  requestId,
-  threadId = "",
-  scene = "property_search",
-  query = "",
-  filters = {},
-  options = {}
-} = {}) {
-  const request = buildUnifiedRequest({
-    requestId,
-    threadId,
-    scene,
-    payload: {
-      query: String(query || "").trim(),
-      filters: filters && typeof filters === "object" ? filters : {},
-      options: options && typeof options === "object" ? options : {}
-    }
-  });
-
-  // 当前阶段：转发到现有接口，后续可替换为独立检索云函数
-  try {
-    const result = ensureGatewaySuccess(
-      await callListingSearchAction("query_unified", {
-        query: request.payload.query,
-        mode: "brief",
-        ...request.payload.filters,
-        ...request.payload.options
-      }),
-      "listing search gateway query_unified failed"
-    );
-
-    return normalizeUnifiedResponse({
-      success: true,
-      status: "ok",
-      data: {
-        candidates: Array.isArray(result.items) ? result.items : [],
-        evidence: [],
-        strategy: result.strategy || "fallback"
-      }
-    });
-  } catch (err) {
-    return normalizeUnifiedResponse({
-      success: false,
-      status: "error",
-      error: { code: "RETRIEVAL_ERROR", message: err && (err.message || err.errMsg) }
-    });
-  }
-}
-
-/**
- * 生成层统一入口
- * 只负责：需求理解、澄清问题、解释候选、总结输出
- */
-async function llmGenerate({
-  requestId,
-  threadId = "",
-  workflowSessionId = "",
-  scene = "property_consult",
-  mode = "intent",
-  query = "",
-  context = {}
-} = {}) {
-  const request = buildUnifiedRequest({
-    requestId,
-    threadId,
-    workflowSessionId,
-    scene,
-    payload: {
-      mode: String(mode || "intent").trim(),
-      query: String(query || "").trim(),
-      context: context && typeof context === "object" ? context : {}
-    }
-  });
-
-  // 当前阶段：转发到 queryPropertyRecommend，后续可替换为独立生成云函数
-  try {
-    const result = await queryPropertyRecommend({
-      query: request.payload.query,
-      userId: context.user_id || "",
-      sessionId: request.thread_id,
-      context: request.payload.context
-    });
-
-    return normalizeUnifiedResponse({
-      success: true,
-      status: "ok",
-      data: result
-    });
-  } catch (err) {
-    return normalizeUnifiedResponse({
-      success: false,
-      status: "error",
-      error: { code: "LLM_ERROR", message: err && (err.message || err.errMsg) }
-    });
-  }
-}
-
-/**
- * 工作流层统一入口
- * 只负责：状态推进、中断恢复、节点切换、输出前端 ui_blocks
- */
-async function workflowDispatch({
-  requestId,
-  threadId = "",
-  workflowSessionId = "",
-  scene = "decision",
-  event = "UI_ACTION",
-  action = "",
-  payload = {},
-  context = {},
-  localListings = []
-} = {}) {
-  const request = buildUnifiedRequest({
-    requestId,
-    threadId,
-    workflowSessionId,
-    scene,
-    payload: {
-      event: String(event || "UI_ACTION").trim(),
-      action: String(action || "").trim(),
-      ...payload
-    }
-  });
-
-  // 当前阶段：转发到 decisionEngine，后续可升级为更强工作流框架
-  try {
-    const result = await callDecisionEngine({
-      action: request.payload.action,
-      userId: context.user_id || "",
-      chatSessionId: request.thread_id,
-      decisionSessionId: request.workflow_session_id,
-      selectedListingIds: payload.selected_listing_ids || [],
-      winnerListingId: payload.winner || "",
-      loserListingId: payload.loser || "",
-      text: payload.text || payload.critique || "",
-      context,
-      localListings
-    });
-
-    return normalizeUnifiedResponse(result);
-  } catch (err) {
-    return normalizeUnifiedResponse({
-      success: false,
-      status: "error",
-      error: { code: "WORKFLOW_ERROR", message: err && (err.message || err.errMsg) }
-    });
-  }
-}
-
-// ============================================================
-// 原有辅助函数
-// ============================================================
-
-/**
- * 标准化云数据对象（补充版本和时间戳）
- */
-function normalizeCloudObject(obj) {
-  if (!obj) {
-    return null;
-  }
-
-  return {
-    ...obj,
-    version: obj.version || "1",
-    updated_at: obj.updated_at || new Date().toISOString(),
-    user_id: obj.user_id || ""
-  };
-}
-
-/**
- * 标准化云函数响应
- */
-function normalizeCloudResponse(result) {
-  if (!result) {
-    return {
-      status: "error",
-      message: "no response",
-      data: null
-    };
-  }
-
-  const { result: data, errMsg } = result;
-
-  if (errMsg && errMsg.indexOf("success") < 0) {
-    return {
-      status: "error",
-      message: errMsg,
-      data: null
-    };
-  }
-
-  return {
-    status: "success",
-    data: normalizeCloudObject(data),
-    message: "ok"
-  };
-}
+const aiAssistantGateway = {
+  ensureConversation,
+  sendMessage,
+  dispatchDecision
+};
 
 module.exports = {
   CLOUD_ENV_ID,
   CLOUD_COLLECTIONS,
   ensureCloud,
-  getOpenId,
-  getLoginIdentity,
-  syncBuyerIntake,
-  syncUserProfile,
-  syncListingImportJob,
-  syncListing,
-  syncChatSession,
-  syncChatMessage,
   uploadImportImage,
-  getHomeHotListings,
-  getHomeGuessListings,
-  queryPropertyRecommend,
-  callDecisionEngine,
-  normalizeCloudObject,
-  normalizeCloudResponse,
-  // 阶段2：三个统一入口
-  generateRequestId,
-  buildUnifiedRequest,
-  normalizeUnifiedResponse,
-  retrievalSearch,
-  llmGenerate,
-  workflowDispatch
+  identityGateway,
+  userStateGateway,
+  listingDataGateway,
+  listingSearchGateway,
+  aiAssistantGateway
 };

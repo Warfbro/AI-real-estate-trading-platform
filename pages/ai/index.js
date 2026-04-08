@@ -3,6 +3,7 @@ const { EVENTS, trackEvent, writeActivityLog } = require("../../utils/track");
 const { STORAGE_KEYS, get, set } = require("../../utils/storage");
 const {
   AI_SCENES,
+  ensureAIConversation,
   requestAIConversation,
   startDecisionSession,
   getDecisionState,
@@ -11,14 +12,8 @@ const {
   getDecisionRelaxation,
   chatRepo
 } = require("../../modules/aiAssistant/index.js");
-const {
-  syncBuyerIntake,
-  syncUserProfile,
-  syncChatSession,
-  syncChatMessage
-} = require("../../utils/cloud");
 const { listingRepo } = require("../../modules/listingSearch/index.js");
-const { intakeRepo } = require("../../modules/userState/index.js");
+const { intakeRepo, syncBuyerIntake, syncUserProfile } = require("../../modules/userState/index.js");
 
 const NAV_REVEAL_DELAY_MS = 160;
 const MAX_QUERY_LENGTH = 1000;
@@ -644,20 +639,15 @@ Page({
     const capWidth = base.capWidth || 90;
     const windowHeight = base.windowHeight || totalNavHeight + 640;
     const maxViewport = Math.max(windowHeight - totalNavHeight, 320);
-    const drawerPeekHeight = showHistoryDrawer ? Math.max(Math.round(navBarHeight * 0.58), 28) : 0;
-    const drawerOverlapHeight = showHistoryDrawer ? Math.max(Math.round(drawerPeekHeight * 0.35), 10) : 0;
+    const drawerPeekHeight = showHistoryDrawer ? Math.max(Math.round(navBarHeight * 0.8), 36) : 0;
     const drawerHeight = Math.max(Math.round(maxViewport * 0.62), 320);
     const nextData = {
       statusBarHeight,
       navBarHeight,
       totalNavHeight,
       capWidth,
-      chatTopOffset: showHistoryDrawer
-        ? totalNavHeight + drawerPeekHeight - drawerOverlapHeight
-        : totalNavHeight + 4,
-      drawerTopOffset: showHistoryDrawer
-        ? Math.max(totalNavHeight - drawerOverlapHeight, 0)
-        : totalNavHeight,
+      chatTopOffset: drawerPeekHeight,
+      drawerTopOffset: totalNavHeight,
       drawerHeight,
       show_history_drawer: showHistoryDrawer,
       ...extraData
@@ -703,7 +693,7 @@ Page({
       capW = sysInfo.windowWidth - rect.left;
     }
 
-    const navBarHeight = navH + diff * 2;
+    const navBarHeight = Math.max(navH, 32);
     const totalNavHeight = sysInfo.statusBarHeight + navBarHeight;
     this._layoutBase = {
       statusBarHeight: sysInfo.statusBarHeight,
@@ -729,6 +719,9 @@ Page({
       () => {
         this.restoreChatThreads();
         this.scrollToBottom();
+        this.ensureActiveConversation().catch((err) => {
+          console.warn("[ai] ensure conversation failed", err);
+        });
       }
     );
   },
@@ -997,55 +990,63 @@ Page({
     return (this._chatThreads || []).find((item) => item && item.session_id === sessionId) || null;
   },
 
-  syncCurrentThreadRecord(threadOverride = null) {
+  async ensureActiveConversation({ forceNew = false } = {}) {
     const userId = this.getCurrentUserId();
+    const localSessionId = normalizeText(this._aiSessionId);
     if (!userId) {
-      return;
+      return localSessionId;
     }
 
+    const currentThread = sanitizeThread(this.getCurrentThread());
+    const result = await ensureAIConversation({
+      userId,
+      sessionId: forceNew ? "" : localSessionId,
+      source: this.data.source || "home",
+      title: currentThread && currentThread.title,
+      summary: this._sessionSummary || (currentThread && currentThread.summary) || "",
+      preview: currentThread && currentThread.preview
+    });
+
+    const nextSessionId = normalizeText(
+      result &&
+        (
+          result.session_id ||
+          result.conversation_id ||
+          (result.data && (result.data.session_id || result.data.conversation_id))
+        )
+    );
+
+    if (!nextSessionId) {
+      return localSessionId;
+    }
+
+    if (localSessionId && localSessionId !== nextSessionId) {
+      chatRepo.replaceSessionId(localSessionId, nextSessionId);
+      this._chatThreads = (this._chatThreads || []).map((item) =>
+        normalizeText(item && item.session_id) === localSessionId
+          ? {
+              ...item,
+              session_id: nextSessionId
+            }
+          : item
+      );
+    }
+
+    this._aiSessionId = nextSessionId;
+    this.persistChatThreads();
+    return nextSessionId;
+  },
+
+  syncCurrentThreadRecord(threadOverride = null) {
     const thread = sanitizeThread(threadOverride || this.getCurrentThread());
     if (!thread) {
       return;
     }
-
-    syncChatSession({
-      session_id: thread.session_id,
-      user_id: userId,
-      source: thread.source || this.data.source || "home",
-      title: thread.title,
-      summary: normalizeText(thread.summary),
-      preview: thread.preview,
-      status: "active",
-      message_count: Array.isArray(thread.messages) ? thread.messages.length : 0,
-      recent_message_ids: (thread.messages || []).slice(-RECENT_MESSAGE_LIMIT).map((item) => item.id),
-      last_message_at: thread.updated_at || thread.created_at,
-      created_at: thread.created_at,
-      updated_at: thread.updated_at
-    }).catch((err) => {
-      console.warn("[cloud] chat_session sync failed", err);
-    });
   },
 
   syncMessageRecord(message, { rawModelOutput = "" } = {}) {
-    const userId = this.getCurrentUserId();
-    const sessionId = normalizeText(this._aiSessionId);
-    const normalizedMessage = sanitizeMessage(message);
-
-    if (!userId || !sessionId || !normalizedMessage) {
-      return;
-    }
-
-    syncChatMessage({
-      message_id: normalizedMessage.id,
-      session_id: sessionId,
-      user_id: userId,
-      role: normalizedMessage.role,
-      content: normalizedMessage.text,
-      raw_model_output: normalizeText(rawModelOutput),
-      created_at: normalizedMessage.created_at
-    }).catch((err) => {
-      console.warn("[cloud] chat_message sync failed", err);
-    });
+    void message;
+    void rawModelOutput;
   },
 
   syncStructuredMemory(profileState, requirementState) {
@@ -1439,7 +1440,10 @@ Page({
 
     const session = getSession();
     const userId = normalizeText(session && (session.user_id || session.login_code));
-    const sessionId = normalizeText(this._aiSessionId, createSessionId());
+    const sessionId = normalizeText(
+      await this.ensureActiveConversation(),
+      normalizeText(this._aiSessionId, createSessionId())
+    );
     this._aiSessionId = sessionId;
     const requestContext = this.buildAIContext(userId, contextPatch);
     const existingMessages = this.data.messages || [];
@@ -1595,7 +1599,10 @@ Page({
       return;
     }
 
-    const chatSessionId = normalizeText(this._aiSessionId, createSessionId());
+    const chatSessionId = normalizeText(
+      await this.ensureActiveConversation(),
+      normalizeText(this._aiSessionId, createSessionId())
+    );
     this._aiSessionId = chatSessionId;
     this.setData({ decision_loading: true });
 
@@ -1996,6 +2003,34 @@ Page({
     });
   },
 
+  handleOpenHistoryDrawer() {
+    if (!this.data.show_history_drawer) {
+      wx.showToast({
+        title: "暂无聊天记录",
+        icon: "none"
+      });
+      return;
+    }
+
+    this.setData({
+      showMorePanel: false,
+      showFavoritePicker: false,
+      offset: 0,
+      drawerState: "open",
+      dragDir: "",
+      isDragging: false
+    });
+  },
+
+  handleCloseHistoryDrawer() {
+    this.setData({
+      offset: -this.data.drawerHeight,
+      drawerState: "closed",
+      dragDir: "",
+      isDragging: false
+    });
+  },
+
   noop() {},
 
   onTouchStart(e) {
@@ -2097,9 +2132,9 @@ Page({
         this.refreshDecisionSeedState(this.getCurrentUserId());
         this.scrollToBottom();
         this.upsertCurrentThread();
-        if (newThread.messages && newThread.messages[0]) {
-          this.syncMessageRecord(newThread.messages[0]);
-        }
+        this.ensureActiveConversation({ forceNew: true }).catch((err) => {
+          console.warn("[ai] create conversation failed", err);
+        });
       }
     );
 

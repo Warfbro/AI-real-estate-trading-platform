@@ -1,4 +1,4 @@
-const { callDecisionEngine } = require("../../utils/cloud");
+const { aiAssistantGateway } = require("../../utils/cloud");
 
 function normalizeIds(value) {
   const source = Array.isArray(value) ? value : [value];
@@ -21,7 +21,7 @@ function startDecisionSession({
   context = {},
   localListings = []
 } = {}) {
-  return callDecisionEngine({
+  return aiAssistantGateway.dispatchDecision({
     action: "start",
     userId,
     chatSessionId,
@@ -32,7 +32,7 @@ function startDecisionSession({
 }
 
 function getDecisionState({ decisionSessionId = "", userId = "", localListings = [] } = {}) {
-  return callDecisionEngine({
+  return aiAssistantGateway.dispatchDecision({
     action: "state",
     decisionSessionId,
     userId,
@@ -47,7 +47,7 @@ function submitDecisionPairwise({
   userId = "",
   localListings = []
 } = {}) {
-  return callDecisionEngine({
+  return aiAssistantGateway.dispatchDecision({
     action: "pairwise",
     decisionSessionId,
     winnerListingId,
@@ -63,7 +63,7 @@ function submitDecisionCritique({
   userId = "",
   localListings = []
 } = {}) {
-  return callDecisionEngine({
+  return aiAssistantGateway.dispatchDecision({
     action: "critique",
     decisionSessionId,
     text,
@@ -73,7 +73,7 @@ function submitDecisionCritique({
 }
 
 function getDecisionRelaxation({ decisionSessionId = "", userId = "", localListings = [] } = {}) {
-  return callDecisionEngine({
+  return aiAssistantGateway.dispatchDecision({
     action: "relax",
     decisionSessionId,
     userId,

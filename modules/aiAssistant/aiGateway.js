@@ -1,24 +1,12 @@
-const propertyConsultAdapter = require("./adapters/propertyConsult");
+const { aiAssistantGateway } = require("../../utils/cloud");
 
 const AI_SCENES = {
   PROPERTY_CONSULT: "property_consult"
 };
 
-const ADAPTERS = {
-  [AI_SCENES.PROPERTY_CONSULT]: propertyConsultAdapter
-};
-
 function normalizeText(value, fallback = "") {
   const text = String(value || "").trim();
   return text || fallback;
-}
-
-function resolveAdapter(scene) {
-  const adapter = ADAPTERS[normalizeText(scene, AI_SCENES.PROPERTY_CONSULT)];
-  if (!adapter || typeof adapter.request !== "function") {
-    throw new Error(`unknown ai scene: ${scene}`);
-  }
-  return adapter;
 }
 
 async function requestAI({
@@ -29,8 +17,12 @@ async function requestAI({
   source = "wechat",
   context = {}
 } = {}) {
-  const adapter = resolveAdapter(scene);
-  const result = await adapter.request({
+  const normalizedScene = normalizeText(scene, AI_SCENES.PROPERTY_CONSULT);
+  if (normalizedScene !== AI_SCENES.PROPERTY_CONSULT) {
+    throw new Error(`unknown ai scene: ${scene}`);
+  }
+
+  const result = await aiAssistantGateway.sendMessage({
     query,
     userId,
     sessionId,
@@ -43,7 +35,7 @@ async function requestAI({
       ...result,
       meta: {
         ...(result.meta || {}),
-        scene: normalizeText(scene, AI_SCENES.PROPERTY_CONSULT)
+        scene: normalizedScene
       }
     };
   }
@@ -60,6 +52,7 @@ async function requestAIConversation(options = {}) {
 
 module.exports = {
   AI_SCENES,
+  ensureAIConversation: aiAssistantGateway.ensureConversation,
   requestAI,
   requestAIConversation
 };

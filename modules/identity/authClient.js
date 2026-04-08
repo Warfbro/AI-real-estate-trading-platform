@@ -1,6 +1,6 @@
 const { STORAGE_KEYS, get, set } = require("../../utils/storage");
 const { writeActivityLog } = require("../../utils/track");
-const { getLoginIdentity } = require("../../utils/cloud");
+const { identityGateway } = require("../../utils/cloud");
 
 const ROLES = ["user", "advisor", "admin"];
 const FORCE_ADMIN_ROLE_IN_TEST = true;
@@ -86,7 +86,7 @@ function loginWithWeChat(role = "user", options = {}) {
         let phoneSyncError = "";
 
         try {
-          const identity = await getLoginIdentity({
+          const identity = await identityGateway.loginInit({
             role: nextRole,
             provider: "wechat",
             phoneCode

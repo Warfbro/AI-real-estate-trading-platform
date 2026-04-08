@@ -240,6 +240,58 @@ function clearThreadMessages(sessionId) {
   }
 }
 
+function replaceSessionId(oldSessionId, newSessionId) {
+  const fromId = normalizeText(oldSessionId);
+  const toId = normalizeText(newSessionId);
+  if (!fromId || !toId || fromId === toId) {
+    return {
+      status: "success",
+      session_id: toId || fromId
+    };
+  }
+
+  try {
+    const threadResult = getThread(fromId);
+    const messageResult = getThreadMessages(fromId);
+    const targetThreadResult = getThread(toId);
+    const sourceThread =
+      threadResult && threadResult.status === "success" ? threadResult.data : null;
+    const targetThread =
+      targetThreadResult && targetThreadResult.status === "success" ? targetThreadResult.data : null;
+    const sourceMessages =
+      messageResult && messageResult.status === "success" ? messageResult.data : [];
+
+    if (sourceThread) {
+      upsertThread(toId, {
+        ...sourceThread,
+        ...(targetThread || {}),
+        session_id: toId
+      });
+      deleteThread(fromId);
+    }
+
+    const fromKey = `chat_messages_${fromId}`;
+    const toKey = `chat_messages_${toId}`;
+    const targetMessages = targetThread ? (getThreadMessages(toId).data || []) : [];
+    set(toKey, Array.isArray(targetMessages) && targetMessages.length ? targetMessages : sourceMessages);
+    set(fromKey, []);
+
+    if (normalizeText(getActiveSessionId()) === fromId) {
+      setActiveSessionId(toId);
+    }
+
+    return {
+      status: "success",
+      session_id: toId
+    };
+  } catch (err) {
+    return {
+      status: "error",
+      error: err.message
+    };
+  }
+}
+
 function invalidateCache() {
   _threadsCache = null;
   _activeSessionCache = null;
@@ -256,6 +308,7 @@ module.exports = {
   appendMessage,
   getRecentMessages,
   clearThreadMessages,
+  replaceSessionId,
   invalidateCache,
   MAX_THREADS,
   MAX_MESSAGES_PER_THREAD,

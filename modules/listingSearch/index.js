@@ -1,9 +1,9 @@
 const listingRepo = require("./listingRepo");
-const { getHomeHotListings, getHomeGuessListings } = require("../../utils/cloud");
+const { listingSearchGateway } = require("../../utils/cloud");
 
 module.exports = {
   ...listingRepo,
   listingRepo,
-  getHomeHotListings,
-  getHomeGuessListings
+  queryHomeHot: listingSearchGateway.queryHomeHot,
+  queryHomeGuess: listingSearchGateway.queryHomeGuess
 };
